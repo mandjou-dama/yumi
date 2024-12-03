@@ -9,6 +9,7 @@ export interface CurrencyCardProps {
   currencyValue?: string | undefined;
   currencyName?: string | undefined;
   isLong?: boolean;
+  onPress?: () => void;
 }
 
 export default function CurrencyCard(props: CurrencyCardProps) {
@@ -16,6 +17,7 @@ export default function CurrencyCard(props: CurrencyCardProps) {
     <TouchableOpacity
       activeOpacity={0.8}
       style={[styles.container, { backgroundColor: props.color }]}
+      onPress={props.onPress}
     >
       <View style={styles.leftWrapper}>
         <View style={styles.imageContainer}></View>

@@ -1,58 +1,55 @@
-import React, { useCallback, useRef, useMemo } from "react";
-import { StyleSheet, View, Text, Button } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import React, { useCallback, useMemo, forwardRef } from "react";
+import { StyleSheet, View, Text } from "react-native";
 import BottomSheet, { BottomSheetFlashList } from "@gorhom/bottom-sheet";
 
-const CurrenciesSheet: React.FC = () => {
-  // hooks
-  const sheetRef = useRef<BottomSheet>(null);
+// Define the type for the data items
+type DataItem = string;
 
+const CurrenciesSheet = forwardRef((props, ref: any) => {
   // variables
-  const data = useMemo(
+  const data = useMemo<DataItem[]>(
     () =>
       Array(50)
         .fill(0)
         .map((_, index) => `index-${index}`),
     []
   );
+
   const snapPoints = useMemo(() => ["25%", "50%"], []);
 
-  // callbacks
-  const handleSnapPress = useCallback((index) => {
-    sheetRef.current?.snapToIndex(index);
-  }, []);
-  const handleClosePress = useCallback(() => {
-    sheetRef.current?.close();
-  }, []);
-
   // render
-  const renderItem = useCallback(({ item }) => {
-    return (
-      <View key={item} style={styles.itemContainer}>
+  const renderItem = useCallback<{
+    ({ item }: { item: DataItem }): JSX.Element;
+  }>(
+    ({ item }) => (
+      <View style={styles.itemContainer}>
         <Text>{item}</Text>
       </View>
-    );
-  }, []);
-  return (
-    <GestureHandlerRootView style={styles.container}>
-      <Button title="Snap To 50%" onPress={() => handleSnapPress(1)} />
-      <Button title="Snap To 25%" onPress={() => handleSnapPress(0)} />
-      <Button title="Close" onPress={() => handleClosePress()} />
-      <BottomSheet
-        ref={sheetRef}
-        snapPoints={snapPoints}
-        enableDynamicSizing={false}
-      >
-        <BottomSheetFlashList
-          data={data}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-          estimatedItemSize={43.3}
-        />
-      </BottomSheet>
-    </GestureHandlerRootView>
+    ),
+    []
   );
-};
+
+  const keyExtractor = (item: DataItem, index: number) => `key-${index}`;
+
+  return (
+    <BottomSheet
+      ref={ref}
+      snapPoints={snapPoints}
+      enableDynamicSizing={false}
+      enablePanDownToClose={true}
+      {...props}
+    >
+      <BottomSheetFlashList
+        data={data}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        estimatedItemSize={43.3}
+      />
+    </BottomSheet>
+  );
+});
+
+CurrenciesSheet.displayName = "CurrenciesSheet";
 
 const styles = StyleSheet.create({
   container: {

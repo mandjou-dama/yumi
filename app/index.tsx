@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   Platform,
@@ -8,15 +8,27 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import BottomSheet from "@gorhom/bottom-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 //import components & icons
 import NumPad from "@/components/NumPad";
 import { DarkTheme, Exchange, History, Settings } from "@/assets/icons/icons";
 import CurrencyCard from "@/components/CurrencyCard";
+import CurrenciesSheet from "@/components/CurrenciesSheet";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [inputValue, setInputValue] = useState<number>(0);
+  const sheetRef = useRef<BottomSheet>(null);
+
+  // callbacks for bottom sheets
+  const handleSnapPress = useCallback((index: number) => {
+    sheetRef.current?.snapToIndex(index);
+  }, []);
+  const handleClosePress = useCallback(() => {
+    sheetRef.current?.close();
+  }, []);
 
   const handleInputChange = (value: string): void => {
     console.log("User input:", value);
@@ -24,55 +36,61 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-      <View style={[styles.topWrapper, { paddingTop: insets.top }]}>
-        <View style={styles.header}>
-          <View></View>
-          <View style={styles.headerIcons}>
-            <TouchableOpacity style={styles.themeIconContainer}>
-              <DarkTheme />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.themeIconContainer}>
-              <Settings />
-            </TouchableOpacity>
+    <GestureHandlerRootView style={styles.gestureHandler}>
+      <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+        <View style={[styles.topWrapper, { paddingTop: insets.top }]}>
+          <View style={styles.header}>
+            <View></View>
+            <View style={styles.headerIcons}>
+              <TouchableOpacity style={styles.themeIconContainer}>
+                <DarkTheme />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.themeIconContainer}>
+                <Settings />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.bodyWrapper}>
+            <Text style={styles.bodyText}>Vos devises favorites</Text>
+            <View style={styles.body}>
+              <CurrencyCard
+                color={"#89E3A3"}
+                currencyName="EUR"
+                currencyValue="200"
+                onPress={() => handleSnapPress(0)}
+              />
+              <CurrencyCard
+                color={"#F7D786"}
+                currencyName="XOF"
+                currencyValue="197,000"
+                onPress={() => handleSnapPress(0)}
+                isLong
+              />
+              <CurrencyCard
+                color={"#ACBBEF"}
+                currencyName="USD"
+                currencyValue="196"
+                onPress={() => handleSnapPress(0)}
+              />
+            </View>
+          </View>
+
+          <View style={styles.exchangeAmount}>
+            <Text style={styles.exchangeText}>Montant à convertir</Text>
+            <Text style={styles.exchangeAmountText}>{inputValue}</Text>
           </View>
         </View>
 
-        <View style={styles.bodyWrapper}>
-          <Text style={styles.bodyText}>Vos devises favorites</Text>
-          <View style={styles.body}>
-            <CurrencyCard
-              color={"#89E3A3"}
-              currencyName="EUR"
-              currencyValue="200"
-            />
-            <CurrencyCard
-              color={"#F7D786"}
-              currencyName="XOF"
-              currencyValue="197,000"
-              isLong
-            />
-            <CurrencyCard
-              color={"#ACBBEF"}
-              currencyName="USD"
-              currencyValue="196"
-            />
-          </View>
+        <View style={[styles.bottom, { marginBottom: insets.bottom }]}>
+          <NumPad onInputChange={handleInputChange} />
         </View>
 
-        <View style={styles.exchangeAmount}>
-          <Text style={styles.exchangeText}>Montant à convertir</Text>
-          <Text style={styles.exchangeAmountText}>{inputValue}</Text>
-        </View>
+        <CurrenciesSheet ref={sheetRef} />
+        {/* Use a light status bar on iOS to account for the black space above the modal */}
+        <StatusBar style={"dark"} />
       </View>
-
-      <View style={[styles.bottom, { marginBottom: insets.bottom }]}>
-        <NumPad onInputChange={handleInputChange} />
-      </View>
-
-      {/* Use a light status bar on iOS to account for the black space above the modal */}
-      <StatusBar style={"dark"} />
-    </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -80,6 +98,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#0C0C0C",
+  },
+  gestureHandler: {
+    flex: 1,
   },
   topWrapper: {
     height: "64%",
