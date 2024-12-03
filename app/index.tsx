@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import BottomSheet from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 //import components & icons
@@ -20,14 +20,11 @@ import CurrenciesSheet from "@/components/CurrenciesSheet";
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [inputValue, setInputValue] = useState<number>(0);
-  const sheetRef = useRef<BottomSheet>(null);
+  const sheetRef = useRef<BottomSheetModal>(null);
 
   // callbacks for bottom sheets
-  const handleSnapPress = useCallback((index: number) => {
-    sheetRef.current?.snapToIndex(index);
-  }, []);
-  const handleClosePress = useCallback(() => {
-    sheetRef.current?.close();
+  const handlePresentModalPress = useCallback(() => {
+    sheetRef.current?.present();
   }, []);
 
   const handleInputChange = (value: string): void => {
@@ -58,20 +55,20 @@ export default function HomeScreen() {
                 color={"#89E3A3"}
                 currencyName="EUR"
                 currencyValue="200"
-                onPress={() => handleSnapPress(0)}
+                onPress={handlePresentModalPress}
               />
               <CurrencyCard
                 color={"#F7D786"}
                 currencyName="XOF"
                 currencyValue="197,000"
-                onPress={() => handleSnapPress(0)}
+                onPress={handlePresentModalPress}
                 isLong
               />
               <CurrencyCard
                 color={"#ACBBEF"}
                 currencyName="USD"
                 currencyValue="196"
-                onPress={() => handleSnapPress(0)}
+                onPress={handlePresentModalPress}
               />
             </View>
           </View>
