@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   Platform,
@@ -8,6 +8,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
+
 import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 //import components & icons
@@ -36,16 +42,37 @@ export default function HomeScreen() {
     setInputValue(Number(value));
   };
 
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("en-US").format(value);
+
+  const animatedValue = useSharedValue(inputValue);
+
+  // Sync inputValue to animatedValue for smooth animation
+  useEffect(() => {
+    animatedValue.value = withTiming(inputValue, { duration: 200 });
+  }, [inputValue]);
+
+  // Animated style for the number
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + Math.min(animatedValue.value / 1000000, 0.2) }], // Slight scale based on value
+  }));
+
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       <View style={[styles.topWrapper, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <View></View>
           <View style={styles.headerIcons}>
-            <TouchableOpacity style={styles.themeIconContainer}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.themeIconContainer}
+            >
               <DarkTheme />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.themeIconContainer}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.themeIconContainer}
+            >
               <Settings />
             </TouchableOpacity>
           </View>
@@ -84,7 +111,9 @@ export default function HomeScreen() {
 
         <View style={styles.exchangeAmount}>
           <Text style={styles.exchangeText}>Montant à convertir</Text>
-          <Text style={styles.exchangeAmountText}>{inputValue}</Text>
+          <Text style={styles.exchangeAmountText}>
+            {formatCurrency(inputValue)}
+          </Text>
         </View>
       </View>
 

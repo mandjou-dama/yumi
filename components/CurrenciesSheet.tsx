@@ -76,6 +76,7 @@ const CurrenciesSheet = forwardRef<BottomSheetModal, CurrenciesSheetProps>(
             keyExtractor={keyExtractor}
             renderItem={renderItem}
             estimatedItemSize={43.3}
+            contentContainerStyle={styles.contentContainerStyle}
           />
         </BottomSheetModal>
       </BottomSheetModalProvider>
@@ -86,12 +87,8 @@ const CurrenciesSheet = forwardRef<BottomSheetModal, CurrenciesSheetProps>(
 CurrenciesSheet.displayName = "CurrenciesSheet";
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 200,
-  },
-  contentContainer: {
-    backgroundColor: "white",
+  contentContainerStyle: {
+    paddingHorizontal: 10,
   },
   itemContainer: {
     padding: 6,
