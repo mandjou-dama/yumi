@@ -1,8 +1,8 @@
 import React from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { Link } from "expo-router";
 
 import { GenerateVoice, BottomArrow } from "@/assets/icons/icons";
-
 export interface CurrencyCardProps {
   currency?: string | undefined;
   color?: string | undefined;
@@ -10,6 +10,7 @@ export interface CurrencyCardProps {
   currencyName?: string | undefined;
   isLong?: boolean;
   onPress?: () => void;
+  onBottomArrowPress?: () => void;
 }
 
 export default function CurrencyCard(props: CurrencyCardProps) {
@@ -29,7 +30,10 @@ export default function CurrencyCard(props: CurrencyCardProps) {
 
       <View style={styles.rightWrapper}>
         {props.isLong && <GenerateVoice />}
-        <TouchableOpacity style={styles.bottomArrow}>
+        <TouchableOpacity
+          onPress={props.onBottomArrowPress}
+          style={styles.bottomArrow}
+        >
           <BottomArrow />
         </TouchableOpacity>
       </View>

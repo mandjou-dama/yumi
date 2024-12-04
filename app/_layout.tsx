@@ -10,6 +10,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { useColorScheme } from "@/components/useColorScheme";
 
@@ -56,9 +57,15 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <SafeAreaProvider>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-        </Stack>
+        <GestureHandlerRootView>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="modal"
+              options={{ headerShown: false, presentation: "modal" }}
+            />
+          </Stack>
+        </GestureHandlerRootView>
       </SafeAreaProvider>
     </ThemeProvider>
   );

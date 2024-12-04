@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 //import components & icons
 import NumPad from "@/components/NumPad";
@@ -21,11 +20,16 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [inputValue, setInputValue] = useState<number>(0);
   const sheetRef = useRef<BottomSheetModal>(null);
+  const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
 
   // callbacks for bottom sheets
-  const handlePresentModalPress = useCallback(() => {
-    sheetRef.current?.present();
-  }, []);
+  const handlePresentModalPress = useCallback(
+    ({ color }: { color: string }) => {
+      sheetRef.current?.present();
+      setHandleIndicatorStyle(color);
+    },
+    []
+  );
 
   const handleInputChange = (value: string): void => {
     console.log("User input:", value);
@@ -33,61 +37,65 @@ export default function HomeScreen() {
   };
 
   return (
-    <GestureHandlerRootView style={styles.gestureHandler}>
-      <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-        <View style={[styles.topWrapper, { paddingTop: insets.top }]}>
-          <View style={styles.header}>
-            <View></View>
-            <View style={styles.headerIcons}>
-              <TouchableOpacity style={styles.themeIconContainer}>
-                <DarkTheme />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.themeIconContainer}>
-                <Settings />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.bodyWrapper}>
-            <Text style={styles.bodyText}>Vos devises favorites</Text>
-            <View style={styles.body}>
-              <CurrencyCard
-                color={"#89E3A3"}
-                currencyName="EUR"
-                currencyValue="200"
-                onPress={handlePresentModalPress}
-              />
-              <CurrencyCard
-                color={"#F7D786"}
-                currencyName="XOF"
-                currencyValue="197,000"
-                onPress={handlePresentModalPress}
-                isLong
-              />
-              <CurrencyCard
-                color={"#ACBBEF"}
-                currencyName="USD"
-                currencyValue="196"
-                onPress={handlePresentModalPress}
-              />
-            </View>
-          </View>
-
-          <View style={styles.exchangeAmount}>
-            <Text style={styles.exchangeText}>Montant à convertir</Text>
-            <Text style={styles.exchangeAmountText}>{inputValue}</Text>
+    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+      <View style={[styles.topWrapper, { paddingTop: insets.top }]}>
+        <View style={styles.header}>
+          <View></View>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity style={styles.themeIconContainer}>
+              <DarkTheme />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.themeIconContainer}>
+              <Settings />
+            </TouchableOpacity>
           </View>
         </View>
 
-        <View style={[styles.bottom, { marginBottom: insets.bottom }]}>
-          <NumPad onInputChange={handleInputChange} />
+        <View style={styles.bodyWrapper}>
+          <Text style={styles.bodyText}>Vos devises favorites</Text>
+          <View style={styles.body}>
+            <CurrencyCard
+              color={"#89E3A3"}
+              currencyName="EUR"
+              currencyValue="200"
+              onBottomArrowPress={() =>
+                handlePresentModalPress({ color: "#89E3A3" })
+              }
+            />
+            <CurrencyCard
+              color={"#F7D786"}
+              currencyName="XOF"
+              currencyValue="197,000"
+              onBottomArrowPress={() =>
+                handlePresentModalPress({ color: "#F7D786" })
+              }
+              isLong
+            />
+            <CurrencyCard
+              color={"#ACBBEF"}
+              currencyName="USD"
+              currencyValue="196"
+              onBottomArrowPress={() =>
+                handlePresentModalPress({ color: "#ACBBEF" })
+              }
+            />
+          </View>
         </View>
 
-        <CurrenciesSheet ref={sheetRef} />
-        {/* Use a light status bar on iOS to account for the black space above the modal */}
-        <StatusBar style={"dark"} />
+        <View style={styles.exchangeAmount}>
+          <Text style={styles.exchangeText}>Montant à convertir</Text>
+          <Text style={styles.exchangeAmountText}>{inputValue}</Text>
+        </View>
       </View>
-    </GestureHandlerRootView>
+
+      <View style={[styles.bottom, { marginBottom: insets.bottom }]}>
+        <NumPad onInputChange={handleInputChange} />
+      </View>
+
+      <CurrenciesSheet color={handleIndicatorStyle} ref={sheetRef} />
+      {/* Use a light status bar on iOS to account for the black space above the modal */}
+      <StatusBar style={"dark"} />
+    </View>
   );
 }
 
