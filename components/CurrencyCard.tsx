@@ -1,43 +1,72 @@
 import React from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
-import { Link } from "expo-router";
+import { StyleSheet, View, Text } from "react-native";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
 
 import { GenerateVoice, BottomArrow } from "@/assets/icons/icons";
+
 export interface CurrencyCardProps {
-  currency?: string | undefined;
-  color?: string | undefined;
-  currencyValue?: string | undefined;
-  currencyName?: string | undefined;
+  currency?: string;
+  color?: string;
+  currencyValue?: string;
+  currencyName?: string;
   isLong?: boolean;
   onPress?: () => void;
   onBottomArrowPress?: () => void;
 }
 
 export default function CurrencyCard(props: CurrencyCardProps) {
+  const scale = useSharedValue(1);
+
+  // Animated style
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withTiming(0.95, { duration: 200 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withTiming(1, { duration: 200 });
+  };
+
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      style={[styles.container, { backgroundColor: props.color }]}
+    <TouchableWithoutFeedback
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       onPress={props.onPress}
     >
-      <View style={styles.leftWrapper}>
-        <View style={styles.imageContainer}></View>
-        <View>
-          <Text style={styles.currencyName}>{props.currencyName}</Text>
-          <Text style={styles.currencyValue}>{props.currencyValue}</Text>
+      <Animated.View
+        style={[
+          styles.container,
+          { backgroundColor: props.color },
+          animatedStyle,
+        ]}
+      >
+        <View style={styles.leftWrapper}>
+          <View style={styles.imageContainer}></View>
+          <View>
+            <Text style={styles.currencyName}>{props.currencyName}</Text>
+            <Text style={styles.currencyValue}>{props.currencyValue}</Text>
+          </View>
         </View>
-      </View>
 
-      <View style={styles.rightWrapper}>
-        {props.isLong && <GenerateVoice />}
-        <TouchableOpacity
-          onPress={props.onBottomArrowPress}
-          style={styles.bottomArrow}
-        >
-          <BottomArrow />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
+        <View style={styles.rightWrapper}>
+          {props.isLong && <GenerateVoice />}
+          <TouchableWithoutFeedback
+            onPress={props.onBottomArrowPress}
+            style={styles.bottomArrow}
+          >
+            <BottomArrow />
+          </TouchableWithoutFeedback>
+        </View>
+      </Animated.View>
+    </TouchableWithoutFeedback>
   );
 }
 
