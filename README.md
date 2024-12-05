@@ -2,8 +2,6 @@
 
 A modern and interactive currency converter app built using **React Native** and **Expo**. The app allows users to input amounts, select currencies, and convert values with a sleek UI enhanced with animations and dynamic formatting.
 
----
-
 ## Features
 
 - **Currency Selection**: Choose your favorite currencies and manage them effortlessly.
@@ -11,10 +9,6 @@ A modern and interactive currency converter app built using **React Native** and
 - **Interactive Animations**: Smooth animations for buttons and UI interactions using **Reanimated**.
 - **Haptic Feedback**: Enhanced user experience with tactile feedback during interactions.
 - **Responsive UI**: Adapts to various screen sizes and platforms.
-
----
-
----
 
 ## Acknowledgments
 
