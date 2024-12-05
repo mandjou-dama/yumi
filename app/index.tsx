@@ -16,11 +16,13 @@ import NumPad from "@/components/num-pad";
 import { DarkTheme, Settings } from "@/assets/icons/icons";
 import CurrencyCard from "@/components/currency-card";
 import CurrenciesSheet from "@/components/currencies-sheet";
+import CurrencySheet from "@/components/currency-sheet";
 
 export default function HomeScreen() {
   // state
   const [inputValue, setInputValue] = useState<number>(0);
-  const sheetRef = useRef<BottomSheetModal>(null);
+  const currenciesSheetRef = useRef<BottomSheetModal>(null);
+  const currencySheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
 
   // hooks
@@ -37,9 +39,17 @@ export default function HomeScreen() {
   }, []);
 
   // callbacks
-  const handlePresentModalPress = useCallback(
+  const handlePresentCurrenciesSheet = useCallback(
     ({ color }: { color: string }) => {
-      sheetRef.current?.present();
+      currenciesSheetRef.current?.present();
+      setHandleIndicatorStyle(color);
+    },
+    []
+  );
+
+  const handlePresentCurrencySheet = useCallback(
+    ({ color }: { color: string }) => {
+      currencySheetRef.current?.present();
       setHandleIndicatorStyle(color);
     },
     []
@@ -82,8 +92,9 @@ export default function HomeScreen() {
               currencyName="EUR"
               currencyValue="200"
               currencyNumber={1}
+              onPress={() => handlePresentCurrencySheet({ color: "#89E3A3" })}
               onBottomArrowPress={() =>
-                handlePresentModalPress({ color: "#89E3A3" })
+                handlePresentCurrenciesSheet({ color: "#89E3A3" })
               }
             />
             <CurrencyCard
@@ -91,8 +102,9 @@ export default function HomeScreen() {
               currencyName="XOF"
               currencyValue="197,000"
               currencyNumber={2}
+              onPress={() => handlePresentCurrencySheet({ color: "#F7D786" })}
               onBottomArrowPress={() =>
-                handlePresentModalPress({ color: "#F7D786" })
+                handlePresentCurrenciesSheet({ color: "#F7D786" })
               }
               isLong
             />
@@ -101,8 +113,9 @@ export default function HomeScreen() {
               currencyName="USD"
               currencyValue="196"
               currencyNumber={3}
+              onPress={() => handlePresentCurrencySheet({ color: "#ACBBEF" })}
               onBottomArrowPress={() =>
-                handlePresentModalPress({ color: "#ACBBEF" })
+                handlePresentCurrenciesSheet({ color: "#ACBBEF" })
               }
             />
           </View>
@@ -122,7 +135,8 @@ export default function HomeScreen() {
         <NumPad shake={shake} onInputChange={handleInputChange} />
       </View>
 
-      <CurrenciesSheet color={handleIndicatorStyle} ref={sheetRef} />
+      <CurrenciesSheet color={handleIndicatorStyle} ref={currenciesSheetRef} />
+      <CurrencySheet color={handleIndicatorStyle} ref={currencySheetRef} />
 
       <StatusBar style={"dark"} />
     </View>
