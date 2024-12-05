@@ -1,35 +1,33 @@
+import { useState, useRef, useCallback } from "react";
 import { StatusBar } from "expo-status-bar";
-import { useState, useRef, useCallback, useEffect } from "react";
-import {
-  Platform,
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-} from "react-native";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
+
+//hooks
 import { useAnimatedShake } from "@/hooks/useAnimatedShake";
 
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-
-//import components & icons
-import NumPad from "@/components/NumPad";
-import { DarkTheme, Exchange, History, Settings } from "@/assets/icons/icons";
-import CurrencyCard from "@/components/CurrencyCard";
-import CurrenciesSheet from "@/components/CurrenciesSheet";
+// components & icons
+import NumPad from "@/components/num-pad";
+import { DarkTheme, Settings } from "@/assets/icons/icons";
+import CurrencyCard from "@/components/currency-card";
+import CurrenciesSheet from "@/components/currencies-sheet";
 
 export default function HomeScreen() {
-  const insets = useSafeAreaInsets();
+  // state
   const [inputValue, setInputValue] = useState<number>(0);
   const sheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
 
+  // hooks
+  const insets = useSafeAreaInsets();
   const { shake, rStyle, isShaking } = useAnimatedShake();
 
+  // animated styles
   const rErrorTextStyle = useAnimatedStyle(() => {
     return {
       color: withTiming(isShaking.value ? "#eb7b81" : "#0d1321", {
@@ -38,7 +36,7 @@ export default function HomeScreen() {
     };
   }, []);
 
-  // callbacks for bottom sheets
+  // callbacks
   const handlePresentModalPress = useCallback(
     ({ color }: { color: string }) => {
       sheetRef.current?.present();
@@ -122,7 +120,7 @@ export default function HomeScreen() {
       </View>
 
       <CurrenciesSheet color={handleIndicatorStyle} ref={sheetRef} />
-      {/* Use a light status bar on iOS to account for the black space above the modal */}
+
       <StatusBar style={"dark"} />
     </View>
   );
