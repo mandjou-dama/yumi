@@ -17,6 +17,7 @@ export interface CurrencyCardProps {
   isLong?: boolean;
   onPress?: () => void;
   onBottomArrowPress?: () => void;
+  currencyNumber?: number;
 }
 
 export default function CurrencyCard(props: CurrencyCardProps) {
@@ -49,7 +50,11 @@ export default function CurrencyCard(props: CurrencyCardProps) {
         ]}
       >
         <View style={styles.leftWrapper}>
-          <View style={styles.imageContainer}></View>
+          <View style={styles.imageContainer}>
+            <Text style={[styles.currency, { color: props.color }]}>
+              {[props.currencyNumber]}
+            </Text>
+          </View>
           <View>
             <Text style={styles.currencyName}>{props.currencyName}</Text>
             <Text style={styles.currencyValue}>{props.currencyValue}</Text>
@@ -95,8 +100,10 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: 55,
     height: "100%",
-    backgroundColor: "#f0ebd86e",
+    backgroundColor: "#e7e7e66d",
     borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
   currencyName: {
     fontSize: 18,
@@ -112,5 +119,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
+  },
+  currency: {
+    fontSize: 24,
+    fontWeight: "bold",
   },
 });

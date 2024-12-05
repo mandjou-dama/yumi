@@ -81,6 +81,7 @@ export default function HomeScreen() {
               color={"#89E3A3"}
               currencyName="EUR"
               currencyValue="200"
+              currencyNumber={1}
               onBottomArrowPress={() =>
                 handlePresentModalPress({ color: "#89E3A3" })
               }
@@ -89,6 +90,7 @@ export default function HomeScreen() {
               color={"#F7D786"}
               currencyName="XOF"
               currencyValue="197,000"
+              currencyNumber={2}
               onBottomArrowPress={() =>
                 handlePresentModalPress({ color: "#F7D786" })
               }
@@ -98,6 +100,7 @@ export default function HomeScreen() {
               color={"#ACBBEF"}
               currencyName="USD"
               currencyValue="196"
+              currencyNumber={3}
               onBottomArrowPress={() =>
                 handlePresentModalPress({ color: "#ACBBEF" })
               }
