@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   Platform,
   StyleSheet,
@@ -9,12 +9,12 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
+import { useAnimatedShake } from "@/hooks/useAnimatedShake";
 
-import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 //import components & icons
 import NumPad from "@/components/NumPad";
@@ -27,6 +27,16 @@ export default function HomeScreen() {
   const [inputValue, setInputValue] = useState<number>(0);
   const sheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
+
+  const { shake, rStyle, isShaking } = useAnimatedShake();
+
+  const rErrorTextStyle = useAnimatedStyle(() => {
+    return {
+      color: withTiming(isShaking.value ? "#eb7b81" : "#0d1321", {
+        duration: 50,
+      }),
+    };
+  }, []);
 
   // callbacks for bottom sheets
   const handlePresentModalPress = useCallback(
@@ -44,18 +54,6 @@ export default function HomeScreen() {
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("en-US").format(value);
-
-  const animatedValue = useSharedValue(inputValue);
-
-  // Sync inputValue to animatedValue for smooth animation
-  useEffect(() => {
-    animatedValue.value = withTiming(inputValue, { duration: 200 });
-  }, [inputValue]);
-
-  // Animated style for the number
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: 1 + Math.min(animatedValue.value / 1000000, 0.2) }], // Slight scale based on value
-  }));
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
@@ -111,14 +109,16 @@ export default function HomeScreen() {
 
         <View style={styles.exchangeAmount}>
           <Text style={styles.exchangeText}>Montant à convertir</Text>
-          <Text style={styles.exchangeAmountText}>
+          <Animated.Text
+            style={[styles.exchangeAmountText, rStyle, rErrorTextStyle]}
+          >
             {formatCurrency(inputValue)}
-          </Text>
+          </Animated.Text>
         </View>
       </View>
 
       <View style={[styles.bottom, { marginBottom: insets.bottom }]}>
-        <NumPad onInputChange={handleInputChange} />
+        <NumPad shake={shake} onInputChange={handleInputChange} />
       </View>
 
       <CurrenciesSheet color={handleIndicatorStyle} ref={sheetRef} />
@@ -173,6 +173,7 @@ const styles = StyleSheet.create({
   },
   exchangeAmountText: {
     fontSize: 34,
+    color: "#0d1321",
   },
   exchangeArrows: {
     width: 40,

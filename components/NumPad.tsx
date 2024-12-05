@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
 
@@ -6,6 +6,7 @@ import { Delete } from "@/assets/icons/icons";
 
 interface NumPadProps {
   onInputChange?: (value: string) => void;
+  shake: () => void;
 }
 
 interface KeyProps {
@@ -15,23 +16,28 @@ interface KeyProps {
   renderCustom?: () => React.ReactNode;
 }
 
-const NumPad: React.FC<NumPadProps> = ({ onInputChange }) => {
+const NumPad: React.FC<NumPadProps> = ({ onInputChange, shake }) => {
   const [input, setInput] = useState<string>("");
 
-  const handlePress = (value: string): void => {
-    if (value === "delete") {
-      const updatedInput = input.slice(0, -1);
-      setInput(updatedInput);
-      onInputChange && onInputChange(updatedInput);
-    } else {
-      const updatedInput = input + value;
-      setInput(updatedInput);
-      onInputChange && onInputChange(updatedInput);
-
-      // Trigger haptic feedback when a key is pressed
-      Haptics.selectionAsync();
-    }
-  };
+  const handlePress = useCallback(
+    (value: string): void => {
+      if (value === "delete") {
+        const updatedInput = input.slice(0, -1);
+        setInput(updatedInput);
+        onInputChange && onInputChange(updatedInput);
+      } else if (input.length >= 13) {
+        shake();
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        return;
+      } else {
+        const updatedInput = input + value;
+        setInput(updatedInput);
+        onInputChange && onInputChange(updatedInput);
+        Haptics.selectionAsync();
+      }
+    },
+    [input, onInputChange] // Dependencies
+  );
 
   const handleLongPress = () => {
     const updatedInput = "0";
@@ -46,7 +52,9 @@ const NumPad: React.FC<NumPadProps> = ({ onInputChange }) => {
 
   return (
     <View style={styles.container}>
-      {/*<Text style={styles.display}>{input || "0"}</Text>*/}
+      {/* <Animated.Text style={[styles.display, rErrorTextStyle, rStyle]}>
+        {input || "0"}
+      </Animated.Text> */}
       <View style={styles.row}>
         {["1", "2", "3"].map((num) => (
           <Key key={num} value={num} onPress={handlePress} />
@@ -107,6 +115,8 @@ const styles = StyleSheet.create({
     textAlign: "right",
     borderBottomWidth: 1,
     paddingBottom: 10,
+    color: "#F7ECC9",
+    borderColor: "#F7ECC9",
   },
   row: {
     flexDirection: "row",
