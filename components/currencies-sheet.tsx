@@ -8,9 +8,10 @@ import {
   BottomSheetBackdropProps,
 } from "@gorhom/bottom-sheet";
 
-// Define the type for the data items
+// type for the data items
 type DataItem = string;
 
+// type for the props
 export interface CurrenciesSheetProps {
   color?: string;
 }
@@ -40,6 +41,7 @@ const CurrenciesSheet = forwardRef<BottomSheetModal, CurrenciesSheetProps>(
       []
     );
 
+    // callbacks
     const renderBackdrop = useCallback((props: BottomSheetBackdropProps) => {
       return (
         <BottomSheetBackdrop

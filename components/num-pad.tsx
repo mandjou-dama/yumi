@@ -2,6 +2,7 @@ import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
 
+// Icons
 import { Delete } from "@/assets/icons/icons";
 
 interface NumPadProps {
@@ -52,9 +53,6 @@ const NumPad: React.FC<NumPadProps> = ({ onInputChange, shake }) => {
 
   return (
     <View style={styles.container}>
-      {/* <Animated.Text style={[styles.display, rErrorTextStyle, rStyle]}>
-        {input || "0"}
-      </Animated.Text> */}
       <View style={styles.row}>
         {["1", "2", "3"].map((num) => (
           <Key key={num} value={num} onPress={handlePress} />
