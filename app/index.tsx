@@ -17,10 +17,10 @@ import { useAnimatedShake } from "@/hooks/useAnimatedShake";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 //import components & icons
-import NumPad from "@/components/NumPad";
+import NumPad from "@/components/num-pad";
 import { DarkTheme, Exchange, History, Settings } from "@/assets/icons/icons";
-import CurrencyCard from "@/components/CurrencyCard";
-import CurrenciesSheet from "@/components/CurrenciesSheet";
+import CurrencyCard from "@/components/currency-card";
+import CurrenciesSheet from "@/components/currencies-sheet";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
