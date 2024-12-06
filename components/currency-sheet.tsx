@@ -15,6 +15,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+import Chart from "./chart";
+
 // type for the props
 export interface CurrenciesSheetProps {
   color?: string;
@@ -107,21 +109,27 @@ const CurrencySheet = forwardRef<BottomSheetModal, CurrenciesSheetProps>(
                     <Animated.View
                       style={
                         activeCurrency === currency
-                          ? [
-                              styles.currencyWrapper,
-                              { backgroundColor: props.color },
-                              animatedStyle,
-                            ]
+                          ? [styles.currencyWrapper, animatedStyle]
                           : styles.currencyWrapperInactive
                       }
                     >
-                      <Text style={styles.currency}>{currency}</Text>
+                      <Text
+                        style={
+                          activeCurrency === currency
+                            ? [styles.currency, { color: props.color }]
+                            : [styles.currency, { color: "#0d1321" }]
+                        }
+                      >
+                        {currency}
+                      </Text>
                     </Animated.View>
                   </TouchableWithoutFeedback>
                 ))}
               </View>
 
-              <View style={styles.currencyChartWrapper}></View>
+              <View style={styles.currencyChartWrapper}>
+                <Chart color={props.color} />
+              </View>
             </View>
           </BottomSheetView>
         </BottomSheetModal>
@@ -185,7 +193,7 @@ const styles = StyleSheet.create({
     width: "50%",
     paddingVertical: 10,
     borderRadius: 10,
-    //backgroundColor: "#89E3A3",
+    backgroundColor: "#0C0C0C",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -198,11 +206,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   currency: {
-    color: "#0d1321",
     fontSize: 16,
+    fontWeight: "bold",
   },
   currencyChartWrapper: {
     flex: 1,
+    justifyContent: "center",
+    marginTop: 55,
+    width: "100%",
+    height: "100%",
+    overflowX: "hidden",
+    //paddingHorizontal: 20,
   },
 });
 

@@ -10,6 +10,7 @@ import Animated, {
 
 //hooks
 import { useAnimatedShake } from "@/hooks/useAnimatedShake";
+import useCurrenciesStore from "@/store/useCurrencies";
 
 // components & icons
 import NumPad from "@/components/num-pad";
@@ -90,7 +91,7 @@ export default function HomeScreen() {
             <CurrencyCard
               color={"#89E3A3"}
               currencyName="EUR"
-              currencyValue="200"
+              currencyValue="195"
               currencyNumber={1}
               onPress={() => handlePresentCurrencySheet({ color: "#89E3A3" })}
               onBottomArrowPress={() =>
