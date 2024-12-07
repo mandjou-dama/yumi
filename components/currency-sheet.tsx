@@ -82,6 +82,8 @@ const CurrencySheet = forwardRef<BottomSheetModal, CurrenciesSheetProps>(
           backgroundStyle={styles.backgroundStyle}
           handleIndicatorStyle={{ backgroundColor: props.color }}
           stackBehavior="push"
+          detached={false}
+          enableContentPanningGesture={false}
           {...props}
         >
           <BottomSheetView style={styles.contentContainerStyle}>
@@ -212,7 +214,7 @@ const styles = StyleSheet.create({
   currencyChartWrapper: {
     flex: 1,
     justifyContent: "center",
-    marginTop: 55,
+    marginTop: 15,
     width: "100%",
     height: "100%",
     overflowX: "hidden",

@@ -91,7 +91,7 @@ export default function HomeScreen() {
             <CurrencyCard
               color={"#89E3A3"}
               currencyName="EUR"
-              currencyValue="195"
+              currencyValue="197"
               currencyNumber={1}
               onPress={() => handlePresentCurrencySheet({ color: "#89E3A3" })}
               onBottomArrowPress={() =>
