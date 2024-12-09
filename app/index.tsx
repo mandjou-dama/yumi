@@ -7,10 +7,12 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
+import DraggableFlatList, {
+  RenderItemParams,
+} from "react-native-draggable-flatlist";
 
 //hooks
 import { useAnimatedShake } from "@/hooks/useAnimatedShake";
-import useCurrenciesStore from "@/store/useCurrencies";
 
 // components & icons
 import NumPad from "@/components/num-pad";
@@ -19,12 +21,46 @@ import CurrencyCard from "@/components/currency-card";
 import CurrenciesSheet from "@/components/currencies-sheet";
 import CurrencySheet from "@/components/currency-sheet";
 
+type currencyType = {
+  currencyName: string;
+  currencySymbol: string;
+  currencyValue: number;
+  currencyNumber: number;
+  color: string;
+};
+
+const currenciesListData = [
+  {
+    currencyName: "Euro",
+    currencySymbol: "EUR",
+    currencyValue: 197,
+    currencyNumber: 1,
+    color: "#89E3A3",
+  },
+  {
+    currencyName: "United States Dollar",
+    currencySymbol: "USD",
+    currencyValue: 1,
+    currencyNumber: 2,
+    color: "#F7D786",
+  },
+  {
+    currencyName: "West African CFA Franc",
+    currencySymbol: "XOF",
+    currencyValue: 630.44,
+    currencyNumber: 3,
+    color: "#ACBBEF",
+  },
+];
+
 export default function HomeScreen() {
   // state
   const [inputValue, setInputValue] = useState<number>(0);
   const currenciesSheetRef = useRef<BottomSheetModal>(null);
   const currencySheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
+
+  const [data, setData] = useState<currencyType[]>(currenciesListData);
 
   // hooks
   const insets = useSafeAreaInsets();
@@ -64,6 +100,27 @@ export default function HomeScreen() {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("en-US").format(value);
 
+  const renderItem = useCallback(
+    ({ item, drag, isActive }: RenderItemParams<currencyType>) => {
+      console.log("item", item);
+      return (
+        <CurrencyCard
+          onLongPress={drag}
+          disabled={isActive}
+          color={item.color}
+          currencyName={item.currencyName}
+          currencyValue={item.currencyValue.toString()}
+          currencyNumber={item.currencyNumber}
+          onPress={() => handlePresentCurrencySheet({ color: item.color })}
+          onBottomArrowPress={() =>
+            handlePresentCurrenciesSheet({ color: item.color })
+          }
+        />
+      );
+    },
+    [handlePresentCurrencySheet, handlePresentCurrenciesSheet]
+  );
+
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       <View style={[styles.topWrapper, { paddingTop: insets.top }]}>
@@ -87,8 +144,17 @@ export default function HomeScreen() {
 
         <View style={styles.bodyWrapper}>
           <Text style={styles.bodyText}>Vos devises favorites</Text>
-          <View style={styles.body}>
-            <CurrencyCard
+          <View>
+            <DraggableFlatList
+              contentContainerStyle={styles.body}
+              data={data}
+              keyExtractor={(item) => item.currencySymbol}
+              onDragEnd={({ data }) => setData(data)}
+              renderItem={renderItem}
+              scrollEnabled={false}
+            />
+
+            {/* <CurrencyCard
               color={"#89E3A3"}
               currencyName="EUR"
               currencyValue="197"
@@ -118,7 +184,7 @@ export default function HomeScreen() {
               onBottomArrowPress={() =>
                 handlePresentCurrenciesSheet({ color: "#ACBBEF" })
               }
-            />
+            /> */}
           </View>
         </View>
 
@@ -206,10 +272,9 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   body: {
-    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    flexWrap: "wrap",
+    //flexWrap: "wrap",
     columnGap: 10,
     rowGap: 10,
     marginBottom: 30,

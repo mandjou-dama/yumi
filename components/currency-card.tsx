@@ -18,6 +18,8 @@ export interface CurrencyCardProps {
   onPress?: () => void;
   onBottomArrowPress?: () => void;
   currencyNumber?: number;
+  onLongPress?: () => void;
+  disabled?: boolean;
 }
 
 export default function CurrencyCard(props: CurrencyCardProps) {
@@ -41,6 +43,8 @@ export default function CurrencyCard(props: CurrencyCardProps) {
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       onPress={props.onPress}
+      onLongPress={props.onLongPress}
+      disabled={props.disabled}
     >
       <Animated.View
         style={[
