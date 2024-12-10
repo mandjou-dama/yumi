@@ -6,11 +6,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedStyle,
   withTiming,
+  Easing,
 } from "react-native-reanimated";
+import DraggableFlatList, {
+  RenderItemParams,
+  DraggableFlatListProps,
+} from "react-native-draggable-flatlist";
+import * as Haptics from "expo-haptics";
 
 //hooks
 import { useAnimatedShake } from "@/hooks/useAnimatedShake";
-import useCurrenciesStore from "@/store/useCurrencies";
 
 // components & icons
 import NumPad from "@/components/num-pad";
@@ -19,12 +24,46 @@ import CurrencyCard from "@/components/currency-card";
 import CurrenciesSheet from "@/components/currencies-sheet";
 import CurrencySheet from "@/components/currency-sheet";
 
+type currencyType = {
+  currencyName: string;
+  currencySymbol: string;
+  currencyValue: number;
+  currencyNumber: number;
+  color: string;
+};
+
+const currenciesListData = [
+  {
+    currencyName: "Euro",
+    currencySymbol: "EUR",
+    currencyValue: 197,
+    currencyNumber: 1,
+    color: "#89E3A3",
+  },
+  {
+    currencyName: "United States Dollar",
+    currencySymbol: "USD",
+    currencyValue: 1,
+    currencyNumber: 2,
+    color: "#F7D786",
+  },
+  {
+    currencyName: "West African CFA Franc",
+    currencySymbol: "XOF",
+    currencyValue: 630.44,
+    currencyNumber: 3,
+    color: "#ACBBEF",
+  },
+];
+
 export default function HomeScreen() {
   // state
   const [inputValue, setInputValue] = useState<number>(0);
   const currenciesSheetRef = useRef<BottomSheetModal>(null);
   const currencySheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
+
+  const [data, setData] = useState<currencyType[]>(currenciesListData);
 
   // hooks
   const insets = useSafeAreaInsets();
@@ -64,18 +103,38 @@ export default function HomeScreen() {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("en-US").format(value);
 
+  const handleDragEnd = ({ data }: { data: currencyType[] }) => {
+    const newData = data.map((item, index) => ({
+      ...item,
+      currencyNumber: index + 1,
+    }));
+    setData(newData);
+  };
+
+  const renderItem = useCallback(
+    ({ item, drag, isActive }: RenderItemParams<currencyType>) => (
+      <CurrencyCard
+        onLongPress={drag}
+        disabled={isActive}
+        color={item.color}
+        currencyName={item.currencySymbol}
+        currencyValue={item.currencyValue.toFixed()}
+        currencyNumber={item.currencyNumber}
+        onPress={() => handlePresentCurrencySheet({ color: item.color })}
+        onBottomArrowPress={() =>
+          handlePresentCurrenciesSheet({ color: item.color })
+        }
+      />
+    ),
+    [handlePresentCurrencySheet, handlePresentCurrenciesSheet]
+  );
+
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-      <View style={[styles.topWrapper, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingBottom: insets?.bottom ?? 20 }]}>
+      <View style={[styles.topWrapper, { paddingTop: insets?.top ?? 20 }]}>
         <View style={styles.header}>
           <View></View>
           <View style={styles.headerIcons}>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.themeIconContainer}
-            >
-              <DarkTheme />
-            </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.8}
               style={styles.themeIconContainer}
@@ -87,8 +146,29 @@ export default function HomeScreen() {
 
         <View style={styles.bodyWrapper}>
           <Text style={styles.bodyText}>Vos devises favorites</Text>
-          <View style={styles.body}>
-            <CurrencyCard
+
+          <DraggableFlatList
+            data={data}
+            onDragEnd={handleDragEnd}
+            keyExtractor={(item) => item.currencySymbol}
+            animationConfig={{ duration: 1000 }}
+            itemExitingAnimation={{
+              type: "timing",
+              duration: 1000,
+              easing: Easing.linear,
+            }}
+            onDragBegin={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }}
+            onPlaceholderIndexChange={() =>
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+            }
+            scrollEnabled={false}
+            renderPlaceholder={() => <View style={styles.placeholder}></View>}
+            renderItem={renderItem}
+          />
+
+          {/* <CurrencyCard
               color={"#89E3A3"}
               currencyName="EUR"
               currencyValue="197"
@@ -118,8 +198,7 @@ export default function HomeScreen() {
               onBottomArrowPress={() =>
                 handlePresentCurrenciesSheet({ color: "#ACBBEF" })
               }
-            />
-          </View>
+            /> */}
         </View>
 
         <View style={styles.exchangeAmount}>
@@ -159,6 +238,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     marginBottom: 20,
     paddingHorizontal: 20,
+    position: "relative",
   },
   header: {
     height: 65,
@@ -181,6 +261,7 @@ const styles = StyleSheet.create({
   exchangeAmount: {
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 20,
   },
   exchangeText: {
     fontSize: 16,
@@ -206,17 +287,20 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   body: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    flexWrap: "wrap",
-    columnGap: 10,
-    rowGap: 10,
+    //flexWrap: "wrap",
+    //rowGap: 10,
     marginBottom: 30,
   },
   bottom: {
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
+  },
+  placeholder: {
+    width: "100%",
+    height: 75,
+    backgroundColor: "#0d1321",
+    borderRadius: 20,
+    marginBottom: 10,
   },
 });

@@ -1,12 +1,10 @@
-import React from "react";
-import { StyleSheet, View, Text } from "react-native";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import React, { useMemo } from "react";
+import { StyleSheet, View, Text, TouchableWithoutFeedback } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-
 import { GenerateVoice, BottomArrow } from "@/assets/icons/icons";
 
 export interface CurrencyCardProps {
@@ -15,12 +13,14 @@ export interface CurrencyCardProps {
   currencyValue?: string;
   currencyName?: string;
   isLong?: boolean;
+  currencyNumber?: number;
+  disabled?: boolean;
   onPress?: () => void;
   onBottomArrowPress?: () => void;
-  currencyNumber?: number;
+  onLongPress?: () => void;
 }
 
-export default function CurrencyCard(props: CurrencyCardProps) {
+const CurrencyCard = React.memo((props: CurrencyCardProps) => {
   const scale = useSharedValue(1);
 
   // Animated style
@@ -36,23 +36,24 @@ export default function CurrencyCard(props: CurrencyCardProps) {
     scale.value = withTiming(1, { duration: 200 });
   };
 
+  const memoizedStyle = useMemo(
+    () => [styles.container, { backgroundColor: props.color }],
+    [props.color]
+  );
+
   return (
     <TouchableWithoutFeedback
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       onPress={props.onPress}
+      onLongPress={props.onLongPress}
+      disabled={props.disabled}
     >
-      <Animated.View
-        style={[
-          styles.container,
-          { backgroundColor: props.color },
-          animatedStyle,
-        ]}
-      >
+      <Animated.View style={[memoizedStyle, animatedStyle]}>
         <View style={styles.leftWrapper}>
           <View style={styles.imageContainer}>
             <Text style={[styles.currency, { color: props.color }]}>
-              {[props.currencyNumber]}
+              {props.currencyNumber}
             </Text>
           </View>
           <View>
@@ -73,7 +74,7 @@ export default function CurrencyCard(props: CurrencyCardProps) {
       </Animated.View>
     </TouchableWithoutFeedback>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -85,6 +86,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 10,
+    marginBottom: 10,
   },
   leftWrapper: {
     flexDirection: "row",
@@ -125,3 +127,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+export default CurrencyCard;
