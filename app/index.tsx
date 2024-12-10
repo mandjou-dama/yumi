@@ -9,7 +9,9 @@ import Animated, {
 } from "react-native-reanimated";
 import DraggableFlatList, {
   RenderItemParams,
+  DraggableFlatListProps,
 } from "react-native-draggable-flatlist";
+import * as Haptics from "expo-haptics";
 
 //hooks
 import { useAnimatedShake } from "@/hooks/useAnimatedShake";
@@ -100,16 +102,19 @@ export default function HomeScreen() {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("en-US").format(value);
 
+  const handleDragEnd = ({ data }: { data: currencyType[] }) => {
+    setData(data);
+  };
+
   const renderItem = useCallback(
     ({ item, drag, isActive }: RenderItemParams<currencyType>) => {
-      console.log("item", item);
       return (
         <CurrencyCard
           onLongPress={drag}
           disabled={isActive}
           color={item.color}
-          currencyName={item.currencyName}
-          currencyValue={item.currencyValue.toString()}
+          currencyName={item.currencySymbol}
+          currencyValue={item.currencyValue.toFixed()}
           currencyNumber={item.currencyNumber}
           onPress={() => handlePresentCurrencySheet({ color: item.color })}
           onBottomArrowPress={() =>
@@ -122,17 +127,11 @@ export default function HomeScreen() {
   );
 
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-      <View style={[styles.topWrapper, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingBottom: insets?.bottom ?? 20 }]}>
+      <View style={[styles.topWrapper, { paddingTop: insets?.top ?? 20 }]}>
         <View style={styles.header}>
           <View></View>
           <View style={styles.headerIcons}>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.themeIconContainer}
-            >
-              <DarkTheme />
-            </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.8}
               style={styles.themeIconContainer}
@@ -144,17 +143,24 @@ export default function HomeScreen() {
 
         <View style={styles.bodyWrapper}>
           <Text style={styles.bodyText}>Vos devises favorites</Text>
-          <View>
-            <DraggableFlatList
-              contentContainerStyle={styles.body}
-              data={data}
-              keyExtractor={(item) => item.currencySymbol}
-              onDragEnd={({ data }) => setData(data)}
-              renderItem={renderItem}
-              scrollEnabled={false}
-            />
 
-            {/* <CurrencyCard
+          <DraggableFlatList
+            data={data}
+            onDragEnd={handleDragEnd}
+            keyExtractor={(item) => item.currencySymbol}
+            animationConfig={{ duration: 0 }}
+            onDragBegin={() =>
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+            }
+            onPlaceholderIndexChange={() =>
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+            }
+            scrollEnabled={false}
+            renderPlaceholder={() => <View style={styles.placeholder}></View>}
+            renderItem={renderItem}
+          />
+
+          {/* <CurrencyCard
               color={"#89E3A3"}
               currencyName="EUR"
               currencyValue="197"
@@ -185,7 +191,6 @@ export default function HomeScreen() {
                 handlePresentCurrenciesSheet({ color: "#ACBBEF" })
               }
             /> */}
-          </View>
         </View>
 
         <View style={styles.exchangeAmount}>
@@ -225,6 +230,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     marginBottom: 20,
     paddingHorizontal: 20,
+    position: "relative",
   },
   header: {
     height: 65,
@@ -247,6 +253,7 @@ const styles = StyleSheet.create({
   exchangeAmount: {
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 20,
   },
   exchangeText: {
     fontSize: 16,
@@ -272,16 +279,20 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   body: {
-    justifyContent: "center",
-    alignItems: "center",
     //flexWrap: "wrap",
-    columnGap: 10,
-    rowGap: 10,
+    //rowGap: 10,
     marginBottom: 30,
   },
   bottom: {
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
+  },
+  placeholder: {
+    width: "100%",
+    height: 75,
+    backgroundColor: "#0d1321",
+    borderRadius: 20,
+    marginBottom: 10,
   },
 });
