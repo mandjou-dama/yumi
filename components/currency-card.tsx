@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
-import { StyleSheet, View, Text } from "react-native";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { StyleSheet, View, Text, TouchableWithoutFeedback } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -44,8 +43,8 @@ const CurrencyCard = React.memo((props: CurrencyCardProps) => {
 
   return (
     <TouchableWithoutFeedback
-      //onPressIn={handlePressIn}
-      //onPressOut={handlePressOut}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       onPress={props.onPress}
       onLongPress={props.onLongPress}
       disabled={props.disabled}

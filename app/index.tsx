@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedStyle,
   withTiming,
+  Easing,
 } from "react-native-reanimated";
 import DraggableFlatList, {
   RenderItemParams,
@@ -103,26 +104,28 @@ export default function HomeScreen() {
     new Intl.NumberFormat("en-US").format(value);
 
   const handleDragEnd = ({ data }: { data: currencyType[] }) => {
-    setData(data);
+    const newData = data.map((item, index) => ({
+      ...item,
+      currencyNumber: index + 1,
+    }));
+    setData(newData);
   };
 
   const renderItem = useCallback(
-    ({ item, drag, isActive }: RenderItemParams<currencyType>) => {
-      return (
-        <CurrencyCard
-          onLongPress={drag}
-          disabled={isActive}
-          color={item.color}
-          currencyName={item.currencySymbol}
-          currencyValue={item.currencyValue.toFixed()}
-          currencyNumber={item.currencyNumber}
-          onPress={() => handlePresentCurrencySheet({ color: item.color })}
-          onBottomArrowPress={() =>
-            handlePresentCurrenciesSheet({ color: item.color })
-          }
-        />
-      );
-    },
+    ({ item, drag, isActive }: RenderItemParams<currencyType>) => (
+      <CurrencyCard
+        onLongPress={drag}
+        disabled={isActive}
+        color={item.color}
+        currencyName={item.currencySymbol}
+        currencyValue={item.currencyValue.toFixed()}
+        currencyNumber={item.currencyNumber}
+        onPress={() => handlePresentCurrencySheet({ color: item.color })}
+        onBottomArrowPress={() =>
+          handlePresentCurrenciesSheet({ color: item.color })
+        }
+      />
+    ),
     [handlePresentCurrencySheet, handlePresentCurrenciesSheet]
   );
 
@@ -148,10 +151,15 @@ export default function HomeScreen() {
             data={data}
             onDragEnd={handleDragEnd}
             keyExtractor={(item) => item.currencySymbol}
-            animationConfig={{ duration: 0 }}
-            onDragBegin={() =>
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-            }
+            animationConfig={{ duration: 1000 }}
+            itemExitingAnimation={{
+              type: "timing",
+              duration: 1000,
+              easing: Easing.linear,
+            }}
+            onDragBegin={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }}
             onPlaceholderIndexChange={() =>
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
             }
