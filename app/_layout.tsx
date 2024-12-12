@@ -63,6 +63,7 @@ function RootLayoutNav() {
         <SafeAreaProvider>
           <Stack>
             <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="setting" options={{ headerShown: false }} />
           </Stack>
         </SafeAreaProvider>
       </ThemeProvider>

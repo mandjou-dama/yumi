@@ -14,7 +14,6 @@ export interface CurrencyCardProps {
   currencyName?: string;
   isLong?: boolean;
   currencyNumber?: number;
-  disabled?: boolean;
   onPress?: () => void;
   onBottomArrowPress?: () => void;
   onLongPress?: () => void;
@@ -47,14 +46,11 @@ const CurrencyCard = React.memo((props: CurrencyCardProps) => {
       onPressOut={handlePressOut}
       onPress={props.onPress}
       onLongPress={props.onLongPress}
-      disabled={props.disabled}
     >
       <Animated.View style={[memoizedStyle, animatedStyle]}>
         <View style={styles.leftWrapper}>
           <View style={styles.imageContainer}>
-            <Text style={[styles.currency, { color: props.color }]}>
-              {props.currencyNumber}
-            </Text>
+            <Text style={[styles.currency]}>{props.currencyNumber}</Text>
           </View>
           <View>
             <Text style={styles.currencyName}>{props.currencyName}</Text>
@@ -125,6 +121,8 @@ const styles = StyleSheet.create({
   currency: {
     fontSize: 24,
     fontWeight: "bold",
+    color: "#0d1321",
+    opacity: 0.1,
   },
 });
 

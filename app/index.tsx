@@ -6,13 +6,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedStyle,
   withTiming,
-  Easing,
 } from "react-native-reanimated";
-import DraggableFlatList, {
-  RenderItemParams,
-  DraggableFlatListProps,
-} from "react-native-draggable-flatlist";
 import * as Haptics from "expo-haptics";
+import { Link } from "expo-router";
 
 //hooks
 import { useAnimatedShake } from "@/hooks/useAnimatedShake";
@@ -24,46 +20,12 @@ import CurrencyCard from "@/components/currency-card";
 import CurrenciesSheet from "@/components/currencies-sheet";
 import CurrencySheet from "@/components/currency-sheet";
 
-type currencyType = {
-  currencyName: string;
-  currencySymbol: string;
-  currencyValue: number;
-  currencyNumber: number;
-  color: string;
-};
-
-const currenciesListData = [
-  {
-    currencyName: "Euro",
-    currencySymbol: "EUR",
-    currencyValue: 197,
-    currencyNumber: 1,
-    color: "#89E3A3",
-  },
-  {
-    currencyName: "United States Dollar",
-    currencySymbol: "USD",
-    currencyValue: 1,
-    currencyNumber: 2,
-    color: "#F7D786",
-  },
-  {
-    currencyName: "West African CFA Franc",
-    currencySymbol: "XOF",
-    currencyValue: 630.44,
-    currencyNumber: 3,
-    color: "#ACBBEF",
-  },
-];
-
 export default function HomeScreen() {
   // state
   const [inputValue, setInputValue] = useState<number>(0);
   const currenciesSheetRef = useRef<BottomSheetModal>(null);
   const currencySheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
-
-  const [data, setData] = useState<currencyType[]>(currenciesListData);
 
   // hooks
   const insets = useSafeAreaInsets();
@@ -103,32 +65,6 @@ export default function HomeScreen() {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("en-US").format(value);
 
-  const handleDragEnd = ({ data }: { data: currencyType[] }) => {
-    const newData = data.map((item, index) => ({
-      ...item,
-      currencyNumber: index + 1,
-    }));
-    setData(newData);
-  };
-
-  const renderItem = useCallback(
-    ({ item, drag, isActive }: RenderItemParams<currencyType>) => (
-      <CurrencyCard
-        onLongPress={drag}
-        disabled={isActive}
-        color={item.color}
-        currencyName={item.currencySymbol}
-        currencyValue={item.currencyValue.toFixed()}
-        currencyNumber={item.currencyNumber}
-        onPress={() => handlePresentCurrencySheet({ color: item.color })}
-        onBottomArrowPress={() =>
-          handlePresentCurrenciesSheet({ color: item.color })
-        }
-      />
-    ),
-    [handlePresentCurrencySheet, handlePresentCurrenciesSheet]
-  );
-
   return (
     <View style={[styles.container, { paddingBottom: insets?.bottom ?? 20 }]}>
       <View style={[styles.topWrapper, { paddingTop: insets?.top ?? 20 }]}>
@@ -139,7 +75,9 @@ export default function HomeScreen() {
               activeOpacity={0.8}
               style={styles.themeIconContainer}
             >
-              <Settings />
+              <Link href={"/setting"}>
+                <Settings />
+              </Link>
             </TouchableOpacity>
           </View>
         </View>
@@ -147,58 +85,36 @@ export default function HomeScreen() {
         <View style={styles.bodyWrapper}>
           <Text style={styles.bodyText}>Vos devises favorites</Text>
 
-          <DraggableFlatList
-            data={data}
-            onDragEnd={handleDragEnd}
-            keyExtractor={(item) => item.currencySymbol}
-            animationConfig={{ duration: 1000 }}
-            itemExitingAnimation={{
-              type: "timing",
-              duration: 1000,
-              easing: Easing.linear,
-            }}
-            onDragBegin={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }}
-            onPlaceholderIndexChange={() =>
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+          <CurrencyCard
+            color={"#89E3A3"}
+            currencyName="EUR"
+            currencyValue="197"
+            currencyNumber={1}
+            onPress={() => handlePresentCurrencySheet({ color: "#89E3A3" })}
+            onBottomArrowPress={() =>
+              handlePresentCurrenciesSheet({ color: "#89E3A3" })
             }
-            scrollEnabled={false}
-            renderPlaceholder={() => <View style={styles.placeholder}></View>}
-            renderItem={renderItem}
           />
-
-          {/* <CurrencyCard
-              color={"#89E3A3"}
-              currencyName="EUR"
-              currencyValue="197"
-              currencyNumber={1}
-              onPress={() => handlePresentCurrencySheet({ color: "#89E3A3" })}
-              onBottomArrowPress={() =>
-                handlePresentCurrenciesSheet({ color: "#89E3A3" })
-              }
-            />
-            <CurrencyCard
-              color={"#F7D786"}
-              currencyName="XOF"
-              currencyValue="197,000"
-              currencyNumber={2}
-              onPress={() => handlePresentCurrencySheet({ color: "#F7D786" })}
-              onBottomArrowPress={() =>
-                handlePresentCurrenciesSheet({ color: "#F7D786" })
-              }
-              isLong
-            />
-            <CurrencyCard
-              color={"#ACBBEF"}
-              currencyName="USD"
-              currencyValue="196"
-              currencyNumber={3}
-              onPress={() => handlePresentCurrencySheet({ color: "#ACBBEF" })}
-              onBottomArrowPress={() =>
-                handlePresentCurrenciesSheet({ color: "#ACBBEF" })
-              }
-            /> */}
+          <CurrencyCard
+            color={"#F7D786"}
+            currencyName="XOF"
+            currencyValue="197,000"
+            currencyNumber={2}
+            onPress={() => handlePresentCurrencySheet({ color: "#F7D786" })}
+            onBottomArrowPress={() =>
+              handlePresentCurrenciesSheet({ color: "#F7D786" })
+            }
+          />
+          <CurrencyCard
+            color={"#ACBBEF"}
+            currencyName="USD"
+            currencyValue="196"
+            currencyNumber={3}
+            onPress={() => handlePresentCurrencySheet({ color: "#ACBBEF" })}
+            onBottomArrowPress={() =>
+              handlePresentCurrenciesSheet({ color: "#ACBBEF" })
+            }
+          />
         </View>
 
         <View style={styles.exchangeAmount}>
