@@ -42,8 +42,8 @@ const CurrencyCard = React.memo((props: CurrencyCardProps) => {
 
   return (
     <TouchableWithoutFeedback
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
+      //onPressIn={handlePressIn}
+      //onPressOut={handlePressOut}
       onPress={props.onPress}
       onLongPress={props.onLongPress}
     >

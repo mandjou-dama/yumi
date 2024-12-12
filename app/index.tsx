@@ -19,6 +19,25 @@ import { DarkTheme, Settings } from "@/assets/icons/icons";
 import CurrencyCard from "@/components/currency-card";
 import CurrenciesSheet from "@/components/currencies-sheet";
 import CurrencySheet from "@/components/currency-sheet";
+import Draggable from "@/components/draggable";
+
+const currenciesData = [
+  {
+    id: "XAF",
+    name: "CFA Franc BEAC",
+    code: "XAF",
+  },
+  {
+    id: "XOF",
+    name: "CFA Franc BCEAO",
+    code: "XOF",
+  },
+  {
+    id: "EUR",
+    name: "Euro",
+    code: "EUR",
+  },
+];
 
 export default function HomeScreen() {
   // state
