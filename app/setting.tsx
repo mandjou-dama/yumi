@@ -1,75 +1,35 @@
 import { useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-} from "react-native";
-import DraggableFlatList, {
-  RenderItemParams,
-  ScaleDecorator,
-} from "react-native-draggable-flatlist";
+import { Platform, StyleSheet, Text, View } from "react-native";
+import Animated, { useSharedValue } from "react-native-reanimated";
+import Box from "@/components/Box";
+import Draggable from "@/components/draggable";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ScrollView } from "react-native";
 
-const NUM_ITEMS = 10;
-function getColor(i: number) {
-  const multiplier = 255 / (NUM_ITEMS - 1);
-  const colorVal = i * multiplier;
-  return `rgb(${colorVal}, ${Math.abs(128 - colorVal)}, ${255 - colorVal})`;
-}
-
-type Item = {
-  key: string;
-  label: string;
-  height: number;
-  width: number;
-  backgroundColor: string;
-};
-
-const initialData: Item[] = [...Array(NUM_ITEMS)].map((d, index) => {
-  const backgroundColor = getColor(index);
-  return {
-    key: `item-${index}`,
-    label: String(index) + "",
-    height: 100,
-    width: 60 + Math.random() * 40,
-    backgroundColor,
-  };
-});
+const arr = new Array(3).fill("").map((_, i) => i);
 
 export default function SettingScreen() {
-  const [data, setData] = useState(initialData);
-
-  const renderItem = ({ item, drag, isActive }: RenderItemParams<Item>) => {
-    return (
-      <ScaleDecorator>
-        <TouchableOpacity
-          onLongPress={drag}
-          disabled={isActive}
-          style={[
-            styles.rowItem,
-            { backgroundColor: isActive ? "red" : item.backgroundColor },
-          ]}
-        >
-          <Text style={styles.text}>{item.label}</Text>
-        </TouchableOpacity>
-      </ScaleDecorator>
-    );
-  };
+  const positions = useSharedValue(
+    Object.assign({}, ...arr.map((item) => ({ [item]: item })))
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.topWrapper}>
-        <DraggableFlatList
-          data={data}
-          onDragEnd={({ data }) => setData(data)}
-          keyExtractor={(item) => item.key}
-          renderItem={renderItem}
-          animationConfig={{
-            duration: 150,
-          }}
-        />
+        <View
+          style={{ height: "30%", backgroundColor: "blue", width: "100%" }}
+        ></View>
+        <View style={styles.wrapper}>
+          {arr.map((item) => (
+            <Draggable key={item} positions={positions} id={item}>
+              <Box key={item} count={item} />
+            </Draggable>
+          ))}
+        </View>
+        <View
+          style={{ height: "30%", backgroundColor: "blue", width: "100%" }}
+        ></View>
       </View>
     </View>
   );
@@ -85,29 +45,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7ECC9",
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    marginBottom: 20,
-    paddingHorizontal: 20,
-    position: "relative",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
-  },
-  rowItem: {
-    height: 100,
-    width: 100,
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
   },
-  text: {
-    color: "white",
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
+  wrapper: {
+    paddingHorizontal: 20,
+    height: "30%",
+    width: "100%",
+    backgroundColor: "red",
+    overflow: "hidden",
   },
 });
