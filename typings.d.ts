@@ -1,4 +1,4 @@
-export interface Currencies {
-  currencies: { [key: string]: string };
-  ms: number;
-}
+export type Currency = {
+  symbol: string;
+  name: string;
+};
