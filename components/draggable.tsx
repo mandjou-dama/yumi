@@ -18,11 +18,13 @@ const clamp = (value: number, min: number, max: number) => {
   return Math.min(Math.max(value, min), max);
 };
 
-const Draggable = ({ children, positions, id, isGestureActive }: any) => {
+const Draggable = ({ children, positions, id }: any) => {
   const position = getPosition(positions.value[id]);
   const translateY = useSharedValue(position.y);
   const prevTranslateY = useSharedValue(0);
   const pressed = useSharedValue<boolean>(false);
+
+  const isGestureActive = useSharedValue(false);
 
   useAnimatedReaction(
     () => positions.value[id],
@@ -116,7 +118,9 @@ const Draggable = ({ children, positions, id, isGestureActive }: any) => {
 
   return (
     <Animated.View style={[animatedStyle]}>
-      <Animated.View>{children}</Animated.View>
+      <GestureDetector gesture={dragGesture}>
+        <Animated.View>{children}</Animated.View>
+      </GestureDetector>
     </Animated.View>
   );
 };
