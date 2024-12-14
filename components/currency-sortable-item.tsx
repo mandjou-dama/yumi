@@ -1,11 +1,7 @@
 // Import necessary modules and components from React and React Native
 import React, { useCallback } from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
-import {
-  Gesture,
-  GestureDetector,
-  HandlerStateChangeEvent,
-} from "react-native-gesture-handler";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 import Animated, {
   runOnJS,
@@ -14,8 +10,6 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
   withTiming,
-  scrollTo,
-  setGestureState,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
