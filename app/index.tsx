@@ -1,14 +1,21 @@
 import { useState, useRef, useCallback } from "react";
 import { StatusBar } from "expo-status-bar";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Pressable,
+  ListRenderItemInfo,
+} from "react-native";
 import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { Link } from "expo-router";
 
 //hooks
 import { useAnimatedShake } from "@/hooks/useAnimatedShake";
@@ -19,7 +26,6 @@ import { DarkTheme, Settings } from "@/assets/icons/icons";
 import CurrencyCard from "@/components/currency-card";
 import CurrenciesSheet from "@/components/currencies-sheet";
 import CurrencySheet from "@/components/currency-sheet";
-import Draggable from "@/components/draggable";
 
 const currenciesData = [
   {

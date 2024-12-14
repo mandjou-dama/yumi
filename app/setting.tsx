@@ -51,24 +51,13 @@ const Setting = () => {
   const currentActiveIndex = useSharedValue<number | null>(null);
 
   return (
-    <>
-      <LinearGradient
-        pointerEvents="none"
-        colors={[
-          "rgba(255,255,255,1)",
-          "rgba(255,255,255,0.05)",
-          "rgba(255,255,255,0.025)",
-        ]}
-        style={[
-          {
-            height: safeTop * 3,
-          },
-          styles.gradient,
-        ]}
-      />
+    <View style={{ flex: 1 }}>
+      <View style={{ height: "30%", backgroundColor: "red" }}></View>
       <CurrencySortableList
         style={{
-          paddingTop: safeTop,
+          //paddingTop: safeTop,
+          //height: "30%",
+          position: "relative",
         }}
         onAnimatedIndexChange={(index) => {
           currentActiveIndex.value = index;
@@ -85,7 +74,6 @@ const Setting = () => {
             ]}
           />
         }
-        showsVerticalScrollIndicator={false}
         data={ITEMS}
         listItemHeight={ITEM_HEIGHT}
         // At the beginning I was thinking about using a FlatList
@@ -107,7 +95,9 @@ const Setting = () => {
           );
         }}
       />
-    </>
+
+      <View style={{ height: "30%", backgroundColor: "red" }}></View>
+    </View>
   );
 };
 

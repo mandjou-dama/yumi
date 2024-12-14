@@ -1,7 +1,12 @@
 // Import necessary modules and components from React and React Native
 import React, { useCallback } from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+  HandlerStateChangeEvent,
+} from "react-native-gesture-handler";
+
 import Animated, {
   runOnJS,
   useAnimatedReaction,
@@ -10,6 +15,7 @@ import Animated, {
   useSharedValue,
   withTiming,
   scrollTo,
+  setGestureState,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -28,7 +34,7 @@ type SortableListItemProps = {
   onDragEnd?: (data: Positions) => void;
   backgroundItem?: React.ReactNode;
   scrollContentOffsetY: Animated.SharedValue<number>;
-  scrollViewRef: React.RefObject<Animated.ScrollView>;
+  viewRef: React.RefObject<Animated.View>;
 };
 
 // Define the SortableItem component
@@ -41,7 +47,7 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
   onDragEnd,
   backgroundItem,
   scrollContentOffsetY,
-  scrollViewRef,
+  viewRef,
 }) => {
   // Get safe area insets and window dimensions
   const inset = useSafeAreaInsets();
@@ -103,26 +109,32 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
   // Callback to handle edge cases while scrolling
   // (when the user drags the item to the top or bottom of the list)
   // Since we need to update the scroll position of the scroll view (scrollTo)
-  const scrollLogic = useCallback(
+  const stopMoving = useCallback(
     ({ absoluteY }: { absoluteY: number }) => {
       "worklet";
-      const lowerBound = 1.5 * itemHeight;
-      const upperBound = scrollContentOffsetY.value + containerHeight;
+      const lowerBound = itemHeight * 3;
+      // const lowerBound = 1.5 * itemHeight;
+      const upperBound = containerHeight - itemHeight * 3;
+      // const upperBound = scrollContentOffsetY.value + containerHeight;
 
       // scroll speed is proportional to the item height (the bigger the item, the faster it scrolls)
       const scrollSpeed = itemHeight * 0.1;
 
       if (absoluteY <= lowerBound) {
         // while scrolling to the top of the list
-        const nextPosition = scrollContentOffsetY.value - scrollSpeed;
-        scrollTo(scrollViewRef, 0, Math.max(nextPosition, 0), false);
-      } else if (absoluteY + scrollContentOffsetY.value >= upperBound) {
+        // const nextPosition = scrollContentOffsetY.value - scrollSpeed;
+        // scrollTo(viewRef, 0, Math.max(nextPosition, 0), false);
+        //console.log("scrolling to top");
+        console.log(absoluteY);
+      } else if (absoluteY >= upperBound) {
         // while scrolling to the bottom of the list
-        const nextPosition = scrollContentOffsetY.value + scrollSpeed;
-        scrollTo(scrollViewRef, 0, Math.max(nextPosition, 0), false);
+        // const nextPosition = scrollContentOffsetY.value + scrollSpeed;
+        // scrollTo(viewRef, 0, Math.max(nextPosition, 0), false);
+        //console.log("scrolling to bottom");
+        console.log(absoluteY);
       }
     },
-    [containerHeight, itemHeight, scrollContentOffsetY.value, scrollViewRef]
+    [containerHeight, itemHeight, scrollContentOffsetY.value, viewRef]
   );
 
   // Need to keep track of the previous positions to check if the positions have changed
@@ -157,13 +169,32 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
     .onUpdate(({ translationY, translationX, absoluteY }) => {
       translateX.value = translationX;
 
-      const translateY = contextY.value + translationY;
+      // Calculate the new potential position
+      let translateY = contextY.value + translationY;
 
+      // Clamp translateY to stay within the bounds
+      const lowerBound = -20; // Adjust as needed (e.g., itemHeight * 3)
+      const upperBound = itemHeight * 2; // Adjust as needed
+
+      translateY = Math.max(lowerBound, Math.min(translateY, upperBound));
+
+      // Update the position of the current item
       positions.value[index] = translateY + scrollContentOffsetY.value;
 
-      scrollLogic({ absoluteY });
+      // Trigger the stopMoving function for additional actions
+      stopMoving({ absoluteY });
 
+      // Update the positions shared value
       positions.value = Object.assign({}, positions.value);
+      // translateX.value = translationX;
+
+      // const translateY = contextY.value + translationY;
+
+      // positions.value[index] = translateY + scrollContentOffsetY.value;
+
+      // stopMoving({ absoluteY });
+
+      // positions.value = Object.assign({}, positions.value);
     })
     .onFinalize(() => {
       translateX.value = withTiming(0, undefined, (isFinished) => {
@@ -231,7 +262,7 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
 
   // Render the SortableItem component
   return (
-    <>
+    <View>
       <View
         style={[
           {
@@ -256,7 +287,7 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
           {children}
         </Animated.View>
       </GestureDetector>
-    </>
+    </View>
   );
 };
 

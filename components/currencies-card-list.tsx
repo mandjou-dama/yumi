@@ -1,17 +1,19 @@
 import React, { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import type { ScrollViewProps } from "react-native";
+import type { ScrollViewProps, ViewProps } from "react-native";
 import Animated, {
   runOnJS,
   useAnimatedReaction,
   useAnimatedRef,
   useAnimatedScrollHandler,
   useSharedValue,
+  getRelativeCoords,
 } from "react-native-reanimated";
 
 // Import the SortableItem component and Positions type
 import { CurrencySortableItem } from "./currency-sortable-item";
 import type { Positions } from "@/typings";
+import { PanGestureHandler } from "react-native-gesture-handler";
 
 // Define the props for the SortableList component
 type SortableListProps<T> = {
@@ -21,7 +23,7 @@ type SortableListProps<T> = {
   onAnimatedIndexChange?: (index: number | null) => void;
   onDragEnd?: (positions: Positions) => void;
   backgroundItem?: React.ReactNode;
-} & ScrollViewProps;
+} & ViewProps;
 
 // Define the SortableList component
 function CurrencySortableList<T>({
@@ -35,7 +37,7 @@ function CurrencySortableList<T>({
 }: SortableListProps<T>) {
   // Shared values for tracking scroll position, animated index, and scroll view reference
   const scrollContentOffsetY = useSharedValue(0);
-  const scrollView = useAnimatedRef<Animated.ScrollView>();
+  const scrollView = useAnimatedRef<Animated.View>();
 
   // Initial positions for list items
   const initialPositions = new Array(data?.length)
@@ -78,7 +80,7 @@ function CurrencySortableList<T>({
           animatedIndex={animatedIndex}
           onDragEnd={onDragEnd}
           backgroundItem={backgroundItem}
-          scrollViewRef={scrollView}
+          viewRef={scrollView}
           scrollContentOffsetY={scrollContentOffsetY}
           key={params.index}
         >
@@ -100,15 +102,17 @@ function CurrencySortableList<T>({
 
   // Render the SortableList component with an Animated.ScrollView
   return (
-    <Animated.ScrollView
+    <Animated.View
       {...rest}
-      onScroll={onScroll}
-      ref={scrollView}
-      contentContainerStyle={[
-        rest.contentContainerStyle,
+      //ref={scrollView}
+      style={[
+        rest.style,
         {
           height: listItemHeight * data.length,
-          paddingBottom: listItemHeight * data.length + listItemHeight * 2,
+          position: "relative",
+          overflowY: "hidden",
+          backgroundColor: "#F7ECC9",
+          //paddingTop: listItemHeight * data.length,
         },
       ]}
     >
@@ -118,7 +122,7 @@ function CurrencySortableList<T>({
           index: index,
         });
       })}
-    </Animated.ScrollView>
+    </Animated.View>
   );
 }
 
