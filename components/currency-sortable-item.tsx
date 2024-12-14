@@ -125,13 +125,11 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
         // const nextPosition = scrollContentOffsetY.value - scrollSpeed;
         // scrollTo(viewRef, 0, Math.max(nextPosition, 0), false);
         //console.log("scrolling to top");
-        console.log(absoluteY);
       } else if (absoluteY >= upperBound) {
         // while scrolling to the bottom of the list
         // const nextPosition = scrollContentOffsetY.value + scrollSpeed;
         // scrollTo(viewRef, 0, Math.max(nextPosition, 0), false);
         //console.log("scrolling to bottom");
-        console.log(absoluteY);
       }
     },
     [containerHeight, itemHeight, scrollContentOffsetY.value, viewRef]
@@ -173,8 +171,8 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
       let translateY = contextY.value + translationY;
 
       // Clamp translateY to stay within the bounds
-      const lowerBound = -20; // Adjust as needed (e.g., itemHeight * 3)
-      const upperBound = itemHeight * 2; // Adjust as needed
+      const lowerBound = (-itemHeight + 6) / 15;
+      const upperBound = itemHeight * 2;
 
       translateY = Math.max(lowerBound, Math.min(translateY, upperBound));
 
@@ -186,15 +184,6 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
 
       // Update the positions shared value
       positions.value = Object.assign({}, positions.value);
-      // translateX.value = translationX;
-
-      // const translateY = contextY.value + translationY;
-
-      // positions.value[index] = translateY + scrollContentOffsetY.value;
-
-      // stopMoving({ absoluteY });
-
-      // positions.value = Object.assign({}, positions.value);
     })
     .onFinalize(() => {
       translateX.value = withTiming(0, undefined, (isFinished) => {
