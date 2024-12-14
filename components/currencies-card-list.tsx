@@ -5,15 +5,12 @@ import Animated, {
   runOnJS,
   useAnimatedReaction,
   useAnimatedRef,
-  useAnimatedScrollHandler,
   useSharedValue,
-  getRelativeCoords,
 } from "react-native-reanimated";
 
 // Import the SortableItem component and Positions type
 import { CurrencySortableItem } from "./currency-sortable-item";
 import type { Positions } from "@/typings";
-import { PanGestureHandler } from "react-native-gesture-handler";
 
 // Define the props for the SortableList component
 type SortableListProps<T> = {
@@ -53,13 +50,6 @@ function CurrencySortableList<T>({
 
   // Shared value for tracking the currently animated index during drag-and-drop
   const animatedIndex = useSharedValue<number | null>(null);
-
-  // Animated scroll handler to update the scroll position
-  const onScroll = useAnimatedScrollHandler({
-    onScroll: ({ contentOffset: { y } }) => {
-      scrollContentOffsetY.value = y;
-    },
-  });
 
   // Animated reaction to trigger a callback when the animated index changes
   useAnimatedReaction(
@@ -109,9 +99,6 @@ function CurrencySortableList<T>({
         rest.style,
         {
           height: listItemHeight * data.length,
-          position: "relative",
-          overflowY: "hidden",
-          backgroundColor: "#F7ECC9",
           //paddingTop: listItemHeight * data.length,
         },
       ]}

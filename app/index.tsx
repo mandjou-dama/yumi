@@ -3,16 +3,10 @@ import { StatusBar } from "expo-status-bar";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  Pressable,
-  ListRenderItemInfo,
-} from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import Animated, {
   useAnimatedStyle,
+  useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
@@ -23,27 +17,17 @@ import { useAnimatedShake } from "@/hooks/useAnimatedShake";
 // components & icons
 import NumPad from "@/components/num-pad";
 import { DarkTheme, Settings } from "@/assets/icons/icons";
-import CurrencyCard from "@/components/currency-card";
 import CurrenciesSheet from "@/components/currencies-sheet";
 import CurrencySheet from "@/components/currency-sheet";
+import { CurrencySortableList } from "@/components/currencies-card-list";
+import { Positions } from "@/typings";
+import { ITEMS } from "@/data/fakeCardData";
+import { ListItem } from "@/components/currency-card-item";
 
-const currenciesData = [
-  {
-    id: "XAF",
-    name: "CFA Franc BEAC",
-    code: "XAF",
-  },
-  {
-    id: "XOF",
-    name: "CFA Franc BCEAO",
-    code: "XOF",
-  },
-  {
-    id: "EUR",
-    name: "Euro",
-    code: "EUR",
-  },
-];
+const PADDING = 6;
+const HEIGHT = 75;
+const ITEM_HEIGHT = HEIGHT + PADDING * 2;
+const MAX_BORDER_RADIUS = 20;
 
 export default function HomeScreen() {
   // state
@@ -90,6 +74,32 @@ export default function HomeScreen() {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("en-US").format(value);
 
+  const onDragEnd = useCallback((data: Positions) => {
+    // onDragEnd is called when the user releases the item (if the item was moved)
+    // The data argument contains the new positions of the items
+    // The data is a map of index to height
+
+    // Here's an example of how to get the new order of the items based on the data
+
+    // Convert the map into an array of [index, height] pairs
+    const heightArray = Object.entries(data).map(([index, height]) => [
+      parseInt(index, 10),
+      height,
+    ]);
+
+    // Sort the array based on the height (second element in each pair)
+    heightArray.sort((a, b) => a[1] - b[1]);
+
+    // Extract the sorted indices
+    const newOrder = heightArray.map(([index]) => index);
+
+    console.log(data);
+  }, []);
+
+  // Shared value for tracking the currently active index (the item that is being dragged)
+  // This is used to update the border radius of the active item
+  const currentActiveIndex = useSharedValue<number | null>(null);
+
   return (
     <View style={[styles.container, { paddingBottom: insets?.bottom ?? 20 }]}>
       <View style={[styles.topWrapper, { paddingTop: insets?.top ?? 20 }]}>
@@ -110,7 +120,54 @@ export default function HomeScreen() {
         <View style={styles.bodyWrapper}>
           <Text style={styles.bodyText}>Vos devises favorites</Text>
 
-          <CurrencyCard
+          <CurrencySortableList
+            style={
+              {
+                //paddingTop: safeTop,
+                //height: "30%",
+                //position: "relative",
+              }
+            }
+            onAnimatedIndexChange={(index) => {
+              currentActiveIndex.value = index;
+            }}
+            onDragEnd={onDragEnd}
+            backgroundItem={
+              // Kind of hacky way to make the background item have rounded corners
+              <View
+                style={[
+                  styles.backgroundItem,
+                  {
+                    width: "100%",
+                    alignSelf: "center",
+                  },
+                ]}
+              />
+            }
+            data={ITEMS}
+            listItemHeight={ITEM_HEIGHT}
+            renderItem={({ item, index }) => {
+              return (
+                <ListItem
+                  item={item}
+                  style={{
+                    height: HEIGHT,
+                    marginVertical: PADDING,
+                    backgroundColor: item.color,
+                    width: "100%",
+                    alignSelf: "center",
+                  }}
+                  maxBorderRadius={MAX_BORDER_RADIUS}
+                  index={index}
+                  activeIndex={currentActiveIndex}
+                  onPress={() => {}}
+                  onBottomArrowPress={() => {}}
+                />
+              );
+            }}
+          />
+
+          {/* <CurrencyCard
             color={"#89E3A3"}
             currencyName="EUR"
             currencyValue="197"
@@ -139,7 +196,7 @@ export default function HomeScreen() {
             onBottomArrowPress={() =>
               handlePresentCurrenciesSheet({ color: "#ACBBEF" })
             }
-          />
+          /> */}
         </View>
 
         <View style={styles.exchangeAmount}>
@@ -243,5 +300,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#0d1321",
     borderRadius: 20,
     marginBottom: 10,
+  },
+  backgroundItem: {
+    backgroundColor: "rgba(0,0,0,0.1)",
+    flex: 1,
+    borderRadius: MAX_BORDER_RADIUS,
+    margin: PADDING,
   },
 });
