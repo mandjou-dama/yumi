@@ -1,12 +1,13 @@
 // Import necessary modules and components from React and React Native
-import { BottomArrow, GenerateVoice } from "@/assets/icons/icons";
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import type { StyleProp, ViewStyle } from "react-native";
 import Animated, {
   useAnimatedStyle,
+  useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { BottomArrow, GenerateVoice } from "@/assets/icons/icons";
 
 export const ITEM_HEIGHT = 75;
 export const BORDER_RADIUS = 20;
@@ -41,14 +42,34 @@ export const ListItem: React.FC<ListItemProps> = ({
   onPress,
   onBottomArrowPress,
 }) => {
-  // Render the ListItem component
+  // Use shared value for opacity with React Compiler-compliant API
+  const opacity = useSharedValue(0.1);
+
+  useEffect(() => {
+    // Trigger fade-out and fade-in effect when the index changes
+    opacity.set(() =>
+      withTiming(0, { duration: 300 }, () => {
+        opacity.set(() => withTiming(0.1, { duration: 300 }));
+      })
+    );
+  }, [index]);
+
+  // Animated style for opacity
+  const animatedOpacityStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.get(),
+    };
+  });
+
   return (
     <TouchableWithoutFeedback onPress={onPress}>
-      {/* Icon and Text Container */}
       <Animated.View style={[styles.container, style]}>
+        {/* Left section with currency name and value */}
         <View style={styles.leftWrapper}>
           <View style={styles.imageContainer}>
-            <Text style={[styles.currency]}>{index}</Text>
+            <Animated.Text style={[styles.currency, animatedOpacityStyle]}>
+              {index}
+            </Animated.Text>
           </View>
           <View>
             <Text style={styles.currencyName}>{item.name}</Text>
@@ -56,21 +77,23 @@ export const ListItem: React.FC<ListItemProps> = ({
           </View>
         </View>
 
+        {/* Right section with optional icons */}
         <View style={styles.rightWrapper}>
           {isLong && <GenerateVoice />}
-          <TouchableWithoutFeedback
-            onPress={onBottomArrowPress}
-            style={styles.bottomArrow}
-          >
-            <BottomArrow />
-          </TouchableWithoutFeedback>
+          {onBottomArrowPress && (
+            <TouchableWithoutFeedback onPress={onBottomArrowPress}>
+              <View style={styles.bottomArrow}>
+                <BottomArrow />
+              </View>
+            </TouchableWithoutFeedback>
+          )}
         </View>
       </Animated.View>
     </TouchableWithoutFeedback>
   );
 };
 
-// Define styles for the ListItem component
+// Styles for the ListItem component
 const styles = StyleSheet.create({
   container: {
     width: "100%",
@@ -120,6 +143,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#0d1321",
-    opacity: 0.1,
   },
 });

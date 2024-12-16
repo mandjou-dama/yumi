@@ -195,7 +195,7 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
       top: top.value,
       transform: [
         {
-          translateX: translateX.value,
+          translateX: translateX.value ? translateX.value : 0,
         },
       ],
       zIndex: zIndex,

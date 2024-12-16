@@ -47,7 +47,7 @@ export default function HomeScreen() {
   // animated styles
   const rErrorTextStyle = useAnimatedStyle(() => {
     return {
-      color: withTiming(isShaking.value ? "#eb7b81" : "#0d1321", {
+      color: withTiming(isShaking.get() ? "#eb7b81" : "#0d1321", {
         duration: 50,
       }),
     };
@@ -106,8 +106,6 @@ export default function HomeScreen() {
     });
 
     setIndexes(newIndexes);
-
-    console.log("onDragEnd", newIndexes);
   }, []);
 
   // Shared value for tracking the currently active index (the item that is being dragged)
@@ -168,9 +166,9 @@ export default function HomeScreen() {
               const dynamicIndex = items.indexOf(item);
 
               // assign dynamic index to corresponding item
-              //index = dynamicIndex;
+              // index = dynamicIndex;
 
-              console.log("Position", position);
+              // console.log("Position", position);
               return (
                 <ListItem
                   item={item}

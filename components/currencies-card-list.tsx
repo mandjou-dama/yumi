@@ -1,6 +1,7 @@
+// Import necessary modules and components from React and React Native
 import React, { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import type { ScrollViewProps, ViewProps } from "react-native";
+import type { ViewProps } from "react-native";
 import Animated, {
   runOnJS,
   useAnimatedReaction,
@@ -57,7 +58,7 @@ function CurrencySortableList<T>({
 
   // Animated reaction to trigger a callback when the animated index changes
   useAnimatedReaction(
-    () => animatedIndex.value,
+    () => animatedIndex.get(),
     (currentIndex) => {
       if (onAnimatedIndexChange) runOnJS(onAnimatedIndexChange)(currentIndex);
     }
@@ -66,7 +67,7 @@ function CurrencySortableList<T>({
   // Callback function for rendering each item
   const renderItem = useCallback(
     (params: { item: T; index: number }) => {
-      const position = positions.value[params.index] || 0;
+      const position = positions.get()[params.index] || 0;
 
       return (
         <CurrencySortableItem
@@ -96,16 +97,14 @@ function CurrencySortableList<T>({
     ]
   );
 
-  // Render the SortableList component with an Animated.ScrollView
+  // Render the SortableList component with an Animated.View
   return (
     <Animated.View
       {...rest}
-      //ref={scrollView}
       style={[
         rest.style,
         {
           height: listItemHeight * data.length,
-          //paddingTop: listItemHeight * data.length,
         },
       ]}
     >
