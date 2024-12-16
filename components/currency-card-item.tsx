@@ -36,21 +36,11 @@ export const ListItem: React.FC<ListItemProps> = ({
   style,
   activeIndex,
   index,
-  maxBorderRadius = 10,
   item,
   isLong,
   onPress,
   onBottomArrowPress,
 }) => {
-  // Use animated style for dynamic styling based on the active index
-  const rStyle = useAnimatedStyle(() => {
-    return {
-      borderRadius: withTiming(
-        activeIndex.value === index ? maxBorderRadius : 0
-      ),
-    };
-  }, [maxBorderRadius, index]);
-
   // Render the ListItem component
   return (
     <TouchableWithoutFeedback onPress={onPress}>
@@ -58,7 +48,7 @@ export const ListItem: React.FC<ListItemProps> = ({
       <Animated.View style={[styles.container, style]}>
         <View style={styles.leftWrapper}>
           <View style={styles.imageContainer}>
-            <Text style={[styles.currency]}>{index + 1}</Text>
+            <Text style={[styles.currency]}>{index}</Text>
           </View>
           <View>
             <Text style={styles.currencyName}>{item.name}</Text>

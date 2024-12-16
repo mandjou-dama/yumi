@@ -1,31 +1,35 @@
 import { create } from "zustand";
+import type { CurrencyCardItem } from "@/components/currency-card-item";
 
-interface CurrencyStore {
-  favoriteCurrencies: { [currency: string]: number }; // Stores the values of favorite currencies
-  setFavoriteCurrencies: (currencies: { [currency: string]: number }) => void;
-  convertAmount: (amount: number) => { [currency: string]: number }; // Converts the amount into all three currencies
-}
-
-const useCurrenciesStore = create<CurrencyStore>((set, get) => ({
-  favoriteCurrencies: {
-    USD: 1, // USD as base currency
-    EUR: 0.94, // Example exchange rate
-    XOF: 630.44, // Example exchange rate
+// Initial data
+const initialItems: CurrencyCardItem[] = [
+  {
+    name: "Africa CFA Franc",
+    symbol: "XOF",
+    value: "190",
+    color: "#89E3A3",
   },
-
-  setFavoriteCurrencies: (currencies) =>
-    set({ favoriteCurrencies: currencies }),
-
-  convertAmount: (amount) => {
-    const { favoriteCurrencies } = get();
-    const result: { [currency: string]: number } = {};
-
-    for (const [currency, value] of Object.entries(favoriteCurrencies)) {
-      result[currency] = value * amount; // Multiply the currency value by the given amount
-    }
-
-    return result;
+  {
+    name: "Euro",
+    symbol: "EUR",
+    value: "190",
+    color: "#F7D786",
   },
+  {
+    name: "US Dollar",
+    symbol: "$",
+    value: "190",
+    color: "#ACBBEF",
+  },
+];
+
+// Define the Zustand store
+type CurrencyStore = {
+  items: CurrencyCardItem[];
+  setItems: (newItems: CurrencyCardItem[]) => void;
+};
+
+export const useCurrenciesStore = create<CurrencyStore>((set) => ({
+  items: initialItems,
+  setItems: (newItems) => set({ items: newItems }),
 }));
-
-export default useCurrenciesStore;

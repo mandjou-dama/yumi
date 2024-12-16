@@ -16,7 +16,11 @@ import type { Positions } from "@/typings";
 type SortableListProps<T> = {
   listItemHeight: number;
   data: T[];
-  renderItem?: (_: { item: T; index: number }) => React.ReactNode;
+  renderItem?: (_: {
+    item: T;
+    index: number;
+    position: number;
+  }) => React.ReactNode;
   onAnimatedIndexChange?: (index: number | null) => void;
   onDragEnd?: (positions: Positions) => void;
   backgroundItem?: React.ReactNode;
@@ -62,6 +66,8 @@ function CurrencySortableList<T>({
   // Callback function for rendering each item
   const renderItem = useCallback(
     (params: { item: T; index: number }) => {
+      const position = positions.value[params.index] || 0;
+
       return (
         <CurrencySortableItem
           itemHeight={listItemHeight}
@@ -74,7 +80,7 @@ function CurrencySortableList<T>({
           scrollContentOffsetY={scrollContentOffsetY}
           key={params.index}
         >
-          {renderItemProp?.(params)}
+          {renderItemProp?.({ ...params, position })}
         </CurrencySortableItem>
       );
     },
@@ -106,7 +112,7 @@ function CurrencySortableList<T>({
       {data.map((item, index) => {
         return renderItem({
           item,
-          index: index,
+          index,
         });
       })}
     </Animated.View>

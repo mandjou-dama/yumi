@@ -11,7 +11,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Import the Positions type
 import { lightHapticFeedback } from "@/utils/haptics";
@@ -125,7 +124,7 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
       runOnJS(lightHapticFeedback)();
     })
     .onUpdate(({ translationY, translationX }) => {
-      translateX.value = translationX;
+      //translateX.value = translationX;
 
       // Calculate the new potential position
       let translateY = contextY.value + translationY;
@@ -141,6 +140,7 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
 
       // Update the positions shared value
       positions.value = Object.assign({}, positions.value);
+      runOnJS(lightHapticFeedback)();
     })
     .onFinalize(() => {
       translateX.value = withTiming(0, undefined, (isFinished) => {

@@ -9,6 +9,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { useCurrenciesStore } from "@/store/useCurrencies";
 import * as Haptics from "expo-haptics";
 
 //hooks
@@ -21,7 +22,6 @@ import CurrenciesSheet from "@/components/currencies-sheet";
 import CurrencySheet from "@/components/currency-sheet";
 import { CurrencySortableList } from "@/components/currencies-card-list";
 import { Positions } from "@/typings";
-import { ITEMS } from "@/data/fakeCardData";
 import { ListItem } from "@/components/currency-card-item";
 
 const PADDING = 6;
@@ -35,6 +35,10 @@ export default function HomeScreen() {
   const currenciesSheetRef = useRef<BottomSheetModal>(null);
   const currencySheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
+  const [indexes, setIndexes] = useState<any[]>([]);
+
+  // store
+  const { items, setItems } = useCurrenciesStore();
 
   // hooks
   const insets = useSafeAreaInsets();
@@ -93,7 +97,17 @@ export default function HomeScreen() {
     // Extract the sorted indices
     const newOrder = heightArray.map(([index]) => index);
 
-    console.log(data);
+    // return correspondant item element for each index
+    const newItems = newOrder.map((index) => items[index]);
+
+    //extract new items index and store them like this : [1: index in items, 2: index in items, 3: index in items]
+    const newIndexes = newItems.map((item, index) => {
+      return { item, index };
+    });
+
+    setIndexes(newIndexes);
+
+    console.log("onDragEnd", newIndexes);
   }, []);
 
   // Shared value for tracking the currently active index (the item that is being dragged)
@@ -144,9 +158,19 @@ export default function HomeScreen() {
                 ]}
               />
             }
-            data={ITEMS}
+            data={items}
             listItemHeight={ITEM_HEIGHT}
-            renderItem={({ item, index }) => {
+            renderItem={({ item, index, position }) => {
+              // check if the order of item corresponds to the index in items inside indexes array
+              const currentIndex = indexes.find((item) => item.index === index);
+
+              // create dynamic index based on the order of item in items array
+              const dynamicIndex = items.indexOf(item);
+
+              // assign dynamic index to corresponding item
+              //index = dynamicIndex;
+
+              console.log("Position", position);
               return (
                 <ListItem
                   item={item}
@@ -158,7 +182,7 @@ export default function HomeScreen() {
                     alignSelf: "center",
                   }}
                   maxBorderRadius={MAX_BORDER_RADIUS}
-                  index={index}
+                  index={position <= 0 ? 1 : position === 87 ? 2 : 3}
                   activeIndex={currentActiveIndex}
                   onPress={() => {}}
                   onBottomArrowPress={() => {}}
@@ -259,7 +283,7 @@ const styles = StyleSheet.create({
   exchangeAmount: {
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 15,
   },
   exchangeText: {
     fontSize: 16,
@@ -282,12 +306,12 @@ const styles = StyleSheet.create({
   bodyWrapper: {},
   bodyText: {
     fontSize: 18,
-    marginBottom: 15,
+    marginBottom: 10,
   },
   body: {
     //flexWrap: "wrap",
     //rowGap: 10,
-    marginBottom: 30,
+    marginBottom: 20,
   },
   bottom: {
     justifyContent: "center",
