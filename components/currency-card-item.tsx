@@ -81,17 +81,16 @@ export const ListItem: React.FC<ListItemProps> = ({
 
   return (
     <View>
-      <Link
-        href={{
-          pathname: "/currency-details/[symbol]",
-          params: { symbol: item.symbol, color: item.color, name: item.name },
-        }}
-        asChild
+      <TouchableWithoutFeedback
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={onPress}
       >
-        <TouchableWithoutFeedback
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          onPress={onPress}
+        <Link
+          href={{
+            pathname: "/currency-details/[symbol]",
+            params: { symbol: item.symbol, color: item.color, name: item.name },
+          }}
         >
           <Animated.View style={[styles.container, style, animatedScaleStyle]}>
             {/* Left section with currency name and value */}
@@ -119,8 +118,8 @@ export const ListItem: React.FC<ListItemProps> = ({
               )}
             </View>
           </Animated.View>
-        </TouchableWithoutFeedback>
-      </Link>
+        </Link>
+      </TouchableWithoutFeedback>
     </View>
   );
 };

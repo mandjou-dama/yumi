@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   exchangeAmount: {
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 15,
+    marginTop: 10,
   },
   exchangeText: {
     fontSize: 16,
@@ -271,12 +271,12 @@ const styles = StyleSheet.create({
   bodyWrapper: {},
   bodyText: {
     fontSize: 18,
-    marginBottom: 10,
+    marginBottom: 15,
   },
   body: {
     //flexWrap: "wrap",
     //rowGap: 10,
-    marginBottom: 20,
+    marginBottom: 0,
   },
   bottom: {
     justifyContent: "center",
