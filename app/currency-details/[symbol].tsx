@@ -4,6 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 
 import { useCurrenciesStore } from "@/store/useCurrencies";
 import Chart from "@/components/chart";
+import { SegmentedControl } from "@/components/segmented-control";
 
 export default function CurrencyDetails() {
   const { symbol, color, name } = useLocalSearchParams();
@@ -32,17 +33,12 @@ export default function CurrencyDetails() {
           <Text style={styles.currencyName}>{name}</Text>
         </View>
 
-        <View style={styles.currenciesSelectorWrapper}>
-          {filteredItems.map((currency, index) => (
-            <TouchableWithoutFeedback key={index}>
-              <View style={styles.currencyWrapperInactive}>
-                <Text style={[styles.currency, { color: "#0d1321" }]}>
-                  {currency.symbol}
-                </Text>
-              </View>
-            </TouchableWithoutFeedback>
-          ))}
-        </View>
+        <SegmentedControl
+          options={filteredItems.map((item) => item.symbol)}
+          selectedOption={activeCurrency}
+          onOptionPress={setActiveCurrency}
+          color={color.toString()}
+        />
       </View>
 
       {/* Chart */}
