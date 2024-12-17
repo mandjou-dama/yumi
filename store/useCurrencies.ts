@@ -4,7 +4,7 @@ import type { CurrencyCardItem } from "@/components/currency-card-item";
 // Initial data
 const initialItems: CurrencyCardItem[] = [
   {
-    name: "Africa CFA Franc",
+    name: "CFA Franc BCEAO",
     symbol: "XOF",
     value: "190",
     color: "#89E3A3",
@@ -16,8 +16,8 @@ const initialItems: CurrencyCardItem[] = [
     color: "#F7D786",
   },
   {
-    name: "US Dollar",
-    symbol: "$",
+    name: "United States Dollar",
+    symbol: "USD",
     value: "190",
     color: "#ACBBEF",
   },

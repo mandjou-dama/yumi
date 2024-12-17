@@ -73,6 +73,10 @@ function RootLayoutNav() {
           <Stack>
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="setting" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="currency-details/[symbol]"
+              options={{ presentation: "modal", headerShown: false }}
+            />
           </Stack>
         </GestureHandlerRootView>
       </SafeAreaProvider>

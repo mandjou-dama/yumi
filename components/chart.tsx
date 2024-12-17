@@ -5,7 +5,7 @@ import * as Haptics from "expo-haptics";
 
 import timeseries from "../data/timeseries.json";
 
-const Chart = ({ color }: { color: string | undefined }) => {
+const Chart = ({ color, symbol }: { color: string; symbol: string }) => {
   const graphData: GraphPoint[] = Object.entries(timeseries.results["XAF"]).map(
     ([date, value]) => {
       return {
@@ -53,9 +53,12 @@ const Chart = ({ color }: { color: string | undefined }) => {
   return (
     <View style={styles.container}>
       <View style={styles.graphHeader}>
-        <Text style={styles.graphAmount}>
-          ${selectedPoint?.value.toFixed(2)}
-        </Text>
+        <View style={styles.graphSymbolWrapper}>
+          <Text style={styles.graphSymbol}>{symbol}</Text>
+          <Text style={styles.graphAmount}>
+            {selectedPoint?.value.toFixed(2)}
+          </Text>
+        </View>
         <Text style={styles.graphDate}>
           {selectedPoint?.date.toLocaleDateString("fr-FR", {
             weekday: "long",
@@ -66,7 +69,7 @@ const Chart = ({ color }: { color: string | undefined }) => {
         </Text>
       </View>
 
-      <View style={{ marginTop: 15 }}>
+      <View style={{ marginTop: 35 }}>
         <LineGraph
           style={[styles.graph, StyleSheet.absoluteFill]}
           points={graphData}
@@ -135,14 +138,21 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 280,
     overflow: "visible",
-    position: "relative",
+  },
+  graphSymbolWrapper: {
+    flexDirection: "row",
+    marginBottom: 5,
+    gap: 5,
   },
   graphAmount: {
     fontSize: 22,
     fontWeight: "bold",
-    width: "100%",
     textAlign: "center",
-    marginBottom: 3,
+  },
+  graphSymbol: {
+    opacity: 0.4,
+    fontSize: 16,
+    textAlign: "center",
   },
   graphDate: {
     textTransform: "capitalize",
@@ -156,7 +166,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center",
     position: "absolute",
-    top: 410,
+    bottom: 90,
   },
   graphTimelineItem: {
     width: 35,
