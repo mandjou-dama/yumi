@@ -140,7 +140,8 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
 
       // Update the positions shared value
       positions.value = Object.assign({}, positions.value);
-      runOnJS(lightHapticFeedback)();
+
+      // runOnJS(lightHapticFeedback)();
     })
     .onFinalize(() => {
       translateX.value = withTiming(0, undefined, (isFinished) => {
@@ -150,6 +151,9 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
             return positions.value[+key] !== value;
           }
         );
+
+        // Trigger haptic feedback if the gesture ends ✨
+        positionsHaveChanged ? runOnJS(lightHapticFeedback)() : null;
 
         if (isFinished && onDragEnd && positionsHaveChanged) {
           runOnJS(onDragEnd)(positions.value);
