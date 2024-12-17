@@ -19,7 +19,6 @@ import { useAnimatedShake } from "@/hooks/useAnimatedShake";
 import NumPad from "@/components/num-pad";
 import { DarkTheme, Settings } from "@/assets/icons/icons";
 import CurrenciesSheet from "@/components/currencies-sheet";
-import CurrencySheet from "@/components/currency-sheet";
 import { CurrencySortableList } from "@/components/currencies-card-list";
 import { Positions } from "@/typings";
 import { ListItem } from "@/components/currency-card-item";
@@ -188,37 +187,6 @@ export default function HomeScreen() {
               );
             }}
           />
-
-          {/* <CurrencyCard
-            color={"#89E3A3"}
-            currencyName="EUR"
-            currencyValue="197"
-            currencyNumber={1}
-            onPress={() => handlePresentCurrencySheet({ color: "#89E3A3" })}
-            onBottomArrowPress={() =>
-              handlePresentCurrenciesSheet({ color: "#89E3A3" })
-            }
-          />
-          <CurrencyCard
-            color={"#F7D786"}
-            currencyName="XOF"
-            currencyValue="197,000"
-            currencyNumber={2}
-            onPress={() => handlePresentCurrencySheet({ color: "#F7D786" })}
-            onBottomArrowPress={() =>
-              handlePresentCurrenciesSheet({ color: "#F7D786" })
-            }
-          />
-          <CurrencyCard
-            color={"#ACBBEF"}
-            currencyName="USD"
-            currencyValue="196"
-            currencyNumber={3}
-            onPress={() => handlePresentCurrencySheet({ color: "#ACBBEF" })}
-            onBottomArrowPress={() =>
-              handlePresentCurrenciesSheet({ color: "#ACBBEF" })
-            }
-          /> */}
         </View>
 
         <View style={styles.exchangeAmount}>
@@ -236,7 +204,6 @@ export default function HomeScreen() {
       </View>
 
       <CurrenciesSheet color={handleIndicatorStyle} ref={currenciesSheetRef} />
-      <CurrencySheet color={handleIndicatorStyle} ref={currencySheetRef} />
 
       <StatusBar style={"dark"} />
     </View>

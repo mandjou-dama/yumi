@@ -46,6 +46,7 @@ export const ListItem: React.FC<ListItemProps> = ({
 }) => {
   // Use shared value for opacity with React Compiler-compliant API
   const opacity = useSharedValue(0.1);
+  const scale = useSharedValue(1);
 
   useEffect(() => {
     // Trigger fade-out and fade-in effect when the index changes
@@ -63,6 +64,21 @@ export const ListItem: React.FC<ListItemProps> = ({
     };
   });
 
+  // Animated style for scale
+  const animatedScaleStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.get() }],
+    };
+  });
+
+  const handlePressIn = () => {
+    scale.value = withTiming(0.95, { duration: 500 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withTiming(1, { duration: 500 });
+  };
+
   return (
     <View>
       <Link
@@ -72,8 +88,12 @@ export const ListItem: React.FC<ListItemProps> = ({
         }}
         asChild
       >
-        <TouchableWithoutFeedback onPress={onPress}>
-          <Animated.View style={[styles.container, style]}>
+        <TouchableWithoutFeedback
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          onPress={onPress}
+        >
+          <Animated.View style={[styles.container, style, animatedScaleStyle]}>
             {/* Left section with currency name and value */}
             <View style={styles.leftWrapper}>
               <View style={styles.imageContainer}>
