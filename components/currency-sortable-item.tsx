@@ -1,11 +1,7 @@
 // Import necessary modules and components from React and React Native
 import React, { useCallback } from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
-import {
-  Gesture,
-  GestureDetector,
-  HandlerStateChangeEvent,
-} from "react-native-gesture-handler";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 import Animated, {
   runOnJS,
@@ -14,10 +10,7 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
   withTiming,
-  scrollTo,
-  setGestureState,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Import the Positions type
 import { lightHapticFeedback } from "@/utils/haptics";
@@ -49,11 +42,6 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
   scrollContentOffsetY,
   viewRef,
 }) => {
-  // Get safe area insets and window dimensions
-  const inset = useSafeAreaInsets();
-  const { height: windowHeight } = useWindowDimensions();
-  const containerHeight = windowHeight - inset.top;
-
   // Shared values for gesture handling
   const contextY = useSharedValue(0);
   const translateX = useSharedValue(0);
@@ -106,35 +94,6 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
     [itemHeight, positions]
   );
 
-  // Callback to handle edge cases while scrolling
-  // (when the user drags the item to the top or bottom of the list)
-  // Since we need to update the scroll position of the scroll view (scrollTo)
-  const stopMoving = useCallback(
-    ({ absoluteY }: { absoluteY: number }) => {
-      "worklet";
-      const lowerBound = itemHeight * 3;
-      // const lowerBound = 1.5 * itemHeight;
-      const upperBound = containerHeight - itemHeight * 3;
-      // const upperBound = scrollContentOffsetY.value + containerHeight;
-
-      // scroll speed is proportional to the item height (the bigger the item, the faster it scrolls)
-      const scrollSpeed = itemHeight * 0.1;
-
-      if (absoluteY <= lowerBound) {
-        // while scrolling to the top of the list
-        // const nextPosition = scrollContentOffsetY.value - scrollSpeed;
-        // scrollTo(viewRef, 0, Math.max(nextPosition, 0), false);
-        //console.log("scrolling to top");
-      } else if (absoluteY >= upperBound) {
-        // while scrolling to the bottom of the list
-        // const nextPosition = scrollContentOffsetY.value + scrollSpeed;
-        // scrollTo(viewRef, 0, Math.max(nextPosition, 0), false);
-        //console.log("scrolling to bottom");
-      }
-    },
-    [containerHeight, itemHeight, scrollContentOffsetY.value, viewRef]
-  );
-
   // Need to keep track of the previous positions to check if the positions have changed
   // This is needed to trigger the onDragEnd callback
   const prevPositions = useSharedValue({});
@@ -164,8 +123,8 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
       // Trigger haptic feedback if the gesture starts ✨
       runOnJS(lightHapticFeedback)();
     })
-    .onUpdate(({ translationY, translationX, absoluteY }) => {
-      translateX.value = translationX;
+    .onUpdate(({ translationY, translationX }) => {
+      //translateX.value = translationX;
 
       // Calculate the new potential position
       let translateY = contextY.value + translationY;
@@ -179,11 +138,10 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
       // Update the position of the current item
       positions.value[index] = translateY + scrollContentOffsetY.value;
 
-      // Trigger the stopMoving function for additional actions
-      stopMoving({ absoluteY });
-
       // Update the positions shared value
       positions.value = Object.assign({}, positions.value);
+
+      // runOnJS(lightHapticFeedback)();
     })
     .onFinalize(() => {
       translateX.value = withTiming(0, undefined, (isFinished) => {
@@ -193,6 +151,9 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
             return positions.value[+key] !== value;
           }
         );
+
+        // Trigger haptic feedback if the gesture ends ✨
+        positionsHaveChanged ? runOnJS(lightHapticFeedback)() : null;
 
         if (isFinished && onDragEnd && positionsHaveChanged) {
           runOnJS(onDragEnd)(positions.value);
@@ -238,11 +199,11 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
       top: top.value,
       transform: [
         {
-          translateX: translateX.value,
+          translateX: translateX.value ? translateX.value : 0,
         },
       ],
       zIndex: zIndex,
-      borderRadius: withTiming(isGestureActive.value ? 20 : 0, {
+      borderRadius: withTiming(isGestureActive.value ? 20 : 20, {
         duration: 200,
       }),
       shadowOpacity: withTiming(isGestureActive.value ? 0.3 : 0),
@@ -257,6 +218,7 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
           {
             top: index * itemHeight,
             height: itemHeight,
+            opacity: 0.3,
           },
           styles.backgroundItem,
         ]}
@@ -294,8 +256,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    shadowColor: "black",
-    shadowRadius: 10,
+    shadowColor: "#00000027",
+    shadowRadius: 20,
     shadowOffset: {
       width: 0,
       height: 0,

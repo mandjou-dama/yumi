@@ -1,20 +1,23 @@
 // Import necessary modules and components from React and React Native
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useEffect } from "react";
+import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import type { StyleProp, ViewStyle } from "react-native";
 import Animated, {
   useAnimatedStyle,
+  useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { BottomArrow, GenerateVoice } from "@/assets/icons/icons";
+
+export const ITEM_HEIGHT = 75;
+export const BORDER_RADIUS = 20;
 
 // Define the type for information about each list item
-export type ItemInfo = {
-  title: string;
-  subtitle: string;
-  activeValues: boolean[];
+export type CurrencyCardItem = {
+  name: string;
+  symbol: string;
+  value: string;
   color: string;
-  squareColor?: string;
-  textIcon: string;
 };
 
 // Define the type for the props of the ListItem component
@@ -23,7 +26,10 @@ type ListItemProps = {
   activeIndex: Animated.SharedValue<number | null>;
   index: number;
   maxBorderRadius?: number;
-  item: ItemInfo;
+  isLong?: boolean;
+  onPress: () => void;
+  onBottomArrowPress?: () => void;
+  item: CurrencyCardItem;
 };
 
 // Define the ListItem component
@@ -31,103 +37,111 @@ export const ListItem: React.FC<ListItemProps> = ({
   style,
   activeIndex,
   index,
-  maxBorderRadius = 10,
   item,
+  isLong,
+  onPress,
+  onBottomArrowPress,
 }) => {
-  // Use animated style for dynamic styling based on the active index
-  const rStyle = useAnimatedStyle(() => {
+  // Use shared value for opacity with React Compiler-compliant API
+  const opacity = useSharedValue(0.1);
+
+  useEffect(() => {
+    // Trigger fade-out and fade-in effect when the index changes
+    opacity.set(() =>
+      withTiming(0, { duration: 300 }, () => {
+        opacity.set(() => withTiming(0.1, { duration: 300 }));
+      })
+    );
+  }, [index]);
+
+  // Animated style for opacity
+  const animatedOpacityStyle = useAnimatedStyle(() => {
     return {
-      borderRadius: withTiming(
-        activeIndex.value === index ? maxBorderRadius : 0
-      ),
+      opacity: opacity.get(),
     };
-  }, [maxBorderRadius, index]);
+  });
 
-  // Render the ListItem component
   return (
-    <Animated.View style={[styles.container, style, rStyle]}>
-      {/* Icon and Text Container */}
-      <View style={styles.iconContainer}>
-        <View style={[styles.icon, { backgroundColor: item.color }]}>
-          <Text style={styles.iconText}>{item.textIcon}</Text>
+    <TouchableWithoutFeedback onPress={onPress}>
+      <Animated.View style={[styles.container, style]}>
+        {/* Left section with currency name and value */}
+        <View style={styles.leftWrapper}>
+          <View style={styles.imageContainer}>
+            <Animated.Text style={[styles.currency, animatedOpacityStyle]}>
+              {index}
+            </Animated.Text>
+          </View>
+          <View>
+            <Text style={styles.currencyName}>{item.name}</Text>
+            <Text style={styles.currencyValue}>{item.value}</Text>
+          </View>
         </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.subtitle}>{item.subtitle}</Text>
-        </View>
-      </View>
 
-      {/* Status Indicator Container */}
-      <View style={styles.statusContainer}>
-        {/* Map through activeValues to render status items */}
-        {new Array(item.activeValues.length).fill(0).map((_, i) => (
-          <View
-            key={i}
-            style={[
-              styles.statusItem,
-              {
-                backgroundColor: item.squareColor ?? item.color,
-                opacity: item.activeValues[i] ? 1 : 0.6,
-                transform: [
-                  {
-                    scale: item.activeValues[i] ? 1 : 0.3,
-                  },
-                ],
-              },
-            ]}
-          />
-        ))}
-      </View>
-    </Animated.View>
+        {/* Right section with optional icons */}
+        <View style={styles.rightWrapper}>
+          {isLong && <GenerateVoice />}
+          {onBottomArrowPress && (
+            <TouchableWithoutFeedback onPress={onBottomArrowPress}>
+              <View style={styles.bottomArrow}>
+                <BottomArrow />
+              </View>
+            </TouchableWithoutFeedback>
+          )}
+        </View>
+      </Animated.View>
+    </TouchableWithoutFeedback>
   );
 };
 
-// Define styles for the ListItem component
+// Styles for the ListItem component
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    width: "100%",
+    height: ITEM_HEIGHT,
+    backgroundColor: "#f0ebd8",
+    borderRadius: BORDER_RADIUS,
     flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 10,
   },
-  iconContainer: {
-    flex: 1,
-    alignItems: "center",
+  leftWrapper: {
     flexDirection: "row",
-  },
-  icon: {
-    height: "55%",
-    aspectRatio: 1,
-    justifyContent: "center",
     alignItems: "center",
-    borderRadius: 100,
+    gap: 10,
+    height: "80%",
   },
-  iconText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
+  rightWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
-  textContainer: {
-    flex: 1,
-    marginLeft: 12,
+  imageContainer: {
+    width: 55,
+    height: "100%",
+    backgroundColor: "#e7e7e66d",
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  title: {
-    fontSize: 16,
+  currencyName: {
+    fontSize: 18,
     fontWeight: "bold",
     marginBottom: 5,
   },
-  subtitle: {
-    fontSize: 14,
-    color: "gray",
+  currencyValue: {
+    fontSize: 16,
   },
-  statusContainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-  },
-  statusItem: {
-    height: 25,
-    width: 25,
+  bottomArrow: {
+    width: 35,
+    height: 35,
     borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  currency: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#0d1321",
   },
 });

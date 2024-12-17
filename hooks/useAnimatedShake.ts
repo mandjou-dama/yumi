@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import {
   Easing,
   useAnimatedStyle,
@@ -27,7 +27,7 @@ export const useAnimatedShake = () => {
         mass: 0.5,
       })
     );
-  }, []);
+  }, [shakeTranslateX]);
 
   const rStyle = useAnimatedStyle(() => {
     return {
@@ -36,7 +36,7 @@ export const useAnimatedShake = () => {
   }, []);
 
   const isShaking = useDerivedValue(() => {
-    return shakeTranslateX.value !== 0;
+    return shakeTranslateX.get() !== 0;
   }, []);
 
   return { shake, rStyle, isShaking };

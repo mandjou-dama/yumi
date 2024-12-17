@@ -1,25 +1,27 @@
+// Import necessary modules and components from React and React Native
 import React, { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import type { ScrollViewProps, ViewProps } from "react-native";
+import type { ViewProps } from "react-native";
 import Animated, {
   runOnJS,
   useAnimatedReaction,
   useAnimatedRef,
-  useAnimatedScrollHandler,
   useSharedValue,
-  getRelativeCoords,
 } from "react-native-reanimated";
 
 // Import the SortableItem component and Positions type
 import { CurrencySortableItem } from "./currency-sortable-item";
 import type { Positions } from "@/typings";
-import { PanGestureHandler } from "react-native-gesture-handler";
 
 // Define the props for the SortableList component
 type SortableListProps<T> = {
   listItemHeight: number;
   data: T[];
-  renderItem?: (_: { item: T; index: number }) => React.ReactNode;
+  renderItem?: (_: {
+    item: T;
+    index: number;
+    position: number;
+  }) => React.ReactNode;
   onAnimatedIndexChange?: (index: number | null) => void;
   onDragEnd?: (positions: Positions) => void;
   backgroundItem?: React.ReactNode;
@@ -54,16 +56,9 @@ function CurrencySortableList<T>({
   // Shared value for tracking the currently animated index during drag-and-drop
   const animatedIndex = useSharedValue<number | null>(null);
 
-  // Animated scroll handler to update the scroll position
-  const onScroll = useAnimatedScrollHandler({
-    onScroll: ({ contentOffset: { y } }) => {
-      scrollContentOffsetY.value = y;
-    },
-  });
-
   // Animated reaction to trigger a callback when the animated index changes
   useAnimatedReaction(
-    () => animatedIndex.value,
+    () => animatedIndex.get(),
     (currentIndex) => {
       if (onAnimatedIndexChange) runOnJS(onAnimatedIndexChange)(currentIndex);
     }
@@ -72,6 +67,8 @@ function CurrencySortableList<T>({
   // Callback function for rendering each item
   const renderItem = useCallback(
     (params: { item: T; index: number }) => {
+      const position = positions.get()[params.index] || 0;
+
       return (
         <CurrencySortableItem
           itemHeight={listItemHeight}
@@ -84,7 +81,7 @@ function CurrencySortableList<T>({
           scrollContentOffsetY={scrollContentOffsetY}
           key={params.index}
         >
-          {renderItemProp?.(params)}
+          {renderItemProp?.({ ...params, position })}
         </CurrencySortableItem>
       );
     },
@@ -100,26 +97,21 @@ function CurrencySortableList<T>({
     ]
   );
 
-  // Render the SortableList component with an Animated.ScrollView
+  // Render the SortableList component with an Animated.View
   return (
     <Animated.View
       {...rest}
-      //ref={scrollView}
       style={[
         rest.style,
         {
           height: listItemHeight * data.length,
-          position: "relative",
-          overflowY: "hidden",
-          backgroundColor: "#F7ECC9",
-          //paddingTop: listItemHeight * data.length,
         },
       ]}
     >
       {data.map((item, index) => {
         return renderItem({
           item,
-          index: index,
+          index,
         });
       })}
     </Animated.View>
