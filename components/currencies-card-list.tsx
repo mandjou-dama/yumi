@@ -59,7 +59,7 @@ function CurrencySortableList<T>({
         acc[index] = curr;
         return acc;
       }, {} as Positions);
-  }, [data, listItemHeight, savedPositions]);
+  }, [data, listItemHeight]);
 
   // Shared value for tracking positions of list items
   const positions = useSharedValue<Positions>(initialPositions());

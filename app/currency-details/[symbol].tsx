@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 
-import { useCurrenciesStore } from "@/store/useCurrencies";
+import { useCurrencyStore } from "@/store/useCurrencyStore";
 import Chart from "@/components/chart";
 import { SegmentedControl } from "@/components/segmented-control";
 
@@ -10,7 +10,7 @@ export default function CurrencyDetails() {
   const { symbol, color, name } = useLocalSearchParams();
 
   // store
-  const { items } = useCurrenciesStore();
+  const { favoriteCurrencies: items } = useCurrencyStore();
 
   // filter items by creating a new array without the selected item
   const filteredItems = items.filter((item) => item.symbol !== symbol);

@@ -1,6 +1,24 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { MMKV } from "react-native-mmkv";
 import type { CurrencyCardItem } from "@/components/currency-card-item";
+
+// MMKV instance
+const storage = new MMKV({ id: "currency-storage" });
+
+// Custom StateStorage for MMKV
+const zustandCurrencyStorage = {
+  getItem: (name: string) => {
+    const value = storage.getString(name);
+    return value ?? null;
+  },
+  setItem: (name: string, value: string) => {
+    storage.set(name, value);
+  },
+  removeItem: (name: string) => {
+    storage.delete(name);
+  },
+};
 
 // Initial data
 const initialItems: CurrencyCardItem[] = [
@@ -36,7 +54,7 @@ interface CurrencyStore {
   setBaseCurrency: (base: string) => void;
   setBaseAmount: (amount: number) => void;
   setRates: (rates: Rates) => void;
-  setFavoriteCurrency: (symbol: string) => void; // New function
+  setFavoriteCurrency: (symbol: string) => void;
 }
 
 export const useCurrencyStore = create<CurrencyStore>()(
@@ -94,7 +112,8 @@ export const useCurrencyStore = create<CurrencyStore>()(
       },
     }),
     {
-      name: "currency-store-persist", // Local storage key
+      name: "currency-store-persist", // Key for persistence
+      storage: createJSONStorage(() => zustandCurrencyStorage), // Use custom MMKV storage
     }
   )
 );

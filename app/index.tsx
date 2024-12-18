@@ -10,6 +10,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useCurrencyStore } from "@/store/useCurrencyStore";
+import { usePositionStore } from "@/store/usePositionStore";
 import * as Haptics from "expo-haptics";
 
 //hooks
@@ -39,6 +40,10 @@ export default function HomeScreen() {
   // store
   const { favoriteCurrencies, baseCurrency, setFavoriteCurrency } =
     useCurrencyStore();
+
+  const { positions, setPositions } = usePositionStore();
+
+  console.log("positions", positions);
 
   useEffect(() => {
     console.log(baseCurrency);

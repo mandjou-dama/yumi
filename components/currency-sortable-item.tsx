@@ -12,6 +12,9 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+//store
+import { usePositionStore } from "@/store/usePositionStore";
+
 // Import the Positions type
 import { lightHapticFeedback } from "@/utils/haptics";
 
@@ -45,6 +48,7 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
   // Shared values for gesture handling
   const contextY = useSharedValue(0);
   const translateX = useSharedValue(0);
+  const { setPositions, positions: savedPositions } = usePositionStore();
 
   // Shared values for tracking gesture and animation state
   const wasLastActiveIndex = useSharedValue(false);
@@ -123,9 +127,7 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
       // Trigger haptic feedback if the gesture starts ✨
       runOnJS(lightHapticFeedback)();
     })
-    .onUpdate(({ translationY, translationX }) => {
-      //translateX.value = translationX;
-
+    .onUpdate(({ translationY }) => {
       // Calculate the new potential position
       let translateY = contextY.value + translationY;
 
@@ -156,6 +158,7 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
         positionsHaveChanged ? runOnJS(lightHapticFeedback)() : null;
 
         if (isFinished && onDragEnd && positionsHaveChanged) {
+          runOnJS(setPositions)(positions.value);
           runOnJS(onDragEnd)(positions.value);
         }
       });
