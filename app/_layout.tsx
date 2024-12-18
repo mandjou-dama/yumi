@@ -1,8 +1,9 @@
-import { useEffect, StrictMode } from "react";
+import { useEffect } from "react";
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from "react-native-reanimated";
+import { View, ActivityIndicator } from "react-native";
 
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";

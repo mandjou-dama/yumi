@@ -9,6 +9,9 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 
+//
+import { usePositionStore } from "@/store/usePositionStore";
+
 // Import the SortableItem component and Positions type
 import { CurrencySortableItem } from "./currency-sortable-item";
 import type { Positions } from "@/typings";
@@ -41,17 +44,25 @@ function CurrencySortableList<T>({
   const scrollContentOffsetY = useSharedValue(0);
   const scrollView = useAnimatedRef<Animated.View>();
 
+  const { positions: savedPositions, setPositions } = usePositionStore();
+
   // Initial positions for list items
-  const initialPositions = new Array(data?.length)
-    .fill(0)
-    .map((_, index) => index * listItemHeight)
-    .reduce((acc, curr, index) => {
-      acc[index] = curr;
-      return acc;
-    }, {} as Positions);
+  const initialPositions = useCallback(() => {
+    if (Object.keys(savedPositions).length === data.length) {
+      return savedPositions; // Use saved positions if available
+    }
+
+    return new Array(data?.length)
+      .fill(0)
+      .map((_, index) => index * listItemHeight)
+      .reduce((acc, curr, index) => {
+        acc[index] = curr;
+        return acc;
+      }, {} as Positions);
+  }, [data, listItemHeight, savedPositions]);
 
   // Shared value for tracking positions of list items
-  const positions = useSharedValue<Positions>(initialPositions);
+  const positions = useSharedValue<Positions>(initialPositions());
 
   // Shared value for tracking the currently animated index during drag-and-drop
   const animatedIndex = useSharedValue<number | null>(null);

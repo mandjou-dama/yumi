@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { Link } from "expo-router";
@@ -9,7 +9,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { useCurrenciesStore } from "@/store/useCurrencies";
+import { useCurrencyStore } from "@/store/useCurrencyStore";
 import * as Haptics from "expo-haptics";
 
 //hooks
@@ -37,7 +37,12 @@ export default function HomeScreen() {
   const [indexes, setIndexes] = useState<any[]>([]);
 
   // store
-  const { items, setItems } = useCurrenciesStore();
+  const { favoriteCurrencies, baseCurrency, setFavoriteCurrency } =
+    useCurrencyStore();
+
+  useEffect(() => {
+    console.log(baseCurrency);
+  }, [baseCurrency]);
 
   // hooks
   const insets = useSafeAreaInsets();
@@ -78,33 +83,23 @@ export default function HomeScreen() {
     new Intl.NumberFormat("en-US").format(value);
 
   const onDragEnd = useCallback((data: Positions) => {
-    // onDragEnd is called when the user releases the item (if the item was moved)
-    // The data argument contains the new positions of the items
-    // The data is a map of index to height
-
-    // Here's an example of how to get the new order of the items based on the data
-
-    // Convert the map into an array of [index, height] pairs
+    // Map indices to heights
     const heightArray = Object.entries(data).map(([index, height]) => [
       parseInt(index, 10),
       height,
     ]);
 
-    // Sort the array based on the height (second element in each pair)
+    // Sort items by height
     heightArray.sort((a, b) => a[1] - b[1]);
 
-    // Extract the sorted indices
+    // Get the sorted indices
     const newOrder = heightArray.map(([index]) => index);
 
-    // return correspondant item element for each index
-    const newItems = newOrder.map((index) => items[index]);
+    // Find the new first item's symbol
+    const newFirstSymbol = favoriteCurrencies[newOrder[0]].symbol;
 
-    //extract new items index and store them like this : [1: index in items, 2: index in items, 3: index in items]
-    const newIndexes = newItems.map((item, index) => {
-      return { item, index };
-    });
-
-    setIndexes(newIndexes);
+    // Set the new first item
+    setFavoriteCurrency(newFirstSymbol);
   }, []);
 
   // Shared value for tracking the currently active index (the item that is being dragged)
@@ -132,13 +127,6 @@ export default function HomeScreen() {
           <Text style={styles.bodyText}>Vos devises favorites</Text>
 
           <CurrencySortableList
-            style={
-              {
-                //paddingTop: safeTop,
-                //height: "30%",
-                //position: "relative",
-              }
-            }
             onAnimatedIndexChange={(index) => {
               currentActiveIndex.value = index;
             }}
@@ -155,14 +143,14 @@ export default function HomeScreen() {
                 ]}
               />
             }
-            data={items}
+            data={favoriteCurrencies}
             listItemHeight={ITEM_HEIGHT}
             renderItem={({ item, index, position }) => {
               // check if the order of item corresponds to the index in items inside indexes array
               const currentIndex = indexes.find((item) => item.index === index);
 
               // create dynamic index based on the order of item in items array
-              const dynamicIndex = items.indexOf(item);
+              const dynamicIndex = favoriteCurrencies.indexOf(item);
 
               // assign dynamic index to corresponding item
               // index = dynamicIndex;
