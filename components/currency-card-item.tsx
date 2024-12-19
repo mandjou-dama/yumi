@@ -17,7 +17,6 @@ export const BORDER_RADIUS = 20;
 export type CurrencyCardItem = {
   name: string;
   symbol: string;
-  value: string;
   color: string;
 };
 
@@ -29,6 +28,7 @@ type ListItemProps = {
   maxBorderRadius?: number;
   isLong?: boolean;
   color?: string;
+  value: string;
   onPress: () => void;
   onBottomArrowPress?: () => void;
   item: CurrencyCardItem;
@@ -41,6 +41,7 @@ export const ListItem: React.FC<ListItemProps> = ({
   index,
   item,
   isLong,
+  value,
   onPress,
   onBottomArrowPress,
 }) => {
@@ -102,7 +103,7 @@ export const ListItem: React.FC<ListItemProps> = ({
               </View>
               <View>
                 <Text style={styles.currencyName}>{item.name}</Text>
-                <Text style={styles.currencyValue}>{item.value}</Text>
+                <Text style={styles.currencyValue}>{value}</Text>
               </View>
             </View>
 

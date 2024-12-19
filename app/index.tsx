@@ -33,21 +33,31 @@ export default function HomeScreen() {
   // state
   const [inputValue, setInputValue] = useState<number>(0);
   const currenciesSheetRef = useRef<BottomSheetModal>(null);
-  const currencySheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
   const [indexes, setIndexes] = useState<any[]>([]);
 
   // store
-  const { favoriteCurrencies, baseCurrency, setFavoriteCurrency } =
-    useCurrencyStore();
+  const {
+    favoriteCurrencies,
+    baseCurrency,
+    setBaseCurrency,
+    amountToConvert,
+    setAmountToConvert,
+    fetchExchangeRates,
+    handleConversion,
+    convertedCurrencies,
+    favoriteCurrencyRates,
+  } = useCurrencyStore();
 
-  const { positions, setPositions } = usePositionStore();
-
-  console.log("positions", positions);
+  const { positions } = usePositionStore();
 
   useEffect(() => {
+    fetchExchangeRates();
     console.log(baseCurrency);
-  }, [baseCurrency]);
+    console.log("positions", positions);
+    console.log("convertedCurrencies", convertedCurrencies);
+    //console.log("favoriteCurrencyRates", favoriteCurrencyRates);
+  }, [baseCurrency, amountToConvert, positions]);
 
   // hooks
   const insets = useSafeAreaInsets();
@@ -62,26 +72,11 @@ export default function HomeScreen() {
     };
   }, []);
 
-  // callbacks
-  const handlePresentCurrenciesSheet = useCallback(
-    ({ color }: { color: string }) => {
-      currenciesSheetRef.current?.present();
-      setHandleIndicatorStyle(color);
-    },
-    []
-  );
-
-  const handlePresentCurrencySheet = useCallback(
-    ({ color }: { color: string }) => {
-      currencySheetRef.current?.present();
-      setHandleIndicatorStyle(color);
-    },
-    []
-  );
-
-  const handleInputChange = (value: string): void => {
-    console.log("User input:", value);
-    setInputValue(Number(value));
+  const handleInputChange = (value: string) => {
+    const amount = Number(value);
+    setAmountToConvert(amount);
+    handleConversion(amount);
+    setInputValue(amount);
   };
 
   const formatCurrency = (value: number) =>
@@ -104,7 +99,7 @@ export default function HomeScreen() {
     const newFirstSymbol = favoriteCurrencies[newOrder[0]].symbol;
 
     // Set the new first item
-    setFavoriteCurrency(newFirstSymbol);
+    setBaseCurrency(newFirstSymbol);
   }, []);
 
   // Shared value for tracking the currently active index (the item that is being dragged)
@@ -151,16 +146,8 @@ export default function HomeScreen() {
             data={favoriteCurrencies}
             listItemHeight={ITEM_HEIGHT}
             renderItem={({ item, index, position }) => {
-              // check if the order of item corresponds to the index in items inside indexes array
-              const currentIndex = indexes.find((item) => item.index === index);
+              const value = convertedCurrencies[item.symbol];
 
-              // create dynamic index based on the order of item in items array
-              const dynamicIndex = favoriteCurrencies.indexOf(item);
-
-              // assign dynamic index to corresponding item
-              // index = dynamicIndex;
-
-              // console.log("Position", position);
               return (
                 <ListItem
                   item={item}
@@ -171,6 +158,11 @@ export default function HomeScreen() {
                     width: "100%",
                     alignSelf: "center",
                   }}
+                  value={
+                    position <= 0
+                      ? formatCurrency(amountToConvert)
+                      : formatCurrency(value)
+                  }
                   maxBorderRadius={MAX_BORDER_RADIUS}
                   index={position <= 0 ? 1 : position === 87 ? 2 : 3}
                   activeIndex={currentActiveIndex}
@@ -187,7 +179,7 @@ export default function HomeScreen() {
           <Animated.Text
             style={[styles.exchangeAmountText, rStyle, rErrorTextStyle]}
           >
-            {formatCurrency(inputValue)}
+            {formatCurrency(amountToConvert)}
           </Animated.Text>
         </View>
       </View>
