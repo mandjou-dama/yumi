@@ -52,7 +52,7 @@ export default function HomeScreen() {
   const { positions } = usePositionStore();
 
   useEffect(() => {
-    fetchExchangeRates();
+    //fetchExchangeRates();
     console.log(baseCurrency);
     console.log("positions", positions);
     console.log("convertedCurrencies", convertedCurrencies);
@@ -80,27 +80,33 @@ export default function HomeScreen() {
   };
 
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("en-US").format(value);
+    new Intl.NumberFormat("en-US", {}).format(value);
 
-  const onDragEnd = useCallback((data: Positions) => {
-    // Map indices to heights
-    const heightArray = Object.entries(data).map(([index, height]) => [
-      parseInt(index, 10),
-      height,
-    ]);
+  const onDragEnd = useCallback(
+    (data: Positions) => {
+      // Map indices to heights
+      const heightArray = Object.entries(data).map(([index, height]) => [
+        parseInt(index, 10),
+        height,
+      ]);
 
-    // Sort items by height
-    heightArray.sort((a, b) => a[1] - b[1]);
+      // Sort items by height
+      heightArray.sort((a, b) => a[1] - b[1]);
 
-    // Get the sorted indices
-    const newOrder = heightArray.map(([index]) => index);
+      // Get the sorted indices
+      const newOrder = heightArray.map(([index]) => index);
 
-    // Find the new first item's symbol
-    const newFirstSymbol = favoriteCurrencies[newOrder[0]].symbol;
+      // Find the new first item's symbol
+      const newFirstSymbol = favoriteCurrencies[newOrder[0]].symbol;
 
-    // Set the new first item
-    setBaseCurrency(newFirstSymbol);
-  }, []);
+      // Set the new first item
+      setBaseCurrency(newFirstSymbol);
+
+      // Recalculate conversions with the current amount
+      handleConversion(amountToConvert);
+    },
+    [favoriteCurrencies, amountToConvert]
+  );
 
   // Shared value for tracking the currently active index (the item that is being dragged)
   // This is used to update the border radius of the active item
@@ -148,6 +154,8 @@ export default function HomeScreen() {
             renderItem={({ item, index, position }) => {
               const value = convertedCurrencies[item.symbol];
 
+              console.log("value", value);
+
               return (
                 <ListItem
                   item={item}
@@ -167,7 +175,7 @@ export default function HomeScreen() {
                   index={position <= 0 ? 1 : position === 87 ? 2 : 3}
                   activeIndex={currentActiveIndex}
                   onPress={() => {}}
-                  onBottomArrowPress={() => {}}
+                  onBottomArrowPress={() => console.log("onBottomArrowPress")}
                 />
               );
             }}

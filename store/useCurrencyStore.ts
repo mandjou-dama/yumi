@@ -45,7 +45,7 @@ interface Rates {
 
 interface CurrencyStore {
   favoriteCurrencies: CurrencyCardItem[];
-  favoriteCurrencyRates: Record<string, number>; // Store rates for favorite currencies
+  favoriteCurrencyRates: Record<string, Record<string, number>>; // Store rates for favorite currencies
   baseCurrency: string;
   amountToConvert: number;
   convertedCurrencies: Record<string, number>;
@@ -71,38 +71,35 @@ export const useCurrencyStore = create<CurrencyStore>()(
       setBaseCurrency: (currency) => set({ baseCurrency: currency }),
 
       fetchExchangeRates: async () => {
-        const { favoriteCurrencies, baseCurrency } = get();
-        const rates: Record<string, number> = {}; // Flat map of currency to rate
+        const { favoriteCurrencies } = get();
+        const allRates: Record<string, Record<string, number>> = {}; // Store rates for all base currencies
 
         try {
-          const response = await fetch(
-            `https://api.fastforex.io/fetch-all?from=${baseCurrency}&api_key=86871c47b0-6d77251689-sopc73`,
-            {
-              method: "GET",
-              headers: { accept: "application/json" },
-            }
-          );
-
-          if (!response.ok) {
-            console.error(`Failed to fetch rates for ${baseCurrency}`);
-            return;
-          }
-
-          const data = await response.json();
-
-          if (data.results) {
-            // Filter only favorite currencies
-            favoriteCurrencies.forEach((currency) => {
-              if (data.results[currency.symbol]) {
-                rates[currency.symbol] = data.results[currency.symbol];
+          for (const currency of favoriteCurrencies) {
+            const response = await fetch(
+              `https://api.fastforex.io/fetch-all?from=${currency.symbol}&api_key=86871c47b0-6d77251689-sopc73`,
+              {
+                method: "GET",
+                headers: { accept: "application/json" },
               }
-            });
-          } else {
-            console.error("Invalid data:", data);
+            );
+
+            if (!response.ok) {
+              console.error(`Failed to fetch rates for ${currency.symbol}`);
+              continue;
+            }
+
+            const data = await response.json();
+
+            if (data.results) {
+              allRates[currency.symbol] = data.results;
+            } else {
+              console.error("Invalid data:", data);
+            }
           }
 
-          // Update the store with processed rates
-          set({ favoriteCurrencyRates: rates });
+          // Update the store with all fetched rates
+          set({ favoriteCurrencyRates: allRates });
         } catch (error) {
           console.error("Error fetching exchange rates:", error);
         }
@@ -110,8 +107,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
 
       handleConversion: (amount) => {
         set((state) => {
-          const rates = state.favoriteCurrencyRates;
-          const baseRate = rates[state.baseCurrency];
+          const rates = state.favoriteCurrencyRates[state.baseCurrency] || {};
 
           // Calculate converted values
           const converted = state.favoriteCurrencies.reduce<
