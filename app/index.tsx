@@ -34,30 +34,9 @@ export default function HomeScreen() {
   const [inputValue, setInputValue] = useState<number>(0);
   const currenciesSheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
-  const [indexes, setIndexes] = useState<any[]>([]);
 
   // store
-  const {
-    favoriteCurrencies,
-    baseCurrency,
-    setBaseCurrency,
-    amountToConvert,
-    setAmountToConvert,
-    fetchExchangeRates,
-    handleConversion,
-    convertedCurrencies,
-    favoriteCurrencyRates,
-  } = useCurrencyStore();
-
-  const { positions } = usePositionStore();
-
-  useEffect(() => {
-    //fetchExchangeRates();
-    console.log(baseCurrency);
-    console.log("positions", positions);
-    console.log("convertedCurrencies", convertedCurrencies);
-    //console.log("favoriteCurrencyRates", favoriteCurrencyRates);
-  }, [baseCurrency, amountToConvert, positions]);
+  const { favoriteCurrencies, setBaseCurrency } = useCurrencyStore();
 
   // hooks
   const insets = useSafeAreaInsets();
@@ -74,8 +53,6 @@ export default function HomeScreen() {
 
   const handleInputChange = (value: string) => {
     const amount = Number(value);
-    setAmountToConvert(amount);
-    handleConversion(amount);
     setInputValue(amount);
   };
 
@@ -99,13 +76,11 @@ export default function HomeScreen() {
       // Find the new first item's symbol
       const newFirstSymbol = favoriteCurrencies[newOrder[0]].symbol;
 
-      // Set the new first item
+      // Update the base currency
       setBaseCurrency(newFirstSymbol);
-
-      // Recalculate conversions with the current amount
-      handleConversion(amountToConvert);
     },
-    [favoriteCurrencies, amountToConvert]
+    //[favoriteCurrencies, amountToConvert]
+    [favoriteCurrencies]
   );
 
   // Shared value for tracking the currently active index (the item that is being dragged)
@@ -152,9 +127,7 @@ export default function HomeScreen() {
             data={favoriteCurrencies}
             listItemHeight={ITEM_HEIGHT}
             renderItem={({ item, index, position }) => {
-              const value = convertedCurrencies[item.symbol];
-
-              console.log("value", value);
+              //const value = convertedCurrencies[item.symbol];
 
               return (
                 <ListItem
@@ -166,11 +139,12 @@ export default function HomeScreen() {
                     width: "100%",
                     alignSelf: "center",
                   }}
-                  value={
-                    position <= 0
-                      ? formatCurrency(amountToConvert)
-                      : formatCurrency(value)
-                  }
+                  value={inputValue.toString()}
+                  // value={
+                  //   position <= 0
+                  //     ? formatCurrency(amountToConvert)
+                  //     : formatCurrency(value)
+                  // }
                   maxBorderRadius={MAX_BORDER_RADIUS}
                   index={position <= 0 ? 1 : position === 87 ? 2 : 3}
                   activeIndex={currentActiveIndex}
@@ -187,7 +161,7 @@ export default function HomeScreen() {
           <Animated.Text
             style={[styles.exchangeAmountText, rStyle, rErrorTextStyle]}
           >
-            {formatCurrency(amountToConvert)}
+            {formatCurrency(inputValue)}
           </Animated.Text>
         </View>
       </View>

@@ -158,7 +158,7 @@ const CurrencySortableItem: React.FC<SortableListItemProps> = ({
         positionsHaveChanged ? runOnJS(lightHapticFeedback)() : null;
 
         if (isFinished && onDragEnd && positionsHaveChanged) {
-          runOnJS(setPositions)(positions.value);
+          //runOnJS(setPositions)(positions.value);
           runOnJS(onDragEnd)(positions.value);
         }
       });
