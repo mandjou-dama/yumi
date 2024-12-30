@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const API_URL = process.env.EXPO_PUBLIC_API_URL!;
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY!;
 
@@ -162,20 +164,18 @@ interface Results {
 }
 
 export const fetchExchangeRates = async (baseCurrency: string) => {
-  const response = await fetch(
-    `${API_URL}/fetch-all?from=${baseCurrency}&api_key=${API_KEY}`,
-    {
-      method: "GET",
-      headers: { accept: "application/json" },
-    }
-  );
+  try {
+    const response = await axios.get(
+      `${API_URL}/fetch-all?from=${baseCurrency}&api_key=${API_KEY}`,
+      {
+        headers: { accept: "application/json" },
+      }
+    );
 
-  if (!response.ok) {
+    return response.data;
+  } catch (error) {
     throw new Error("Failed to fetch exchange rates");
   }
-
-  const data = await response.json();
-  return data;
 };
 
 export const fetchTimeSeries = async (
