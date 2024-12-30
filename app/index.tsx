@@ -33,21 +33,22 @@ const ITEM_HEIGHT = HEIGHT + PADDING * 2;
 const MAX_BORDER_RADIUS = 20;
 
 export default function HomeScreen() {
-  // query
-  // const { data, isLoading } = useQuery({
-  //   queryKey: ["exchangeRates"],
-  //   queryFn: () => fetchExchangeRates("USD"),
-  // });
+  // store
+  const { favoriteCurrencies, setBaseCurrency, baseCurrency } =
+    useCurrencyStore();
 
-  // console.log(data);
+  // query
+  const { data, isLoading } = useQuery({
+    queryKey: ["exchangeRates", baseCurrency],
+    queryFn: () => fetchExchangeRates(baseCurrency),
+  });
+
+  console.log(data);
 
   // state
   const [inputValue, setInputValue] = useState<number>(0);
   const currenciesSheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
-
-  // store
-  const { favoriteCurrencies, setBaseCurrency } = useCurrencyStore();
 
   // hooks
   const insets = useSafeAreaInsets();
