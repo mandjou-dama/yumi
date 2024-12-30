@@ -20,6 +20,8 @@ const zustandCurrencyStorage = {
   },
 };
 
+const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
+
 // Initial data
 const initialItems: CurrencyCardItem[] = [
   {
@@ -49,6 +51,8 @@ interface CurrencyStore {
   baseCurrency: string;
   amountToConvert: number;
   convertedCurrencies: Record<string, number>;
+  lastFetchTime: string | null;
+  //setLastFetchTime: (time: Date) => void;
   setAmountToConvert: (amount: number) => void;
   setBaseCurrency: (base: string) => void;
   fetchExchangeRates: () => Promise<void>;
@@ -63,7 +67,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
       baseCurrency: initialItems[0].symbol, // Default to the first item
       amountToConvert: 0,
       convertedCurrencies: {},
-
+      lastFetchTime: null,
       setAmountToConvert: (amount) => {
         set({ amountToConvert: amount });
       },
@@ -77,7 +81,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
         try {
           for (const currency of favoriteCurrencies) {
             const response = await fetch(
-              `https://api.fastforex.io/fetch-all?from=${currency.symbol}&api_key=86871c47b0-6d77251689-sopc73`,
+              `https://api.fastforex.io/fetch-all?from=${currency.symbol}&api_key=${API_KEY}`,
               {
                 method: "GET",
                 headers: { accept: "application/json" },
@@ -99,9 +103,11 @@ export const useCurrencyStore = create<CurrencyStore>()(
           }
 
           // Update the store with all fetched rates
+          console.log("Fetching exchange rates...");
+          set({ lastFetchTime: Date.now().toString() });
           set({ favoriteCurrencyRates: allRates });
         } catch (error) {
-          console.error("Error fetching exchange rates:", error);
+          //console.error("Error fetching exchange rates:", error);
         }
       },
 

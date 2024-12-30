@@ -47,17 +47,23 @@ export default function HomeScreen() {
     handleConversion,
     convertedCurrencies,
     favoriteCurrencyRates,
+    lastFetchTime,
   } = useCurrencyStore();
 
   const { positions } = usePositionStore();
 
   useEffect(() => {
     //fetchExchangeRates();
-    console.log(baseCurrency);
-    console.log("positions", positions);
-    console.log("convertedCurrencies", convertedCurrencies);
-    //console.log("favoriteCurrencyRates", favoriteCurrencyRates);
-  }, [baseCurrency, amountToConvert, positions]);
+    const fiveMinutesInMilliseconds = 5 * 60 * 1000;
+
+    // Check if 7 days have passed since the last fetch
+    if (
+      !lastFetchTime ||
+      Date.now() - parseInt(lastFetchTime, 10) > fiveMinutesInMilliseconds
+    ) {
+      fetchExchangeRates();
+    }
+  }, []);
 
   // hooks
   const insets = useSafeAreaInsets();
