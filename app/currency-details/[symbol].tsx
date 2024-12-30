@@ -6,6 +6,10 @@ import { useCurrencyStore } from "@/store/useCurrencyStore";
 import Chart from "@/components/chart";
 import { SegmentedControl } from "@/components/segmented-control";
 
+import { useQuery, useQueries } from "@tanstack/react-query";
+
+import { fetchTimeSeries } from "@/api/currencies";
+
 export default function CurrencyDetails() {
   const { symbol, color, name } = useLocalSearchParams();
 
@@ -16,6 +20,28 @@ export default function CurrencyDetails() {
   const filteredItems = items.filter((item) => item.symbol !== symbol);
 
   const [activeCurrency, setActiveCurrency] = useState(filteredItems[0].symbol);
+
+  const data = useQueries({
+    queries: filteredItems.map((item) => ({
+      queryKey: ["timeSeries", item.symbol],
+      queryFn: () =>
+        fetchTimeSeries(
+          symbol.toString(),
+          item.symbol,
+          "2024-12-07",
+          "2024-12-21",
+          "P1D"
+        ),
+    })),
+  });
+
+  console.log(data.map((item) => item.data));
+
+  const handlePress = useCallback(() => {
+    setActiveCurrency(activeCurrency);
+  }, [activeCurrency]);
+
+  console.log(data);
 
   return (
     <View style={styles.container}>
@@ -43,7 +69,13 @@ export default function CurrencyDetails() {
 
       {/* Chart */}
       <View style={styles.currencyChartWrapper}>
-        <Chart color={color.toString()} symbol={activeCurrency} />
+        <Chart
+          activeCurrency={activeCurrency}
+          data={data}
+          color={color.toString()}
+          symbol={activeCurrency}
+          isLoading={true}
+        />
       </View>
     </View>
   );

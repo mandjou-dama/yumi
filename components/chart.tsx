@@ -5,15 +5,35 @@ import * as Haptics from "expo-haptics";
 
 import timeseries from "../data/timeseries.json";
 
-const Chart = ({ color, symbol }: { color: string; symbol: string }) => {
-  const graphData: GraphPoint[] = Object.entries(timeseries.results["XAF"]).map(
-    ([date, value]) => {
-      return {
-        date: new Date(date),
-        value: value,
-      };
-    }
-  );
+const Chart = ({
+  color,
+  symbol,
+  data,
+  activeCurrency,
+  isLoading,
+}: {
+  color: string;
+  symbol: string;
+  data: any;
+  activeCurrency: string;
+  isLoading: boolean;
+}) => {
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  const graphData: GraphPoint[] = Object.entries(
+    data.results[activeCurrency]
+  ).map(([date, value]) => {
+    return {
+      date: new Date(date),
+      value: value,
+    };
+  });
 
   const [activeTimeline, setActiveTimeline] = useState<{ range: string }>({
     range: "1D",

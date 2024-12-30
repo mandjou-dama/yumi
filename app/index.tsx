@@ -15,6 +15,7 @@ import * as Haptics from "expo-haptics";
 
 //hooks
 import { useAnimatedShake } from "@/hooks/useAnimatedShake";
+import { useQuery } from "@tanstack/react-query";
 
 // components & icons
 import NumPad from "@/components/num-pad";
@@ -24,12 +25,22 @@ import { CurrencySortableList } from "@/components/currencies-card-list";
 import { Positions } from "@/typings";
 import { ListItem } from "@/components/currency-card-item";
 
+import { fetchExchangeRates } from "@/api/currencies";
+
 const PADDING = 6;
 const HEIGHT = 75;
 const ITEM_HEIGHT = HEIGHT + PADDING * 2;
 const MAX_BORDER_RADIUS = 20;
 
 export default function HomeScreen() {
+  // query
+  // const { data, isLoading } = useQuery({
+  //   queryKey: ["exchangeRates"],
+  //   queryFn: () => fetchExchangeRates("USD"),
+  // });
+
+  // console.log(data);
+
   // state
   const [inputValue, setInputValue] = useState<number>(0);
   const currenciesSheetRef = useRef<BottomSheetModal>(null);

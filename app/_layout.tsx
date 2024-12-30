@@ -3,7 +3,8 @@ import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from "react-native-reanimated";
-import { View, ActivityIndicator } from "react-native";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -40,6 +41,9 @@ configureReanimatedLogger({
   strict: false,
 });
 
+// Create a client
+const queryClient = new QueryClient();
+
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
@@ -71,14 +75,16 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <SafeAreaProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <Stack>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="setting" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="currency-details/[symbol]"
-              options={{ presentation: "modal", headerShown: false }}
-            />
-          </Stack>
+          <QueryClientProvider client={queryClient}>
+            <Stack>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="setting" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="currency-details/[symbol]"
+                options={{ presentation: "modal", headerShown: false }}
+              />
+            </Stack>
+          </QueryClientProvider>
         </GestureHandlerRootView>
       </SafeAreaProvider>
     </ThemeProvider>
