@@ -166,8 +166,9 @@ interface Results {
 export const fetchExchangeRates = async (baseCurrency: string) => {
   try {
     const response = await axios.get(
-      `${API_URL}/fetch-all?from=${baseCurrency}&api_key=${API_KEY}`,
+      `https://api.fastforex.io/fetch-all?from=${baseCurrency}&api_key=${API_KEY}`,
       {
+        method: "GET",
         headers: { accept: "application/json" },
       }
     );

@@ -15,8 +15,8 @@ import * as Haptics from "expo-haptics";
 
 //hooks
 import { useAnimatedShake } from "@/hooks/useAnimatedShake";
-import { useQuery } from "@tanstack/react-query";
-
+import { useQuery, useQueries } from "@tanstack/react-query";
+import { fetchExchangeRates } from "@/api/currencies";
 // components & icons
 import NumPad from "@/components/num-pad";
 import { DarkTheme, Settings } from "@/assets/icons/icons";
@@ -25,8 +25,6 @@ import { CurrencySortableList } from "@/components/currencies-card-list";
 import { Positions } from "@/typings";
 import { ListItem } from "@/components/currency-card-item";
 
-import { fetchExchangeRates } from "@/api/currencies";
-
 const PADDING = 6;
 const HEIGHT = 75;
 const ITEM_HEIGHT = HEIGHT + PADDING * 2;
@@ -34,21 +32,31 @@ const MAX_BORDER_RADIUS = 20;
 
 export default function HomeScreen() {
   // store
-  const { favoriteCurrencies, setBaseCurrency, baseCurrency } =
-    useCurrencyStore();
-
-  // query
-  const { data, isLoading } = useQuery({
-    queryKey: ["exchangeRates", baseCurrency],
-    queryFn: () => fetchExchangeRates(baseCurrency),
-  });
-
-  console.log(data);
+  const {
+    favoriteCurrencies,
+    setBaseCurrency,
+    baseCurrency,
+    amountToConvert,
+    setAmountToConvert,
+    convertedCurrencies,
+    handleConversion,
+  } = useCurrencyStore();
 
   // state
-  const [inputValue, setInputValue] = useState<number>(0);
   const currenciesSheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const results = useQueries({
+    queries: favoriteCurrencies.map((currency) => ({
+      queryKey: ["exchangeRates", currency.symbol],
+      queryFn: () => fetchExchangeRates(currency.symbol),
+      staleTime: Infinity,
+    })),
+    combine: (results) => {
+      return results.map((result) => result.data);
+    },
+  });
 
   // hooks
   const insets = useSafeAreaInsets();
@@ -63,10 +71,14 @@ export default function HomeScreen() {
     };
   }, []);
 
-  const handleInputChange = (value: string) => {
-    const amount = Number(value);
-    setInputValue(amount);
-  };
+  const handleInputChange = useCallback(
+    (value: string) => {
+      const amount = Number(value);
+      setAmountToConvert(amount);
+      handleConversion(amount, results);
+    },
+    [setAmountToConvert, handleConversion]
+  );
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("en-US", {}).format(value);
@@ -90,9 +102,12 @@ export default function HomeScreen() {
 
       // Update the base currency
       setBaseCurrency(newFirstSymbol);
+
+      // Recalculate conversions with the current amount
+      handleConversion(amountToConvert, results);
     },
-    //[favoriteCurrencies, amountToConvert]
-    [favoriteCurrencies]
+    [favoriteCurrencies, amountToConvert, baseCurrency]
+    //[favoriteCurrencies]
   );
 
   // Shared value for tracking the currently active index (the item that is being dragged)
@@ -139,7 +154,7 @@ export default function HomeScreen() {
             data={favoriteCurrencies}
             listItemHeight={ITEM_HEIGHT}
             renderItem={({ item, index, position }) => {
-              //const value = convertedCurrencies[item.symbol];
+              const value = convertedCurrencies[item.symbol];
 
               return (
                 <ListItem
@@ -151,12 +166,12 @@ export default function HomeScreen() {
                     width: "100%",
                     alignSelf: "center",
                   }}
-                  value={inputValue.toString()}
-                  // value={
-                  //   position <= 0
-                  //     ? formatCurrency(amountToConvert)
-                  //     : formatCurrency(value)
-                  // }
+                  //value={inputValue.toString()}
+                  value={
+                    position <= 0
+                      ? formatCurrency(amountToConvert)
+                      : formatCurrency(value)
+                  }
                   maxBorderRadius={MAX_BORDER_RADIUS}
                   index={position <= 0 ? 1 : position === 87 ? 2 : 3}
                   activeIndex={currentActiveIndex}
@@ -173,7 +188,7 @@ export default function HomeScreen() {
           <Animated.Text
             style={[styles.exchangeAmountText, rStyle, rErrorTextStyle]}
           >
-            {formatCurrency(inputValue)}
+            {formatCurrency(amountToConvert)}
           </Animated.Text>
         </View>
       </View>

@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { MMKV } from "react-native-mmkv";
 import type { CurrencyCardItem } from "@/components/currency-card-item";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { fetchExchangeRates as getExchangeRates } from "@/api/currencies";
 
 // MMKV instance
 const storage = new MMKV({ id: "currency-storage" });
@@ -39,27 +41,25 @@ const initialItems: CurrencyCardItem[] = [
   },
 ];
 
-interface Rates {
-  [currency: string]: number; // Exchange rate values
-}
-
 interface CurrencyStore {
   favoriteCurrencies: CurrencyCardItem[];
-  favoriteCurrencyRates: Record<string, Record<string, number>>; // Store rates for favorite currencies
+  //favoriteCurrencyRates: Record<string, Record<string, number>>; // Store rates for favorite currencies
   baseCurrency: string;
   amountToConvert: number;
   convertedCurrencies: Record<string, number>;
   setAmountToConvert: (amount: number) => void;
   setBaseCurrency: (base: string) => void;
-  fetchExchangeRates: () => Promise<void>;
-  handleConversion: (amount: number) => void;
+  handleConversion: (
+    amount: number,
+    favoriteCurrencyRates: { base: string; results: Record<string, number> }[]
+  ) => void;
 }
 
 export const useCurrencyStore = create<CurrencyStore>()(
   persist(
     (set, get) => ({
       favoriteCurrencies: initialItems,
-      favoriteCurrencyRates: {},
+      //favoriteCurrencyRates: {},
       baseCurrency: initialItems[0].symbol, // Default to the first item
       amountToConvert: 0,
       convertedCurrencies: {},
@@ -70,44 +70,17 @@ export const useCurrencyStore = create<CurrencyStore>()(
 
       setBaseCurrency: (currency) => set({ baseCurrency: currency }),
 
-      fetchExchangeRates: async () => {
-        const { favoriteCurrencies } = get();
-        const allRates: Record<string, Record<string, number>> = {}; // Store rates for all base currencies
-
-        try {
-          for (const currency of favoriteCurrencies) {
-            const response = await fetch(
-              `https://api.fastforex.io/fetch-all?from=${currency.symbol}&api_key=86871c47b0-6d77251689-sopc73`,
-              {
-                method: "GET",
-                headers: { accept: "application/json" },
-              }
-            );
-
-            if (!response.ok) {
-              console.error(`Failed to fetch rates for ${currency.symbol}`);
-              continue;
-            }
-
-            const data = await response.json();
-
-            if (data.results) {
-              allRates[currency.symbol] = data.results;
-            } else {
-              console.error("Invalid data:", data);
-            }
-          }
-
-          // Update the store with all fetched rates
-          set({ favoriteCurrencyRates: allRates });
-        } catch (error) {
-          console.error("Error fetching exchange rates:", error);
-        }
-      },
-
-      handleConversion: (amount) => {
+      handleConversion: (
+        amount,
+        currencyRates: { base: string; results: Record<string, number> }[]
+      ) => {
         set((state) => {
-          const rates = state.favoriteCurrencyRates[state.baseCurrency] || {};
+          const baseData = currencyRates?.find(
+            (rate) => rate?.base === state.baseCurrency
+          );
+          const rates = baseData?.results || {};
+
+          console.log("RATES :", JSON.stringify(baseData, null, 2));
 
           // Calculate converted values
           const converted = state.favoriteCurrencies.reduce<
