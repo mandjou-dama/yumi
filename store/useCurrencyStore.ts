@@ -23,7 +23,7 @@ const zustandCurrencyStorage = {
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
 
 // Initial data
-const initialItems: CurrencyCardItem[] = [
+export const initialItems: CurrencyCardItem[] = [
   {
     name: "CFA Franc BCEAO",
     symbol: "XOF",
