@@ -48,21 +48,24 @@ export default function HomeScreen() {
     convertedCurrencies,
     favoriteCurrencyRates,
     lastFetchTime,
+    fetchTimeSeries,
+    timeSeries,
   } = useCurrencyStore();
 
   const { positions } = usePositionStore();
 
   useEffect(() => {
     //fetchExchangeRates();
+    //fetchTimeSeries();
     const fiveMinutesInMilliseconds = 5 * 60 * 1000;
 
     // Check if 7 days have passed since the last fetch
-    if (
-      !lastFetchTime ||
-      Date.now() - parseInt(lastFetchTime, 10) > fiveMinutesInMilliseconds
-    ) {
-      fetchExchangeRates();
-    }
+    // if (
+    //   !lastFetchTime ||
+    //   Date.now() - parseInt(lastFetchTime, 10) > fiveMinutesInMilliseconds
+    // ) {
+    //   fetchExchangeRates();
+    // }
   }, []);
 
   // hooks
@@ -159,8 +162,6 @@ export default function HomeScreen() {
             listItemHeight={ITEM_HEIGHT}
             renderItem={({ item, index, position }) => {
               const value = convertedCurrencies[item.symbol];
-
-              console.log("value", value);
 
               return (
                 <ListItem

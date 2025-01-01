@@ -22,3 +22,15 @@ export type CurrencyCardProps = {
   onBottomArrowPress?: () => void;
   onLongPress?: () => void;
 };
+
+type DateRates = {
+  [date: string]: number; // e.g., "2024-12-22": 0.00152
+};
+
+type ExchangeRate = {
+  [targetCurrency: string]: DateRates; // Currency codes are dynamic
+};
+
+export type TimeSeriesType = {
+  [baseCurrency: string]: ExchangeRate[]; // Currency codes are dynamic
+};

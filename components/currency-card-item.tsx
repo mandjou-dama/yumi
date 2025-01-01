@@ -103,7 +103,9 @@ export const ListItem: React.FC<ListItemProps> = ({
               </View>
               <View>
                 <Text style={styles.currencyName}>{item.name}</Text>
-                <Text style={styles.currencyValue}>{value}</Text>
+                <Animated.Text style={[styles.currencyValue]}>
+                  {value}
+                </Animated.Text>
               </View>
             </View>
 
