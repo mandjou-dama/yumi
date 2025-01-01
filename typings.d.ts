@@ -23,11 +23,11 @@ export type CurrencyCardProps = {
   onLongPress?: () => void;
 };
 
-type DateRates = {
+export type DateRates = {
   [date: string]: number; // e.g., "2024-12-22": 0.00152
 };
 
-type ExchangeRate = {
+export type ExchangeRate = {
   [targetCurrency: string]: DateRates; // Currency codes are dynamic
 };
 

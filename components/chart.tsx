@@ -3,17 +3,36 @@ import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import { LineGraph, GraphPoint } from "react-native-graph";
 import * as Haptics from "expo-haptics";
 
-import timeseries from "../data/timeseries.json";
+import { useCurrencyStore } from "@/store/useCurrencyStore";
 
-const Chart = ({ color, symbol }: { color: string; symbol: string }) => {
-  const graphData: GraphPoint[] = Object.entries(timeseries.results["XAF"]).map(
-    ([date, value]) => {
-      return {
-        date: new Date(date),
-        value: value,
-      };
-    }
-  );
+const Chart = ({
+  color,
+  activeCurrency,
+  currentCurrency,
+}: {
+  color: string;
+  activeCurrency: string;
+  currentCurrency: string;
+}) => {
+  const { timeSeries } = useCurrencyStore();
+  const activeCurrencyTimeSeries: any = timeSeries[currentCurrency as any];
+
+  const jsonObject = activeCurrencyTimeSeries.reduce((acc: any, item: any) => {
+    const [key, value] = Object.entries(item)[0];
+    acc[key] = value;
+    return acc;
+  }, {});
+
+  console.log(jsonObject[activeCurrency]);
+
+  const graphData: GraphPoint[] = Object.entries(
+    jsonObject[activeCurrency]
+  ).map(([date, value]) => {
+    return {
+      date: new Date(date),
+      value: value as number,
+    };
+  });
 
   const [activeTimeline, setActiveTimeline] = useState<{ range: string }>({
     range: "1D",
@@ -54,9 +73,11 @@ const Chart = ({ color, symbol }: { color: string; symbol: string }) => {
     <View style={styles.container}>
       <View style={styles.graphHeader}>
         <View style={styles.graphSymbolWrapper}>
-          <Text style={styles.graphSymbol}>{symbol}</Text>
+          <Text style={styles.graphSymbol}>{activeCurrency}</Text>
           <Text style={styles.graphAmount}>
-            {selectedPoint?.value.toFixed(2)}
+            {selectedPoint?.value < 1
+              ? selectedPoint?.value.toFixed(4)
+              : selectedPoint?.value.toFixed(2)}
           </Text>
         </View>
         <Text style={styles.graphDate}>
@@ -85,7 +106,7 @@ const Chart = ({ color, symbol }: { color: string; symbol: string }) => {
         />
       </View>
 
-      <View style={styles.graphTimelineWrapper}>
+      {/* <View style={styles.graphTimelineWrapper}>
         {graphTimelineData.map((item, index) => (
           <TouchableWithoutFeedback
             onPress={() => handleSelectTimeline(item)}
@@ -115,7 +136,7 @@ const Chart = ({ color, symbol }: { color: string; symbol: string }) => {
             </View>
           </TouchableWithoutFeedback>
         ))}
-      </View>
+      </View> */}
     </View>
   );
 };
@@ -136,7 +157,7 @@ const styles = StyleSheet.create({
   },
   graph: {
     width: "100%",
-    height: 280,
+    height: 290,
     overflow: "visible",
   },
   graphSymbolWrapper: {

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 
@@ -10,7 +10,7 @@ export default function CurrencyDetails() {
   const { symbol, color, name } = useLocalSearchParams();
 
   // store
-  const { favoriteCurrencies: items } = useCurrencyStore();
+  const { favoriteCurrencies: items, timeSeries } = useCurrencyStore();
 
   // filter items by creating a new array without the selected item
   const filteredItems = items.filter((item) => item.symbol !== symbol);
@@ -43,7 +43,11 @@ export default function CurrencyDetails() {
 
       {/* Chart */}
       <View style={styles.currencyChartWrapper}>
-        <Chart color={color.toString()} symbol={activeCurrency} />
+        <Chart
+          color={color.toString()}
+          activeCurrency={activeCurrency}
+          currentCurrency={symbol.toString()}
+        />
       </View>
     </View>
   );
