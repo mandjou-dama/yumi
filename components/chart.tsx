@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { LineGraph, GraphPoint } from "react-native-graph";
 import * as Haptics from "expo-haptics";
 

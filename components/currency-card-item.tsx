@@ -114,7 +114,18 @@ export const ListItem: React.FC<ListItemProps> = ({
           <View style={styles.rightWrapper}>
             {isLong && <GenerateVoice />}
             {onBottomArrowPress && (
-              <TouchableWithoutFeedback onPress={onBottomArrowPress}>
+              <TouchableWithoutFeedback
+                onPress={() =>
+                  router.navigate({
+                    pathname: "/change-currency/[symbol]",
+                    params: {
+                      symbol: item.symbol,
+                      color: item.color,
+                      name: item.name,
+                    },
+                  })
+                }
+              >
                 <View style={styles.bottomArrow}>
                   <BottomArrow />
                 </View>

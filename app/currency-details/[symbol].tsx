@@ -9,7 +9,6 @@ import { SegmentedControl } from "@/components/segmented-control";
 
 export default function CurrencyDetails() {
   const { symbol, color, name } = useLocalSearchParams();
-  const { height } = useWindowDimensions();
 
   // store
   const { favoriteCurrencies: items } = useCurrencyStore();

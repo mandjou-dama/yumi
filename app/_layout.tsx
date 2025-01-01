@@ -88,6 +88,20 @@ function RootLayoutNav() {
                 },
               }}
             />
+            <Stack.Screen
+              name="change-currency/[symbol]"
+              options={{
+                presentation: "formSheet",
+                headerShown: false,
+                statusBarAnimation: "fade",
+                statusBarHidden: false,
+                sheetGrabberVisible: true,
+                statusBarStyle: "light",
+                contentStyle: {
+                  backgroundColor: "#F7ECC9",
+                },
+              }}
+            />
           </Stack>
         </GestureHandlerRootView>
       </SafeAreaProvider>
