@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import { LineGraph, GraphPoint } from "react-native-graph";
 import * as Haptics from "expo-haptics";
@@ -23,8 +23,6 @@ const Chart = ({
     return acc;
   }, {});
 
-  console.log(jsonObject[activeCurrency]);
-
   const graphData: GraphPoint[] = Object.entries(
     jsonObject[activeCurrency]
   ).map(([date, value]) => {
@@ -34,40 +32,23 @@ const Chart = ({
     };
   });
 
-  const [activeTimeline, setActiveTimeline] = useState<{ range: string }>({
-    range: "1D",
-  });
+  //console.log(JSON.stringify(graphData, null, 2));
 
   const [selectedPoint, setSelectedPoint] = useState<GraphPoint>(
     graphData[graphData.length - 1]
   );
 
+  // Update `selectedPoint` whenever `activeCurrency` changes
+  useEffect(() => {
+    if (graphData.length > 0) {
+      setSelectedPoint(graphData[graphData.length - 1]);
+    }
+  }, [activeCurrency]);
+
   const onPointSelected = useCallback((point: GraphPoint) => {
     setSelectedPoint(point);
     Haptics.selectionAsync();
   }, []);
-
-  const graphTimelineData = [
-    {
-      range: "1D",
-    },
-    {
-      range: "1W",
-    },
-    {
-      range: "1M",
-    },
-    {
-      range: "3M",
-    },
-    {
-      range: "1Y",
-    },
-  ];
-
-  const handleSelectTimeline = (range: { range: string }) => {
-    setActiveTimeline(range);
-  };
 
   return (
     <View style={styles.container}>
@@ -90,7 +71,7 @@ const Chart = ({
         </Text>
       </View>
 
-      <View style={{ marginTop: 35 }}>
+      <View style={{ marginTop: 35, backgroundColor: "red" }}>
         <LineGraph
           style={[styles.graph, StyleSheet.absoluteFill]}
           points={graphData}
@@ -105,38 +86,6 @@ const Chart = ({
           horizontalPadding={25}
         />
       </View>
-
-      {/* <View style={styles.graphTimelineWrapper}>
-        {graphTimelineData.map((item, index) => (
-          <TouchableWithoutFeedback
-            onPress={() => handleSelectTimeline(item)}
-            key={index}
-          >
-            <View
-              style={
-                activeTimeline.range === item.range
-                  ? [styles.graphTimelineItemActive]
-                  : styles.graphTimelineItem
-              }
-            >
-              <Text
-                style={
-                  activeTimeline.range === item.range
-                    ? {
-                        textAlign: "center",
-                        fontSize: 10,
-                        color: color,
-                        fontWeight: "bold",
-                      }
-                    : { textAlign: "center", fontSize: 10 }
-                }
-              >
-                {item.range}
-              </Text>
-            </View>
-          </TouchableWithoutFeedback>
-        ))}
-      </View> */}
     </View>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { useWindowDimensions } from "react-native";
 
 import { useCurrencyStore } from "@/store/useCurrencyStore";
 import Chart from "@/components/chart";
@@ -8,6 +9,7 @@ import { SegmentedControl } from "@/components/segmented-control";
 
 export default function CurrencyDetails() {
   const { symbol, color, name } = useLocalSearchParams();
+  const { height } = useWindowDimensions();
 
   // store
   const { favoriteCurrencies: items } = useCurrencyStore();
@@ -18,7 +20,7 @@ export default function CurrencyDetails() {
   const [activeCurrency, setActiveCurrency] = useState(filteredItems[0].symbol);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.currencyInfosWrapper}>
@@ -55,10 +57,10 @@ export default function CurrencyDetails() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     paddingHorizontal: 10,
     paddingTop: 25,
     backgroundColor: "#F7ECC9",
-    flex: 1,
   },
   itemContainer: {
     padding: 6,
@@ -126,6 +128,7 @@ const styles = StyleSheet.create({
   },
   currencyChartWrapper: {
     flex: 1,
+    backgroundColor: "#F7ECC9",
     justifyContent: "center",
     marginTop: 15,
     width: "100%",

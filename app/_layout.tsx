@@ -76,7 +76,17 @@ function RootLayoutNav() {
             <Stack.Screen name="setting" options={{ headerShown: false }} />
             <Stack.Screen
               name="currency-details/[symbol]"
-              options={{ presentation: "modal", headerShown: false }}
+              options={{
+                presentation: "formSheet",
+                headerShown: false,
+                statusBarAnimation: "fade",
+                statusBarHidden: false,
+                sheetGrabberVisible: true,
+                statusBarStyle: "light",
+                contentStyle: {
+                  backgroundColor: "#F7ECC9",
+                },
+              }}
             />
           </Stack>
         </GestureHandlerRootView>
