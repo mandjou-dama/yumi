@@ -65,6 +65,7 @@ export default function HomeScreen() {
     //   Date.now() - parseInt(lastFetchTime, 10) > fiveMinutesInMilliseconds
     // ) {
     //   fetchExchangeRates();
+    //   fetchTimeSeries();
     // }
   }, []);
 
@@ -271,7 +272,7 @@ const styles = StyleSheet.create({
   bodyWrapper: {},
   bodyText: {
     fontSize: 18,
-    marginBottom: 15,
+    marginBottom: 10,
   },
   body: {
     //flexWrap: "wrap",

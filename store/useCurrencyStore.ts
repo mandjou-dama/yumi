@@ -42,23 +42,6 @@ export const initialItems: CurrencyCardItem[] = [
   },
 ];
 
-interface Rates {
-  [currency: string]: number; // Exchange rate values
-}
-
-interface TimeSeries {
-  start: string;
-  end: string;
-  interval: string;
-  base: string;
-  results: Results;
-  ms: number;
-}
-
-interface Results {
-  date: number;
-}
-
 interface CurrencyStore {
   favoriteCurrencies: CurrencyCardItem[];
   favoriteCurrencyRates: Record<string, Record<string, number>>; // Store rates for favorite currencies
@@ -95,11 +78,11 @@ export const useCurrencyStore = create<CurrencyStore>()(
     (set, get) => ({
       favoriteCurrencies: initialItems,
       favoriteCurrencyRates: {},
+      convertedCurrencies: {},
+      timeSeries: [],
       baseCurrency: initialItems[0].symbol, // Default to the first item
       amountToConvert: 0,
-      convertedCurrencies: {},
       lastFetchTime: null,
-      timeSeries: [],
       setAmountToConvert: (amount) => {
         set({ amountToConvert: amount });
       },
@@ -167,9 +150,10 @@ export const useCurrencyStore = create<CurrencyStore>()(
         const responses = await Promise.all(fetchPromises);
         const data: any = regroupByBaseCurrency(responses);
 
+        // Update the store with all fetched rates
+        console.log("Fetching time series...");
+        set({ lastFetchTime: Date.now().toString() });
         set({ timeSeries: data });
-
-        // Process responses as needed
       },
       handleConversion: (amount) => {
         set((state) => {

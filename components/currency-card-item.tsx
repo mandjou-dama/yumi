@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { BottomArrow, GenerateVoice } from "@/assets/icons/icons";
+import { useRouter } from "expo-router";
 
 export const ITEM_HEIGHT = 75;
 export const BORDER_RADIUS = 20;
@@ -45,6 +46,7 @@ export const ListItem: React.FC<ListItemProps> = ({
   onPress,
   onBottomArrowPress,
 }) => {
+  const router = useRouter();
   // Use shared value for opacity with React Compiler-compliant API
   const opacity = useSharedValue(0.1);
   const scale = useSharedValue(1);
@@ -85,43 +87,41 @@ export const ListItem: React.FC<ListItemProps> = ({
       <TouchableWithoutFeedback
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        onPress={onPress}
-      >
-        <Link
-          href={{
+        onPress={() =>
+          router.navigate({
             pathname: "/currency-details/[symbol]",
             params: { symbol: item.symbol, color: item.color, name: item.name },
-          }}
-        >
-          <Animated.View style={[styles.container, style, animatedScaleStyle]}>
-            {/* Left section with currency name and value */}
-            <View style={styles.leftWrapper}>
-              <View style={styles.imageContainer}>
-                <Animated.Text style={[styles.currency, animatedOpacityStyle]}>
-                  {index}
-                </Animated.Text>
-              </View>
-              <View>
-                <Text style={styles.currencyName}>{item.name}</Text>
-                <Animated.Text style={[styles.currencyValue]}>
-                  {value}
-                </Animated.Text>
-              </View>
+          })
+        }
+      >
+        <Animated.View style={[styles.container, style, animatedScaleStyle]}>
+          {/* Left section with currency name and value */}
+          <View style={styles.leftWrapper}>
+            <View style={styles.imageContainer}>
+              <Animated.Text style={[styles.currency, animatedOpacityStyle]}>
+                {index}
+              </Animated.Text>
             </View>
+            <View>
+              <Text style={styles.currencyName}>{item.name}</Text>
+              <Animated.Text style={[styles.currencyValue]}>
+                {value}
+              </Animated.Text>
+            </View>
+          </View>
 
-            {/* Right section with optional icons */}
-            <View style={styles.rightWrapper}>
-              {isLong && <GenerateVoice />}
-              {onBottomArrowPress && (
-                <TouchableWithoutFeedback onPress={onBottomArrowPress}>
-                  <View style={styles.bottomArrow}>
-                    <BottomArrow />
-                  </View>
-                </TouchableWithoutFeedback>
-              )}
-            </View>
-          </Animated.View>
-        </Link>
+          {/* Right section with optional icons */}
+          <View style={styles.rightWrapper}>
+            {isLong && <GenerateVoice />}
+            {onBottomArrowPress && (
+              <TouchableWithoutFeedback onPress={onBottomArrowPress}>
+                <View style={styles.bottomArrow}>
+                  <BottomArrow />
+                </View>
+              </TouchableWithoutFeedback>
+            )}
+          </View>
+        </Animated.View>
       </TouchableWithoutFeedback>
     </View>
   );
