@@ -16,7 +16,8 @@ const SelectCurrency = ({ name, symbol }: Props) => {
   return (
     <TouchableOpacity activeOpacity={0.7}>
       <View style={styles.container}>
-        <Text>{name}</Text>
+        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.symbol}>{symbol}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -26,10 +27,15 @@ export default SelectCurrency;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     paddingVertical: 15,
     backgroundColor: "#ffffff46",
-    marginBottom: 5,
+    marginBottom: 10,
     borderRadius: 15,
+    gap: 10,
   },
+  name: {
+    fontWeight: 600,
+  },
+  symbol: {},
 });

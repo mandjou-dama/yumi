@@ -133,7 +133,7 @@ export const Settings = (props: SvgProps) => {
   return (
     <Svg width={24} height={24} fill="none" {...props}>
       <Path
-        stroke="#F7ECC9"
+        stroke={props.color ? props.color : "#F7ECC9"}
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeMiterlimit={10}
@@ -141,13 +141,31 @@ export const Settings = (props: SvgProps) => {
         d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
       />
       <Path
-        stroke="#F7ECC9"
+        stroke={props.color ? props.color : "#F7ECC9"}
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeMiterlimit={10}
         strokeWidth={1.5}
         d="M2 12.88v-1.76c0-1.04.85-1.9 1.9-1.9 1.81 0 2.55-1.28 1.64-2.85-.52-.9-.21-2.07.7-2.59l1.73-.99c.79-.47 1.81-.19 2.28.6l.11.19c.9 1.57 2.38 1.57 3.29 0l.11-.19c.47-.79 1.49-1.07 2.28-.6l1.73.99c.91.52 1.22 1.69.7 2.59-.91 1.57-.17 2.85 1.64 2.85 1.04 0 1.9.85 1.9 1.9v1.76c0 1.04-.85 1.9-1.9 1.9-1.81 0-2.55 1.28-1.64 2.85.52.91.21 2.07-.7 2.59l-1.73.99c-.79.47-1.81.19-2.28-.6l-.11-.19c-.9-1.57-2.38-1.57-3.29 0l-.11.19c-.47.79-1.49 1.07-2.28.6l-1.73-.99a1.899 1.899 0 0 1-.7-2.59c.91-1.57.17-2.85-1.64-2.85-1.05 0-1.9-.86-1.9-1.9Z"
       />
+    </Svg>
+  );
+};
+
+export const Search = () => {
+  return (
+    <Svg
+      width={28}
+      height={28}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={"#000"}
+      stroke-width="3"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <Circle cx="11" cy="11" r="8" />
+      <Path d="m21 21-4.3-4.3" />
     </Svg>
   );
 };
