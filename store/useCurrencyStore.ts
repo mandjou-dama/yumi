@@ -21,8 +21,6 @@ const zustandCurrencyStorage = {
   },
 };
 
-storage.clearAll();
-
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
 
 // Initial data
@@ -122,7 +120,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
       },
       setBaseCurrency: (currency) => set({ baseCurrency: currency }),
       fetchExchangeRates: async () => {
-        const { favoriteCurrencies } = get();
+        const { favoriteCurrencies, handleConversion, amountToConvert } = get();
         const allRates: Record<string, Record<string, number>> = {}; // Store rates for all base currencies
 
         try {
@@ -157,6 +155,8 @@ export const useCurrencyStore = create<CurrencyStore>()(
           console.log("Fetching exchange rates...");
           set({ lastFetchTime: Date.now().toString() });
           set({ favoriteCurrencyRates: allRates });
+          // Trigger conversion after rates are updated
+          handleConversion(amountToConvert);
         } catch (error) {
           //console.error("Error fetching exchange rates:", error);
         }
@@ -192,6 +192,11 @@ export const useCurrencyStore = create<CurrencyStore>()(
       handleConversion: (amount) => {
         set((state) => {
           const rates = state.favoriteCurrencyRates[state.baseCurrency] || {};
+
+          // Ensure rates are available before performing conversion
+          if (Object.keys(rates).length === 0) {
+            return { convertedCurrencies: {} };
+          }
 
           // Calculate converted values
           const converted = state.favoriteCurrencies.reduce<
