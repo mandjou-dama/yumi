@@ -11,7 +11,7 @@ import {
   TextInput,
   ScrollView,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { currencies } from "@/data/currencies";
 import { Colors } from "@/data/colors";
 import SelectCurrency from "@/components/select-currency-item";
@@ -44,6 +44,8 @@ const ScrollToTop = ({ onPress }: { onPress: () => void }) => (
 const ChangeCurrency = (props: Props) => {
   const { symbol, color, name } = useLocalSearchParams();
   const scrollRef = useRef<ScrollView>(null);
+
+  const router = useRouter();
 
   const filterColors = Colors.filter((el) => el !== color);
   const filterCurrent = currencies.filter((el) => el.name !== name);
@@ -108,7 +110,10 @@ const ChangeCurrency = (props: Props) => {
               <Text style={styles.actualCurrencyName}>{name}</Text>
             </View>
 
-            <Pressable style={[styles.actualCurrencyRight]}>
+            <Pressable
+              style={[styles.actualCurrencyRight]}
+              onPress={() => router.push("/color-picker")}
+            >
               <View
                 style={[
                   styles.actualCurrencyColorBorder,

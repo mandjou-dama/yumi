@@ -102,6 +102,21 @@ function RootLayoutNav() {
                 },
               }}
             />
+            <Stack.Screen
+              name="color-picker"
+              options={{
+                presentation: "formSheet",
+                headerShown: false,
+                statusBarAnimation: "fade",
+                statusBarHidden: false,
+                sheetAllowedDetents: [0.5, 0.75],
+                sheetGrabberVisible: true,
+                statusBarStyle: "light",
+                contentStyle: {
+                  backgroundColor: "#F7ECC9",
+                },
+              }}
+            />
           </Stack>
         </GestureHandlerRootView>
       </SafeAreaProvider>
