@@ -90,8 +90,12 @@ export default function HomeScreen() {
     setInputValue(amount);
   };
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("en-US", {}).format(value);
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat(
+      "en-US",
+      value > 1 ? { maximumFractionDigits: 0 } : {}
+    ).format(value);
+  };
 
   const onDragEnd = useCallback(
     (data: Positions) => {
