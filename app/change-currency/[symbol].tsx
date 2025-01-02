@@ -1,4 +1,5 @@
 import React, { useCallback, useState, useEffect } from "react";
+import { FlashList } from "@shopify/flash-list";
 import {
   StyleSheet,
   Text,
@@ -22,7 +23,7 @@ const ChangeCurrency = (props: Props) => {
   const filterColors = Colors.filter((el) => el !== color);
   const filterCurrent = currencies.filter((el) => el.name !== name);
 
-  console.log(JSON.stringify(filterCurrent, null, 2));
+  //console.log(JSON.stringify(filterCurrent, null, 2));
 
   const [input, setInput] = useState("");
   const [data, setData] = useState(filterCurrent);
@@ -41,84 +42,88 @@ const ChangeCurrency = (props: Props) => {
 
   useEffect(() => {
     handleFilter(input);
+
+    // if (data.length === 0) {
+    //   setNotFound(true);
+    // }
   }, [input]);
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <Text style={styles.headline}>Changer de monnaie</Text>
-
-      <Animated.FlatList
-        ListHeaderComponent={
-          <View style={styles.actualCurrencyWrapper}>
-            <View style={styles.actualCurrency}>
-              <View style={styles.actualCurrencyLeft}>
-                <View
-                  style={[
-                    styles.actualCurrencySymbol,
-                    { backgroundColor: color.toString() },
-                  ]}
-                >
-                  <Text style={styles.actualCurrencySymbolText}>{symbol}</Text>
-                </View>
-                <Text style={styles.actualCurrencyName}>{name}</Text>
-              </View>
-
-              <Pressable style={[styles.actualCurrencyRight]}>
-                <View
-                  style={[
-                    styles.actualCurrencyColorBorder,
-                    { borderColor: color.toString(), borderWidth: 1.5 },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.actualCurrencyColor,
-                      { backgroundColor: color.toString() },
-                    ]}
-                  ></View>
-                </View>
-              </Pressable>
-            </View>
+      <View style={styles.actualCurrencyWrapper}>
+        <View style={styles.actualCurrency}>
+          <View style={styles.actualCurrencyLeft}>
             <View
-              style={{
-                width: "100%",
-                borderBottomColor: color.toString(),
-                borderBottomWidth: 0.2,
-                marginTop: 10,
-              }}
-            />
-
-            <View
-              style={{
-                marginTop: 25,
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
+              style={[
+                styles.actualCurrencySymbol,
+                { backgroundColor: color.toString() },
+              ]}
             >
-              <TextInput
-                value={input}
-                onChangeText={(value) => setInput(value)}
-                style={{ fontSize: 16, flexGrow: 1 }}
-                placeholder="Rechercher une monnaie..."
-              />
-              <Search />
+              <Text style={styles.actualCurrencySymbolText}>{symbol}</Text>
             </View>
+            <Text style={styles.actualCurrencyName}>{name}</Text>
           </View>
-        }
-        contentContainerStyle={{ flex: 1 }}
+
+          <Pressable style={[styles.actualCurrencyRight]}>
+            <View
+              style={[
+                styles.actualCurrencyColorBorder,
+                { borderColor: color.toString(), borderWidth: 1.5 },
+              ]}
+            >
+              <View
+                style={[
+                  styles.actualCurrencyColor,
+                  { backgroundColor: color.toString() },
+                ]}
+              ></View>
+            </View>
+          </Pressable>
+        </View>
+        <View
+          style={{
+            width: "100%",
+            borderBottomColor: color.toString(),
+            borderBottomWidth: 0.2,
+            marginTop: 10,
+          }}
+        />
+
+        <View
+          style={{
+            marginTop: 25,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <TextInput
+            value={input}
+            onChangeText={(value) => setInput(value)}
+            style={{ fontSize: 16, flexGrow: 1 }}
+            placeholder="Rechercher une monnaie..."
+          />
+          <Search />
+        </View>
+      </View>
+
+      <FlashList
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 70 }}
         data={data}
         keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
           <SelectCurrency name={item.name} symbol={item.symbol} />
         )}
+        nestedScrollEnabled={true}
+        //pagingEnabled
         keyboardDismissMode="on-drag"
-        itemLayoutAnimation={LinearTransition}
+        estimatedItemSize={150}
       />
 
-      {isCurrent ? (
+      {notFound ? (
         <View>
           <Text>Cette monnaie est déjà sélectionnée </Text>
         </View>
@@ -135,6 +140,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingTop: 25,
     backgroundColor: "#F7ECC9",
+  },
+  flatlist: {
+    //flexGrow: 1,
+    height: "auto",
+    paddingBlockEnd: 70,
   },
   headline: {
     color: "#0d1321",
