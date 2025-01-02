@@ -10,11 +10,12 @@ import React from "react";
 type Props = {
   name: string;
   symbol: string;
+  onPress: () => void;
 };
 
-const SelectCurrency = ({ name, symbol }: Props) => {
+const SelectCurrency = ({ name, symbol, onPress }: Props) => {
   return (
-    <TouchableOpacity activeOpacity={0.7}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
       <View style={styles.container}>
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.symbol}>{symbol}</Text>

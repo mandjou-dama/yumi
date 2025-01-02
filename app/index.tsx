@@ -55,8 +55,8 @@ export default function HomeScreen() {
   const { positions } = usePositionStore();
 
   useEffect(() => {
-    //fetchExchangeRates();
-    //fetchTimeSeries();
+    fetchExchangeRates();
+    fetchTimeSeries();
     const fiveMinutesInMilliseconds = 5 * 60 * 1000;
 
     // Check if 7 days have passed since the last fetch
@@ -67,7 +67,8 @@ export default function HomeScreen() {
     //   fetchExchangeRates();
     //   fetchTimeSeries();
     // }
-  }, []);
+    console.log(JSON.stringify(favoriteCurrencies, null, 2));
+  }, [favoriteCurrencies]);
 
   // hooks
   const insets = useSafeAreaInsets();

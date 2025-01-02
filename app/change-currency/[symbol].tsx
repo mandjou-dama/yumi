@@ -113,7 +113,10 @@ const ChangeCurrency = (props: Props) => {
             <Pressable
               style={[styles.actualCurrencyRight]}
               onPress={() =>
-                router.push({ pathname: "/color-picker", params: { symbol } })
+                router.push({
+                  pathname: "/color-picker",
+                  params: { actualSymbol: symbol },
+                })
               }
             >
               <View
@@ -165,7 +168,20 @@ const ChangeCurrency = (props: Props) => {
           data={data}
           keyExtractor={(item) => item.name}
           renderItem={({ item }) => (
-            <SelectCurrency name={item.name} symbol={item.symbol} />
+            <SelectCurrency
+              name={item.name}
+              symbol={item.symbol}
+              onPress={() =>
+                router.push({
+                  pathname: "/color-picker",
+                  params: {
+                    actualSymbol: symbol,
+                    newSymbol: item.symbol,
+                    newName: item.name,
+                  },
+                })
+              }
+            />
           )}
           //pagingEnabled
           keyboardDismissMode="on-drag"

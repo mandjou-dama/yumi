@@ -21,6 +21,8 @@ const zustandCurrencyStorage = {
   },
 };
 
+storage.clearAll();
+
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
 
 // Initial data
@@ -51,8 +53,14 @@ interface CurrencyStore {
   lastFetchTime: string | null;
   //setLastFetchTime: (time: Date) => void;
   timeSeries: TimeSeriesType[];
-  //an function to modify one favorite currency color
   setFavoriteCurrencyColor: (symbol: string, color: string) => void;
+  // a function to replace one of the favorite currencies with a new one, given the currency item: CurrencyCardItem
+  replaceFavoriteCurrency: (
+    actualSymbol: string,
+    newSymbol: string,
+    newName: string,
+    newColor: string
+  ) => void;
   setAmountToConvert: (amount: number) => void;
   setBaseCurrency: (base: string) => void;
   fetchExchangeRates: () => Promise<void>;
@@ -85,6 +93,18 @@ export const useCurrencyStore = create<CurrencyStore>()(
       baseCurrency: initialItems[0].symbol, // Default to the first item
       amountToConvert: 0,
       lastFetchTime: null,
+      replaceFavoriteCurrency: (actualSymbol, newSymbol, newName, newColor) => {
+        set((state) => {
+          const favoriteCurrencies = state.favoriteCurrencies.map((item) => {
+            if (item.symbol === actualSymbol) {
+              return { name: newName, symbol: newSymbol, color: newColor };
+            }
+            return item;
+          });
+
+          return { favoriteCurrencies };
+        });
+      },
       setFavoriteCurrencyColor: (symbol, color) => {
         set((state) => {
           const favoriteCurrencies = state.favoriteCurrencies.map((item) => {
