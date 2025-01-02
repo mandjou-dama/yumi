@@ -51,11 +51,8 @@ interface CurrencyStore {
   lastFetchTime: string | null;
   //setLastFetchTime: (time: Date) => void;
   timeSeries: TimeSeriesType[];
-  editFavoriteCurrencies: (current: {
-    name: string;
-    symbol: string;
-    color: string;
-  }) => void;
+  //an function to modify one favorite currency color
+  setFavoriteCurrencyColor: (symbol: string, color: string) => void;
   setAmountToConvert: (amount: number) => void;
   setBaseCurrency: (base: string) => void;
   fetchExchangeRates: () => Promise<void>;
@@ -88,8 +85,17 @@ export const useCurrencyStore = create<CurrencyStore>()(
       baseCurrency: initialItems[0].symbol, // Default to the first item
       amountToConvert: 0,
       lastFetchTime: null,
-      editFavoriteCurrencies: (current) => {
-        set({});
+      setFavoriteCurrencyColor: (symbol, color) => {
+        set((state) => {
+          const favoriteCurrencies = state.favoriteCurrencies.map((item) => {
+            if (item.symbol === symbol) {
+              return { ...item, color };
+            }
+            return item;
+          });
+
+          return { favoriteCurrencies };
+        });
       },
       setAmountToConvert: (amount) => {
         set({ amountToConvert: amount });

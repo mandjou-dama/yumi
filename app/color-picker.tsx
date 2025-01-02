@@ -1,15 +1,19 @@
 import React from "react";
 import * as Haptics from "expo-haptics";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { FlatList, Pressable, View } from "react-native";
 import { Colors } from "@/data/colors";
+import { useCurrencyStore } from "@/store/useCurrencyStore";
 
 export default function ColorPickerScreen() {
   const router = useRouter();
+  const { symbol } = useLocalSearchParams();
+  const { setFavoriteCurrencyColor } = useCurrencyStore();
 
   const handleColorSelect = (color: string) => {
+    setFavoriteCurrencyColor(symbol.toString(), color);
     //setSelectedColor(color);
-    router.canGoBack();
+    router.dismissAll();
   };
 
   return (

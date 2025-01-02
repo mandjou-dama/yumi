@@ -112,7 +112,9 @@ const ChangeCurrency = (props: Props) => {
 
             <Pressable
               style={[styles.actualCurrencyRight]}
-              onPress={() => router.push("/color-picker")}
+              onPress={() =>
+                router.push({ pathname: "/color-picker", params: { symbol } })
+              }
             >
               <View
                 style={[
