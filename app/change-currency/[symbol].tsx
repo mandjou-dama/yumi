@@ -1,5 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { FlashList } from "@shopify/flash-list";
+import { BlurView } from "expo-blur";
+
 import {
   StyleSheet,
   Text,
@@ -7,6 +9,7 @@ import {
   FlatList,
   Pressable,
   TextInput,
+  ScrollView,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { currencies } from "@/data/currencies";
@@ -16,6 +19,12 @@ import { Search, Settings } from "@/assets/icons/icons";
 import Animated, { LinearTransition } from "react-native-reanimated";
 
 type Props = {};
+
+const ScrollToTop = () => {
+  return (
+    <View style={{ height: 30, width: 30, backgroundColor: "#000" }}></View>
+  );
+};
 
 const ChangeCurrency = (props: Props) => {
   const { symbol, color, name } = useLocalSearchParams();
@@ -49,9 +58,16 @@ const ChangeCurrency = (props: Props) => {
   }, [input]);
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      stickyHeaderIndices={[0]}
+      //StickyHeaderComponent={() => <FixedHeader />}
+      contentContainerStyle={styles.container}
+    >
       {/* Header */}
-      <Text style={styles.headline}>Changer de monnaie</Text>
+      <BlurView intensity={30} tint="light" style={styles.blurContainer}>
+        <Text style={styles.headline}>Changer de monnaie</Text>
+      </BlurView>
+
       <View style={styles.actualCurrencyWrapper}>
         <View style={styles.actualCurrency}>
           <View style={styles.actualCurrencyLeft}>
@@ -111,24 +127,22 @@ const ChangeCurrency = (props: Props) => {
 
       <FlashList
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 70 }}
+        contentContainerStyle={{ paddingBottom: 70, paddingHorizontal: 15 }}
         data={data}
         keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
           <SelectCurrency name={item.name} symbol={item.symbol} />
         )}
-        nestedScrollEnabled={true}
         //pagingEnabled
         keyboardDismissMode="on-drag"
         estimatedItemSize={150}
       />
-
-      {notFound ? (
+      {/* {notFound ? (
         <View>
           <Text>Cette monnaie est déjà sélectionnée </Text>
         </View>
-      ) : null}
-    </View>
+      ) : null} */}
+    </ScrollView>
   );
 };
 
@@ -137,8 +151,7 @@ export default ChangeCurrency;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 15,
-    paddingTop: 25,
+    //paddingTop: 25,
     backgroundColor: "#F7ECC9",
   },
   flatlist: {
@@ -146,42 +159,24 @@ const styles = StyleSheet.create({
     height: "auto",
     paddingBlockEnd: 70,
   },
+  blurContainer: {
+    textAlign: "center",
+    justifyContent: "center",
+    height: "auto",
+    width: "100%",
+  },
   headline: {
     color: "#0d1321",
     fontSize: 16,
     opacity: 0.4,
-    marginTop: 10,
     marginBottom: 10,
     alignSelf: "center",
+    paddingTop: 20,
+    paddingBottom: 10,
   },
-  header: {
-    paddingTop: 10,
-    marginBottom: 20,
-  },
-  currencyInfosWrapper: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  currencySymbolWrapper: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: 55,
-    height: 55,
-    borderRadius: 100,
-  },
-  currencySymbol: {
-    fontWeight: "bold",
-    color: "#0d1321",
-  },
-  currencyName: {
-    color: "#0d1321",
-    fontSize: 16,
-    opacity: 0.4,
-    marginTop: 10,
-  },
-
   actualCurrencyWrapper: {
     marginBottom: 15,
+    paddingHorizontal: 15,
   },
   actualCurrencyHeadline: {
     color: "#0d1321",
