@@ -1,4 +1,18 @@
-import Svg, { Circle, Rect, SvgProps, Path } from "react-native-svg";
+import Svg, {
+  Circle,
+  Rect,
+  SvgProps,
+  Path,
+  G,
+  Defs,
+  Filter,
+  FeBlend,
+  FeColorMatrix,
+  FeOffset,
+  FeGaussianBlur,
+  FeComposite,
+  FeFlood,
+} from "react-native-svg";
 
 export const DarkTheme = (props: SvgProps) => {
   return (
