@@ -36,25 +36,21 @@ const ScrollToTop = ({ onPress }: { onPress: () => void }) => (
 );
 
 const ChangeCurrency = (props: Props) => {
-  const { symbol, color, name } = useLocalSearchParams();
+  const { index } = useLocalSearchParams();
   const scrollRef = useRef<ScrollView>(null);
 
   const router = useRouter();
 
-  const filterColors = Colors.filter((el) => el !== color);
-  const filterCurrent = currencies.filter((el) => el.name !== name);
-
   //console.log(JSON.stringify(filterCurrent, null, 2));
 
   const [input, setInput] = useState("");
-  const [data, setData] = useState(filterCurrent);
-  const [colors, setColors] = useState(filterColors);
+  const [data, setData] = useState(currencies);
   const [isCurrent, setIsCurrent] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [scrollOffset, setScrollOffset] = useState(0);
 
   const handleFilter = (text: string) => {
-    const filteredData = filterCurrent.filter(
+    const filteredData = currencies.filter(
       (currency) =>
         currency.name.toLowerCase().includes(text.toLowerCase()) ||
         currency.symbol.toLowerCase().includes(text.toLowerCase())
@@ -87,56 +83,10 @@ const ChangeCurrency = (props: Props) => {
       >
         {/* Header */}
         <BlurView intensity={30} tint="light" style={styles.blurContainer}>
-          <Text style={styles.headline}>Changer de monnaie</Text>
+          <Text style={styles.headline}>Choisir une monnaie</Text>
         </BlurView>
 
         <View style={styles.actualCurrencyWrapper}>
-          <View style={styles.actualCurrency}>
-            <View style={styles.actualCurrencyLeft}>
-              <View
-                style={[
-                  styles.actualCurrencySymbol,
-                  { backgroundColor: color.toString() },
-                ]}
-              >
-                <Text style={styles.actualCurrencySymbolText}>{symbol}</Text>
-              </View>
-              <Text style={styles.actualCurrencyName}>{name}</Text>
-            </View>
-
-            <Pressable
-              style={[styles.actualCurrencyRight]}
-              onPress={() =>
-                router.push({
-                  pathname: "/color-picker",
-                  params: { actualSymbol: symbol },
-                })
-              }
-            >
-              <View
-                style={[
-                  styles.actualCurrencyColorBorder,
-                  { borderColor: color.toString(), borderWidth: 1.5 },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.actualCurrencyColor,
-                    { backgroundColor: color.toString() },
-                  ]}
-                ></View>
-              </View>
-            </Pressable>
-          </View>
-          <View
-            style={{
-              width: "100%",
-              borderBottomColor: color.toString(),
-              borderBottomWidth: 0.2,
-              marginTop: 10,
-            }}
-          />
-
           <View
             style={{
               marginTop: 25,
@@ -169,7 +119,6 @@ const ChangeCurrency = (props: Props) => {
                 router.push({
                   pathname: "/color-picker",
                   params: {
-                    actualSymbol: symbol,
                     newSymbol: item.symbol,
                     newName: item.name,
                   },
@@ -211,7 +160,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
     marginBottom: 10,
     alignSelf: "center",
-    paddingTop: 20,
+    paddingTop: 25,
     paddingBottom: 10,
   },
   actualCurrencyWrapper: {
