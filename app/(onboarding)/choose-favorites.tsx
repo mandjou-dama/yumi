@@ -28,7 +28,12 @@ const ChooseCurrencies = (props: Props) => {
   const insets = useSafeAreaInsets();
   const scale = useSharedValue(1);
 
-  const { favoriteCurrenciesNew, clearFavoriteCurrencies } = useCurrencyStore();
+  const {
+    favoriteCurrencies,
+    clearFavoriteCurrencies,
+    fetchExchangeRates,
+    fetchTimeSeries,
+  } = useCurrencyStore();
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -45,10 +50,6 @@ const ChooseCurrencies = (props: Props) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
-  const handleOnChoose = () => {
-    clearFavoriteCurrencies();
-  };
-
   const getCurrencyLabel = (index: number, name: string) => {
     if (name === "") {
       if (index === 0) return "Choisis ta première monnaie";
@@ -60,7 +61,7 @@ const ChooseCurrencies = (props: Props) => {
 
   const checkIfAllSelected = () => {
     let allSelected = true;
-    favoriteCurrenciesNew.forEach((el) => {
+    favoriteCurrencies.forEach((el) => {
       if (el.name === "") {
         allSelected = false;
       }
@@ -74,7 +75,14 @@ const ChooseCurrencies = (props: Props) => {
     return () => {
       // cleanup
     };
-  }, [favoriteCurrenciesNew]);
+  }, [favoriteCurrencies]);
+
+  const handleOnChoose = () => {
+    clearFavoriteCurrencies();
+
+    //fetchExchangeRates();
+    //fetchTimeSeries();
+  };
 
   return (
     <View style={styles.container}>
@@ -117,7 +125,7 @@ const ChooseCurrencies = (props: Props) => {
         </View>
 
         <View style={styles.selectElementWrapper}>
-          {favoriteCurrenciesNew.map((el, index) => {
+          {favoriteCurrencies.map((el, index) => {
             const label = getCurrencyLabel(index, el.name);
             return (
               <TouchableWithoutFeedback

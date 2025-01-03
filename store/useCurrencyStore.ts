@@ -26,25 +26,6 @@ const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
 // Initial data
 export const initialItems: CurrencyCardItem[] = [
   {
-    name: "CFA Franc BCEAO",
-    symbol: "XOF",
-    color: "#89E3A3",
-  },
-  {
-    name: "Euro",
-    symbol: "EUR",
-    color: "#F7D786",
-  },
-  {
-    name: "United States Dollar",
-    symbol: "USD",
-    color: "#ACBBEF",
-  },
-];
-
-// Initial data
-export const initialItems2: CurrencyCardItem[] = [
-  {
     name: "",
     symbol: "",
     color: "",
@@ -62,8 +43,8 @@ export const initialItems2: CurrencyCardItem[] = [
 ];
 
 interface CurrencyStore {
+  //favoriteCurrencies: CurrencyCardItem[];
   favoriteCurrencies: CurrencyCardItem[];
-  favoriteCurrenciesNew: CurrencyCardItem[];
   favoriteCurrencyRates: Record<string, Record<string, number>>; // Store rates for favorite currencies
   baseCurrency: string;
   amountToConvert: number;
@@ -110,7 +91,6 @@ export const useCurrencyStore = create<CurrencyStore>()(
   persist(
     (set, get) => ({
       favoriteCurrencies: initialItems,
-      favoriteCurrenciesNew: initialItems2,
       favoriteCurrencyRates: {},
       timeSeries: [],
       convertedCurrencies: {},
@@ -118,7 +98,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
       amountToConvert: 0,
       lastFetchTime: null,
       clearFavoriteCurrencies: () => {
-        set({ favoriteCurrenciesNew: initialItems2 });
+        set({ favoriteCurrencies: initialItems });
       },
       replaceFavoriteCurrency: (actualSymbol, newSymbol, newName, newColor) => {
         set((state) => {
@@ -139,7 +119,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
         newColor
       ) => {
         set((state) => {
-          const favoriteCurrenciesNew = state.favoriteCurrenciesNew.map(
+          const favoriteCurrencies = state.favoriteCurrencies.map(
             (item, index) => {
               console.log("actualIndex", actualIndex, "index", index);
               if (actualIndex === index.toString()) {
@@ -148,7 +128,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
               return item;
             }
           );
-          return { favoriteCurrenciesNew };
+          return { favoriteCurrencies };
         });
       },
       setFavoriteCurrencyColor: (symbol, color) => {
