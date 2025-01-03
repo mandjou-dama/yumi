@@ -1,5 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
+
+import { Redirect } from "expo-router";
 
 import { Stack } from "expo-router";
 
@@ -9,6 +11,11 @@ export const unstable_settings = {
 };
 
 export default function AppIndexLayout() {
+  const [loading, setLoading] = useState(true);
+
+  if (loading) {
+    return <Redirect href={"/(onboarding)"} />;
+  }
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />

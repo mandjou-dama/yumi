@@ -6,15 +6,17 @@ import { Stack } from "expo-router";
 
 export default function OnboardingLayout() {
   return (
-    <SafeAreaProvider>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="choose-favorites"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen />
-      </Stack>
-    </SafeAreaProvider>
+    <Stack>
+      <Stack.Screen
+        name="index"
+        options={{
+          headerShown: false,
+          contentStyle: {
+            backgroundColor: "#F7ECC9",
+          },
+        }}
+      />
+      <Stack.Screen name="choose-favorites" options={{ headerShown: false }} />
+    </Stack>
   );
 }
