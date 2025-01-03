@@ -7,6 +7,12 @@ import {
   TouchableWithoutFeedback,
   Image,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {};
@@ -14,6 +20,22 @@ type Props = {};
 const Onboarding = (props: Props) => {
   // hooks
   const insets = useSafeAreaInsets();
+
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  const handlePressIn = () => {
+    scale.value = withTiming(0.95, { duration: 500 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withTiming(1, { duration: 500 });
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
 
   return (
     <View style={styles.container}>
@@ -26,6 +48,7 @@ const Onboarding = (props: Props) => {
           right: 0,
           width: 600,
           height: 600,
+          zIndex: -1,
         }}
       >
         <Image
@@ -58,10 +81,14 @@ const Onboarding = (props: Props) => {
             </Text>
           </View>
 
-          <TouchableWithoutFeedback>
-            <View style={styles.button}>
+          <TouchableWithoutFeedback
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            onPress={() => router.navigate("/(onboarding)/choose-favorites")}
+          >
+            <Animated.View style={[styles.button, animatedStyle]}>
               <Text style={styles.buttonText}>Commencer la conversion</Text>
-            </View>
+            </Animated.View>
           </TouchableWithoutFeedback>
         </View>
       </View>
@@ -118,10 +145,10 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#0C0C0C",
+    backgroundColor: "#89E3A3",
   },
   buttonText: {
     fontSize: 16,
-    color: "#F7ECC9",
+    color: "#0C0C0C",
   },
 });
