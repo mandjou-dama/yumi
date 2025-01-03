@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Redirect, router } from "expo-router";
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,

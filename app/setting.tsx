@@ -1,16 +1,13 @@
 import { StyleSheet, View, useWindowDimensions } from "react-native";
 
 const Setting = () => {
-  return <View style={{ flex: 1 }}></View>;
+  return <View style={styles.gradient}></View>;
 };
 
 const styles = StyleSheet.create({
   gradient: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    zIndex: 50,
+    flex: 1,
+    backgroundColor: "#F7ECC9",
   },
 });
 

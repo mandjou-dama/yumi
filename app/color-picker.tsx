@@ -13,6 +13,7 @@ export default function ColorPickerScreen() {
     setFavoriteCurrencyColor,
     replaceFavoriteCurrency,
     fetchExchangeRates,
+    fetchTimeSeries,
   } = useCurrencyStore();
 
   const handleColorSelect = (color: string) => {
@@ -26,8 +27,8 @@ export default function ColorPickerScreen() {
         color
       );
       fetchExchangeRates();
+      fetchTimeSeries();
     }
-    //setSelectedColor(color);
     router.dismissAll();
   };
 
