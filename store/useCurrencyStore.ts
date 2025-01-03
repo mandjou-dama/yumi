@@ -69,7 +69,6 @@ interface CurrencyStore {
   amountToConvert: number;
   convertedCurrencies: Record<string, number>;
   lastFetchTime: string | null;
-  //setLastFetchTime: (time: Date) => void;
   timeSeries: TimeSeriesType[];
   setFavoriteCurrencyColor: (symbol: string, color: string) => void;
   addItemToFavoriteCurrencies: (
@@ -84,6 +83,7 @@ interface CurrencyStore {
     newName: string,
     newColor: string
   ) => void;
+  clearFavoriteCurrencies: () => void;
   setAmountToConvert: (amount: number) => void;
   setBaseCurrency: (base: string) => void;
   fetchExchangeRates: () => Promise<void>;
@@ -117,6 +117,9 @@ export const useCurrencyStore = create<CurrencyStore>()(
       baseCurrency: initialItems[0].symbol, // Default to the first item
       amountToConvert: 0,
       lastFetchTime: null,
+      clearFavoriteCurrencies: () => {
+        set({ favoriteCurrenciesNew: initialItems2 });
+      },
       replaceFavoriteCurrency: (actualSymbol, newSymbol, newName, newColor) => {
         set((state) => {
           const favoriteCurrencies = state.favoriteCurrencies.map((item) => {

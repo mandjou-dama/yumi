@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -18,17 +18,17 @@ import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCurrencyStore } from "@/store/useCurrencyStore";
 
-const Data = [1, 2, 3];
-
 type Props = {};
 
 const ChooseCurrencies = (props: Props) => {
+  //states
+  const [isAllSelected, setIsAllSelected] = useState(false);
+
   // hooks
   const insets = useSafeAreaInsets();
   const scale = useSharedValue(1);
-  const scale2 = useSharedValue(1);
 
-  const { favoriteCurrenciesNew } = useCurrencyStore();
+  const { favoriteCurrenciesNew, clearFavoriteCurrencies } = useCurrencyStore();
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -45,7 +45,9 @@ const ChooseCurrencies = (props: Props) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
-  const handleOnChoose = () => {};
+  const handleOnChoose = () => {
+    clearFavoriteCurrencies();
+  };
 
   const getCurrencyLabel = (index: number, name: string) => {
     if (name === "") {
@@ -55,6 +57,24 @@ const ChooseCurrencies = (props: Props) => {
     }
     return name;
   };
+
+  const checkIfAllSelected = () => {
+    let allSelected = true;
+    favoriteCurrenciesNew.forEach((el) => {
+      if (el.name === "") {
+        allSelected = false;
+      }
+    });
+    setIsAllSelected(allSelected);
+  };
+
+  useEffect(() => {
+    checkIfAllSelected();
+
+    return () => {
+      // cleanup
+    };
+  }, [favoriteCurrenciesNew]);
 
   return (
     <View style={styles.container}>
@@ -134,9 +154,17 @@ const ChooseCurrencies = (props: Props) => {
         <TouchableWithoutFeedback
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
+          onPress={handleOnChoose}
+          disabled={!isAllSelected}
           //onPress={() => router.navigate("/(onboarding)/choose-favorites")}
         >
-          <Animated.View style={[styles.button, animatedStyle]}>
+          <Animated.View
+            style={[
+              styles.button,
+              animatedStyle,
+              { opacity: isAllSelected ? 1 : 0.5 },
+            ]}
+          >
             <Text style={styles.buttonText}>Commencer la conversion</Text>
           </Animated.View>
         </TouchableWithoutFeedback>
