@@ -42,8 +42,28 @@ export const initialItems: CurrencyCardItem[] = [
   },
 ];
 
+// Initial data
+export const initialItems2: CurrencyCardItem[] = [
+  {
+    name: "",
+    symbol: "",
+    color: "",
+  },
+  {
+    name: "",
+    symbol: "",
+    color: "",
+  },
+  {
+    name: "",
+    symbol: "",
+    color: "",
+  },
+];
+
 interface CurrencyStore {
   favoriteCurrencies: CurrencyCardItem[];
+  favoriteCurrenciesNew: CurrencyCardItem[];
   favoriteCurrencyRates: Record<string, Record<string, number>>; // Store rates for favorite currencies
   baseCurrency: string;
   amountToConvert: number;
@@ -52,7 +72,12 @@ interface CurrencyStore {
   //setLastFetchTime: (time: Date) => void;
   timeSeries: TimeSeriesType[];
   setFavoriteCurrencyColor: (symbol: string, color: string) => void;
-  // a function to replace one of the favorite currencies with a new one, given the currency item: CurrencyCardItem
+  addItemToFavoriteCurrencies: (
+    actualIndex: string,
+    newSymbol: string,
+    newName: string,
+    newColor: string
+  ) => void;
   replaceFavoriteCurrency: (
     actualSymbol: string,
     newSymbol: string,
@@ -85,6 +110,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
   persist(
     (set, get) => ({
       favoriteCurrencies: initialItems,
+      favoriteCurrenciesNew: initialItems2,
       favoriteCurrencyRates: {},
       timeSeries: [],
       convertedCurrencies: {},
@@ -101,6 +127,25 @@ export const useCurrencyStore = create<CurrencyStore>()(
           });
 
           return { favoriteCurrencies };
+        });
+      },
+      addItemToFavoriteCurrencies: (
+        actualIndex,
+        newSymbol,
+        newName,
+        newColor
+      ) => {
+        set((state) => {
+          const favoriteCurrenciesNew = state.favoriteCurrenciesNew.map(
+            (item, index) => {
+              console.log("actualIndex", actualIndex, "index", index);
+              if (actualIndex === index.toString()) {
+                return { name: newName, symbol: newSymbol, color: newColor };
+              }
+              return item;
+            }
+          );
+          return { favoriteCurrenciesNew };
         });
       },
       setFavoriteCurrencyColor: (symbol, color) => {

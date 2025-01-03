@@ -16,6 +16,7 @@ import Animated, {
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useCurrencyStore } from "@/store/useCurrencyStore";
 
 const Data = [1, 2, 3];
 
@@ -24,9 +25,10 @@ type Props = {};
 const ChooseCurrencies = (props: Props) => {
   // hooks
   const insets = useSafeAreaInsets();
-
   const scale = useSharedValue(1);
   const scale2 = useSharedValue(1);
+
+  const { favoriteCurrenciesNew } = useCurrencyStore();
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -44,6 +46,15 @@ const ChooseCurrencies = (props: Props) => {
   };
 
   const handleOnChoose = () => {};
+
+  const getCurrencyLabel = (index: number, name: string) => {
+    if (name === "") {
+      if (index === 0) return "Choisis ta première monnaie";
+      if (index === 1) return "Choisis ta deuxième monnaie";
+      if (index === 2) return "Choisis ta troisième monnaie";
+    }
+    return name;
+  };
 
   return (
     <View style={styles.container}>
@@ -86,10 +97,11 @@ const ChooseCurrencies = (props: Props) => {
         </View>
 
         <View style={styles.selectElementWrapper}>
-          {Data.map((el, index) => {
+          {favoriteCurrenciesNew.map((el, index) => {
+            const label = getCurrencyLabel(index, el.name);
             return (
               <TouchableWithoutFeedback
-                key={el}
+                key={index}
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   router.navigate({
@@ -98,18 +110,20 @@ const ChooseCurrencies = (props: Props) => {
                   });
                 }}
               >
-                <Animated.View style={[styles.selectElementContainer]}>
-                  <View style={styles.selectElementLeft}>
-                    <Text style={styles.selectElementText}>{el}</Text>
+                <Animated.View
+                  style={[
+                    styles.selectElementContainer,
+                    {
+                      backgroundColor: el.color !== "" ? el.color : "#f7d7863d",
+                    },
+                  ]}
+                >
+                  <View style={[styles.selectElementLeft]}>
+                    <Text style={styles.selectElementText}>{index + 1}</Text>
                   </View>
                   <View>
-                    <Text>
-                      {index === 0
-                        ? "Choisis ta première monnaie"
-                        : index === 1
-                        ? "Choisis ta deuxième monnaie"
-                        : "Choisis ta troisième monnaie"}
-                    </Text>
+                    <Text>{label}</Text>
+                    {el.symbol !== "" && <Text>{el.symbol}</Text>}
                   </View>
                 </Animated.View>
               </TouchableWithoutFeedback>
@@ -168,7 +182,6 @@ const styles = StyleSheet.create({
   selectElementContainer: {
     width: "100%",
     height: 70,
-    backgroundColor: "#f7d7863d",
     borderRadius: 18,
     flexDirection: "row",
     alignItems: "center",
@@ -180,7 +193,7 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignContent: "center",
-    backgroundColor: "#F7D786",
+    backgroundColor: "rgba(255,255,255,0.2)",
     borderRadius: 10,
   },
   selectElementText: {

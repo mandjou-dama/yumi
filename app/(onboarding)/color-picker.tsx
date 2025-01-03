@@ -7,17 +7,24 @@ import { useCurrencyStore } from "@/store/useCurrencyStore";
 
 export default function ColorPickerScreen() {
   const router = useRouter();
-  const { newSymbol, newName } = useLocalSearchParams();
+  const { newSymbol, newName, index } = useLocalSearchParams();
 
   const {
     setFavoriteCurrencyColor,
     replaceFavoriteCurrency,
     fetchExchangeRates,
     fetchTimeSeries,
+    addItemToFavoriteCurrencies,
   } = useCurrencyStore();
 
   const handleColorSelect = (color: string) => {
     if (newSymbol) {
+      addItemToFavoriteCurrencies(
+        index.toString(),
+        newSymbol.toString(),
+        newName.toString(),
+        color
+      );
       //   replaceFavoriteCurrency(newSymbol.toString(), newName.toString(), color);
       //   fetchExchangeRates();
       //   fetchTimeSeries();

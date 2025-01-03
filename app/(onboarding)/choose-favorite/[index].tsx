@@ -119,6 +119,7 @@ const ChangeCurrency = (props: Props) => {
                 router.push({
                   pathname: "/color-picker",
                   params: {
+                    index: index,
                     newSymbol: item.symbol,
                     newName: item.name,
                   },
