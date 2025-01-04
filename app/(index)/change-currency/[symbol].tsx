@@ -15,29 +15,46 @@ import { currencies } from "@/data/currencies";
 import { Colors } from "@/data/colors";
 import SelectCurrency from "@/components/select-currency-item";
 import { Search } from "@/assets/icons/icons";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  useSharedValue,
+} from "react-native-reanimated";
 
 type Props = {};
 
 const ScrollToTop = ({ onPress }: { onPress: () => void }) => (
-  <BlurView intensity={30} tint="dark" style={styles.scrollToTop}>
-    <Pressable
+  <Animated.View exiting={FadeOut} entering={FadeIn} style={styles.scrollToTop}>
+    <BlurView
+      intensity={30}
+      tint="dark"
       style={{
         width: "100%",
         height: "100%",
-        borderRadius: 100,
         justifyContent: "center",
         alignItems: "center",
       }}
-      onPress={onPress}
     >
-      <Text style={styles.scrollToTopText}>↑</Text>
-    </Pressable>
-  </BlurView>
+      <Pressable
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: 100,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        onPress={onPress}
+      >
+        <Text style={styles.scrollToTopText}>↑</Text>
+      </Pressable>
+    </BlurView>
+  </Animated.View>
 );
 
 const ChangeCurrency = (props: Props) => {
   const { symbol, color, name } = useLocalSearchParams();
   const scrollRef = useRef<ScrollView>(null);
+  const scale = useSharedValue(1);
 
   const router = useRouter();
 
@@ -78,6 +95,8 @@ const ChangeCurrency = (props: Props) => {
     <View style={{ flex: 1 }}>
       <ScrollView
         ref={scrollRef}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="always"
         stickyHeaderIndices={[0]}
         onScroll={(event) => {
           const offsetY = event.nativeEvent.contentOffset.y;
@@ -146,6 +165,7 @@ const ChangeCurrency = (props: Props) => {
             }}
           >
             <TextInput
+              autoFocus
               value={input}
               onChangeText={(value) => setInput(value)}
               style={{ fontSize: 16, flexGrow: 1 }}
@@ -179,6 +199,7 @@ const ChangeCurrency = (props: Props) => {
           )}
           //pagingEnabled
           keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="always"
           estimatedItemSize={150}
         />
       </ScrollView>

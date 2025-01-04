@@ -1,11 +1,11 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Pressable,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, Text, TouchableWithoutFeedback } from "react-native";
 import React from "react";
+import Animated, {
+  useAnimatedStyle,
+  withTiming,
+  useSharedValue,
+} from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 
 type Props = {
   name: string;
@@ -15,12 +15,17 @@ type Props = {
 
 const SelectCurrency = ({ name, symbol, onPress }: Props) => {
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-      <View style={styles.container}>
+    <TouchableWithoutFeedback
+      onPress={() => {
+        onPress();
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }}
+    >
+      <Animated.View style={[styles.container]}>
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.symbol}>{symbol}</Text>
-      </View>
-    </TouchableOpacity>
+      </Animated.View>
+    </TouchableWithoutFeedback>
   );
 };
 

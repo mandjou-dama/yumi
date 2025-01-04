@@ -9,13 +9,7 @@ export default function ColorPickerScreen() {
   const router = useRouter();
   const { newSymbol, newName, index } = useLocalSearchParams();
 
-  const {
-    setFavoriteCurrencyColor,
-    replaceFavoriteCurrency,
-    fetchExchangeRates,
-    fetchTimeSeries,
-    addItemToFavoriteCurrencies,
-  } = useCurrencyStore();
+  const { addItemToFavoriteCurrencies } = useCurrencyStore();
 
   const handleColorSelect = (color: string) => {
     if (newSymbol) {
@@ -25,9 +19,6 @@ export default function ColorPickerScreen() {
         newName.toString(),
         color
       );
-      //   replaceFavoriteCurrency(newSymbol.toString(), newName.toString(), color);
-      //   fetchExchangeRates();
-      //   fetchTimeSeries();
     }
     router.dismissTo("/(onboarding)/choose-favorites");
   };
@@ -39,7 +30,7 @@ export default function ColorPickerScreen() {
         <Pressable
           onPress={() => {
             if (process.env.EXPO_OS === "ios") {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }
             handleColorSelect(item);
           }}
