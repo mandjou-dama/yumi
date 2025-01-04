@@ -3,13 +3,20 @@ import { StatusBar } from "expo-status-bar";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 import { useCurrencyStore } from "@/store/useCurrencyStore";
+import { useOnboarding } from "@/store/onboarding";
 import { usePositionStore } from "@/store/usePositionStore";
 import * as Haptics from "expo-haptics";
 
@@ -53,6 +60,7 @@ export default function HomeScreen() {
   } = useCurrencyStore();
 
   const { positions } = usePositionStore();
+  const { isLoading, setIsLoading } = useOnboarding();
 
   useEffect(() => {
     //fetchExchangeRates();
@@ -69,6 +77,15 @@ export default function HomeScreen() {
     // }
     //console.log(JSON.stringify(favoriteCurrencies, null, 2));
   }, [favoriteCurrencies]);
+
+  useEffect(() => {
+    if (isLoading === true) {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
+    }
+    return () => {};
+  }, []);
 
   // hooks
   const insets = useSafeAreaInsets();
@@ -129,6 +146,25 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { paddingBottom: insets?.bottom ?? 20 }]}>
+      {isLoading && (
+        <View
+          style={{
+            flex: 1,
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(255, 255, 255, 0.3)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator size={"small"} color={""} />
+        </View>
+      )}
       <View style={[styles.topWrapper, { paddingTop: insets?.top ?? 20 }]}>
         <View style={styles.header}>
           <View></View>

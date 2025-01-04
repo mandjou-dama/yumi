@@ -3,7 +3,6 @@ import {
   StyleSheet,
   Text,
   View,
-  SafeAreaView,
   Image,
   TouchableWithoutFeedback,
 } from "react-native";
@@ -17,6 +16,7 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCurrencyStore } from "@/store/useCurrencyStore";
+import { useOnboarding } from "@/store/onboarding";
 
 type Props = {};
 
@@ -27,6 +27,7 @@ const ChooseCurrencies = (props: Props) => {
   // hooks
   const insets = useSafeAreaInsets();
   const scale = useSharedValue(1);
+  const { setShowOnboarding, setIsLoading } = useOnboarding();
 
   const {
     favoriteCurrencies,
@@ -80,8 +81,10 @@ const ChooseCurrencies = (props: Props) => {
   const handleOnChoose = () => {
     clearFavoriteCurrencies();
 
-    //fetchExchangeRates();
-    //fetchTimeSeries();
+    setIsLoading(true);
+    setShowOnboarding(false);
+    fetchExchangeRates();
+    fetchTimeSeries();
   };
 
   return (
