@@ -18,6 +18,8 @@ const zustandOnboardingStorage = {
   },
 };
 
+//storage.clearAll();
+
 interface OnboardingStore {
   showOnboarding: boolean;
   isLoading: boolean;

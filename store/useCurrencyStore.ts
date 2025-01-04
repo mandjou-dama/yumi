@@ -121,7 +121,6 @@ export const useCurrencyStore = create<CurrencyStore>()(
         set((state) => {
           const favoriteCurrencies = state.favoriteCurrencies.map(
             (item, index) => {
-              console.log("actualIndex", actualIndex, "index", index);
               if (actualIndex === index.toString()) {
                 return { name: newName, symbol: newSymbol, color: newColor };
               }

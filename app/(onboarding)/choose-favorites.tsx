@@ -34,6 +34,7 @@ const ChooseCurrencies = (props: Props) => {
     clearFavoriteCurrencies,
     fetchExchangeRates,
     fetchTimeSeries,
+    setBaseCurrency,
   } = useCurrencyStore();
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -79,12 +80,14 @@ const ChooseCurrencies = (props: Props) => {
   }, [favoriteCurrencies]);
 
   const handleOnChoose = () => {
-    clearFavoriteCurrencies();
+    //clearFavoriteCurrencies();
 
-    setIsLoading(true);
-    setShowOnboarding(false);
+    setBaseCurrency(favoriteCurrencies[0].symbol);
     fetchExchangeRates();
     fetchTimeSeries();
+    setIsLoading(true);
+    setShowOnboarding(false);
+    router.replace("/(index)");
   };
 
   return (

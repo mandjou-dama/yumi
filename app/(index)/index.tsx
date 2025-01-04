@@ -62,6 +62,8 @@ export default function HomeScreen() {
   const { positions } = usePositionStore();
   const { isLoading, setIsLoading } = useOnboarding();
 
+  console.log(favoriteCurrencies);
+
   useEffect(() => {
     //fetchExchangeRates();
     //fetchTimeSeries();
@@ -82,7 +84,7 @@ export default function HomeScreen() {
     if (isLoading === true) {
       setTimeout(() => {
         setIsLoading(false);
-      }, 2000);
+      }, 3000);
     }
     return () => {};
   }, []);
@@ -145,7 +147,7 @@ export default function HomeScreen() {
   const currentActiveIndex = useSharedValue<number | null>(null);
 
   return (
-    <View style={[styles.container, { paddingBottom: insets?.bottom ?? 20 }]}>
+    <>
       {isLoading && (
         <View
           style={{
@@ -157,103 +159,116 @@ export default function HomeScreen() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(255, 255, 255, 0.3)",
+            backgroundColor: "#F7D786",
             justifyContent: "center",
             alignItems: "center",
+            zIndex: 100,
           }}
         >
+          <Text
+            style={{
+              marginBottom: 10,
+            }}
+          >
+            Tes devises arrivent...
+          </Text>
           <ActivityIndicator size={"small"} color={""} />
         </View>
       )}
-      <View style={[styles.topWrapper, { paddingTop: insets?.top ?? 20 }]}>
-        <View style={styles.header}>
-          <View></View>
-          <View style={styles.headerIcons}>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.themeIconContainer}
+      <View style={[styles.container, { paddingBottom: insets?.bottom ?? 20 }]}>
+        <View style={[styles.topWrapper, { paddingTop: insets?.top ?? 20 }]}>
+          <View style={styles.header}>
+            <View></View>
+            <View style={styles.headerIcons}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.themeIconContainer}
+              >
+                <Link href={"/setting"}>
+                  <Settings />
+                </Link>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.bodyWrapper}>
+            <Text style={styles.bodyText}>Vos devises favorites</Text>
+
+            <CurrencySortableList
+              onAnimatedIndexChange={(index) => {
+                currentActiveIndex.value = index;
+              }}
+              onDragEnd={onDragEnd}
+              backgroundItem={
+                // Kind of hacky way to make the background item have rounded corners
+                <View
+                  style={[
+                    styles.backgroundItem,
+                    {
+                      width: "100%",
+                      alignSelf: "center",
+                    },
+                  ]}
+                />
+              }
+              data={favoriteCurrencies}
+              listItemHeight={ITEM_HEIGHT}
+              renderItem={({ item, index, position }) => {
+                const value = convertedCurrencies[item.symbol];
+                console.log(
+                  position <= 0
+                    ? `${item.name}: ${formatCurrency(amountToConvert)}`
+                    : `${item.name}: ${formatCurrency(value)}`
+                );
+
+                return (
+                  <ListItem
+                    item={item}
+                    style={{
+                      height: HEIGHT,
+                      marginVertical: PADDING,
+                      backgroundColor: item.color,
+                      width: "100%",
+                      alignSelf: "center",
+                    }}
+                    value={
+                      position <= 0
+                        ? formatCurrency(amountToConvert)
+                        : formatCurrency(value)
+                    }
+                    maxBorderRadius={MAX_BORDER_RADIUS}
+                    index={position <= 0 ? 1 : position === 87 ? 2 : 3}
+                    activeIndex={currentActiveIndex}
+                    onPress={() => {}}
+                    onBottomArrowPress={() => console.log("onBottomArrowPress")}
+                  />
+                );
+              }}
+            />
+          </View>
+
+          <View style={styles.exchangeAmount}>
+            <Text style={styles.exchangeText}>Montant à convertir</Text>
+            <Animated.Text
+              style={[styles.exchangeAmountText, rStyle, rErrorTextStyle]}
             >
-              <Link href={"/setting"}>
-                <Settings />
-              </Link>
-            </TouchableOpacity>
+              {formatCurrency(amountToConvert)}
+            </Animated.Text>
           </View>
         </View>
 
-        <View style={styles.bodyWrapper}>
-          <Text style={styles.bodyText}>Vos devises favorites</Text>
-
-          <CurrencySortableList
-            onAnimatedIndexChange={(index) => {
-              currentActiveIndex.value = index;
-            }}
-            onDragEnd={onDragEnd}
-            backgroundItem={
-              // Kind of hacky way to make the background item have rounded corners
-              <View
-                style={[
-                  styles.backgroundItem,
-                  {
-                    width: "100%",
-                    alignSelf: "center",
-                  },
-                ]}
-              />
-            }
-            data={favoriteCurrencies}
-            listItemHeight={ITEM_HEIGHT}
-            renderItem={({ item, index, position }) => {
-              const value = convertedCurrencies[item.symbol];
-              console.log(
-                position <= 0
-                  ? `${item.name}: ${formatCurrency(amountToConvert)}`
-                  : `${item.name}: ${formatCurrency(value)}`
-              );
-
-              return (
-                <ListItem
-                  item={item}
-                  style={{
-                    height: HEIGHT,
-                    marginVertical: PADDING,
-                    backgroundColor: item.color,
-                    width: "100%",
-                    alignSelf: "center",
-                  }}
-                  value={
-                    position <= 0
-                      ? formatCurrency(amountToConvert)
-                      : formatCurrency(value)
-                  }
-                  maxBorderRadius={MAX_BORDER_RADIUS}
-                  index={position <= 0 ? 1 : position === 87 ? 2 : 3}
-                  activeIndex={currentActiveIndex}
-                  onPress={() => {}}
-                  onBottomArrowPress={() => console.log("onBottomArrowPress")}
-                />
-              );
-            }}
-          />
+        <View style={[styles.bottom, { marginBottom: insets.bottom }]}>
+          <NumPad shake={shake} onInputChange={handleInputChange} />
         </View>
 
-        <View style={styles.exchangeAmount}>
-          <Text style={styles.exchangeText}>Montant à convertir</Text>
-          <Animated.Text
-            style={[styles.exchangeAmountText, rStyle, rErrorTextStyle]}
-          >
-            {formatCurrency(amountToConvert)}
-          </Animated.Text>
-        </View>
+        <CurrenciesSheet
+          color={handleIndicatorStyle}
+          ref={currenciesSheetRef}
+        />
+
+        <StatusBar style={"dark"} />
       </View>
-
-      <View style={[styles.bottom, { marginBottom: insets.bottom }]}>
-        <NumPad shake={shake} onInputChange={handleInputChange} />
-      </View>
-
-      <CurrenciesSheet color={handleIndicatorStyle} ref={currenciesSheetRef} />
-
-      <StatusBar style={"dark"} />
-    </View>
+    </>
   );
 }
 

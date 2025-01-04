@@ -12,6 +12,7 @@ export const unstable_settings = {
 };
 
 export default function AppIndexLayout() {
+  const [isTrue, setIsTrue] = useState(true);
   const { showOnboarding, isLoading, setIsLoading } = useOnboarding();
 
   if (showOnboarding === true) {
