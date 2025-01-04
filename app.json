@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "Yumi",
-    "slug": "faleni",
+    "slug": "yumi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "yumi",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -14,20 +14,39 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.faleni"
+      "bundleIdentifier": "com.anonymous.yumi",
+      "icon": {
+        "light": "./assets/images/icon.png",
+        "dark": "./assets/images/icon.png",
+        "tinted": "./assets/images/icon.png"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png"
       },
-      "package": "com.anonymous.faleni"
+      "package": "com.anonymous.yumi"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": ["expo-router", "expo-sqlite"],
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": "100%",
+          "resizeMode": "cover",
+          "dark": {
+            "image": "./assets/images/splash-icon.png"
+          }
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     }
