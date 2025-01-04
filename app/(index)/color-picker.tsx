@@ -19,6 +19,12 @@ export default function ColorPickerScreen() {
   const handleColorSelect = (color: string) => {
     setFavoriteCurrencyColor(actualSymbol.toString(), color);
 
+    const sevenDaysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+    const endDate = new Date().toISOString().split("T")[0];
+    const startDate = new Date(Date.now() - sevenDaysInMilliseconds)
+      .toISOString()
+      .split("T")[0];
+
     if (newSymbol) {
       replaceFavoriteCurrency(
         actualSymbol.toString(),
@@ -27,7 +33,7 @@ export default function ColorPickerScreen() {
         color
       );
       fetchExchangeRates();
-      fetchTimeSeries();
+      fetchTimeSeries(startDate, endDate);
     }
     router.dismissAll();
   };

@@ -175,12 +175,12 @@ export default function HomeScreen() {
         >
           <Text
             style={{
-              marginBottom: 10,
+              marginBottom: 15,
             }}
           >
             Tes devises arrivent...
           </Text>
-          <ActivityIndicator size={"small"} color={""} />
+          <ActivityIndicator size={"large"} color={"#89E3A3"} />
         </View>
       )}
       <View style={[styles.container, { paddingBottom: insets?.bottom ?? 20 }]}>

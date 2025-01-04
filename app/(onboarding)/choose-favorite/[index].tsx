@@ -107,7 +107,7 @@ const ChangeCurrency = (props: Props) => {
         </View>
 
         <FlashList
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           contentContainerStyle={{ paddingBottom: 70, paddingHorizontal: 15 }}
           data={data}
           keyExtractor={(item) => item.name}
@@ -128,7 +128,7 @@ const ChangeCurrency = (props: Props) => {
             />
           )}
           //pagingEnabled
-          keyboardDismissMode="on-drag"
+          //keyboardDismissMode="on-drag"
           estimatedItemSize={150}
         />
       </ScrollView>
