@@ -18,13 +18,12 @@ const zustandOnboardingStorage = {
   },
 };
 
-//storage.clearAll();
-
 interface OnboardingStore {
   showOnboarding: boolean;
   isLoading: boolean;
   setShowOnboarding: (value: boolean) => void;
   setIsLoading: (value: boolean) => void;
+  clearStorage: () => void;
 }
 
 export const useOnboarding = create<OnboardingStore>()(
@@ -37,6 +36,9 @@ export const useOnboarding = create<OnboardingStore>()(
       },
       setIsLoading: (value) => {
         set({ isLoading: value });
+      },
+      clearStorage: () => {
+        storage.clearAll();
       },
     }),
     {

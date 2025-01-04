@@ -79,12 +79,26 @@ const ChooseCurrencies = (props: Props) => {
     };
   }, [favoriteCurrencies]);
 
+  const getDateString = () => {
+    const sevenDaysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+    const endDate = new Date().toISOString().split("T")[0];
+    const startDate = new Date(Date.now() - sevenDaysInMilliseconds)
+      .toISOString()
+      .split("T")[0];
+
+    console.log(startDate, endDate);
+  };
+
   const handleOnChoose = () => {
-    //clearFavoriteCurrencies();
+    const sevenDaysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+    const endDate = new Date().toISOString().split("T")[0];
+    const startDate = new Date(Date.now() - sevenDaysInMilliseconds)
+      .toISOString()
+      .split("T")[0];
 
     setBaseCurrency(favoriteCurrencies[0].symbol);
     fetchExchangeRates();
-    fetchTimeSeries();
+    fetchTimeSeries(startDate, endDate);
     setIsLoading(true);
     setShowOnboarding(false);
     router.replace("/(index)");

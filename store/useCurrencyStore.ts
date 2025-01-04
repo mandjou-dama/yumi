@@ -68,8 +68,9 @@ interface CurrencyStore {
   setAmountToConvert: (amount: number) => void;
   setBaseCurrency: (base: string) => void;
   fetchExchangeRates: () => Promise<void>;
-  fetchTimeSeries: () => Promise<void>;
+  fetchTimeSeries: (startDate: string, endDate: string) => Promise<void>;
   handleConversion: (amount: number) => void;
+  clearStorage: () => void;
 }
 
 const regroupByBaseCurrency = (data: any[]) => {
@@ -188,7 +189,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
           //console.error("Error fetching exchange rates:", error);
         }
       },
-      fetchTimeSeries: async () => {
+      fetchTimeSeries: async (startDate, endDate) => {
         const { favoriteCurrencies } = get();
         const fetchPromises = favoriteCurrencies.flatMap((currency) => {
           const filteredCurrencies = favoriteCurrencies.filter(
@@ -198,7 +199,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
           // Create fetch requests for each pair
           return filteredCurrencies.map((filteredCurrency) =>
             fetch(
-              `https://api.fastforex.io/time-series?from=${currency.symbol}&to=${filteredCurrency.symbol}&start=2024-12-22&end=2024-12-31&api_key=${API_KEY}`,
+              `https://api.fastforex.io/time-series?from=${currency.symbol}&to=${filteredCurrency.symbol}&start=${startDate}&end=${endDate}&api_key=${API_KEY}`,
               {
                 method: "GET",
                 headers: { accept: "application/json" },
@@ -237,6 +238,9 @@ export const useCurrencyStore = create<CurrencyStore>()(
 
           return { convertedCurrencies: converted };
         });
+      },
+      clearStorage: () => {
+        storage.clearAll();
       },
     }),
     {

@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   StyleSheet,
@@ -9,6 +9,7 @@ import {
   Text,
   TouchableOpacity,
   ActivityIndicator,
+  TouchableWithoutFeedback,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -57,27 +58,34 @@ export default function HomeScreen() {
     lastFetchTime,
     fetchTimeSeries,
     timeSeries,
+    clearStorage: clearCurrencyStorage,
   } = useCurrencyStore();
 
-  const { positions } = usePositionStore();
-  const { isLoading, setIsLoading } = useOnboarding();
-
-  console.log(favoriteCurrencies);
+  const { positions, clearStorage: clearPositionsStorage } = usePositionStore();
+  const {
+    isLoading,
+    setIsLoading,
+    clearStorage: clearOnboardingStorage,
+  } = useOnboarding();
 
   useEffect(() => {
-    //fetchExchangeRates();
-    //fetchTimeSeries();
     const fiveMinutesInMilliseconds = 5 * 60 * 1000;
+    const sevenDaysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
 
     // Check if 7 days have passed since the last fetch
-    // if (
-    //   !lastFetchTime ||
-    //   Date.now() - parseInt(lastFetchTime, 10) > fiveMinutesInMilliseconds
-    // ) {
-    //   fetchExchangeRates();
-    //   fetchTimeSeries();
-    // }
-    //console.log(JSON.stringify(favoriteCurrencies, null, 2));
+    if (
+      !lastFetchTime ||
+      Date.now() - parseInt(lastFetchTime, 10) > sevenDaysInMilliseconds
+    ) {
+      //function to get actual Date and Date - 7 days in this format "YYYY-MM-DD"
+      const endDate = new Date().toISOString().split("T")[0];
+      const startDate = new Date(Date.now() - sevenDaysInMilliseconds)
+        .toISOString()
+        .split("T")[0];
+
+      fetchExchangeRates();
+      fetchTimeSeries(startDate, endDate);
+    }
   }, [favoriteCurrencies]);
 
   useEffect(() => {
@@ -184,9 +192,20 @@ export default function HomeScreen() {
                 activeOpacity={0.8}
                 style={styles.themeIconContainer}
               >
-                <Link href={"/setting"}>
+                {/* <Link href={"/setting"}>
                   <Settings />
-                </Link>
+                </Link> */}
+                <TouchableWithoutFeedback
+                  onPress={() => {
+                    clearCurrencyStorage();
+                    clearOnboardingStorage();
+                    clearPositionsStorage();
+                    console.log("Storage cleared");
+                    router.replace("/(onboarding)");
+                  }}
+                >
+                  <Settings />
+                </TouchableWithoutFeedback>
               </TouchableOpacity>
             </View>
           </View>
@@ -215,11 +234,11 @@ export default function HomeScreen() {
               listItemHeight={ITEM_HEIGHT}
               renderItem={({ item, index, position }) => {
                 const value = convertedCurrencies[item.symbol];
-                console.log(
-                  position <= 0
-                    ? `${item.name}: ${formatCurrency(amountToConvert)}`
-                    : `${item.name}: ${formatCurrency(value)}`
-                );
+                // console.log(
+                //   position <= 0
+                //     ? `${item.name}: ${formatCurrency(amountToConvert)}`
+                //     : `${item.name}: ${formatCurrency(value)}`
+                // );
 
                 return (
                   <ListItem

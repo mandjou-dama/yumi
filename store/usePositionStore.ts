@@ -7,6 +7,7 @@ interface PositionStore {
   positions: Positions;
   setPositions: (newPositions: Positions) => void;
   resetPositions: () => void;
+  clearStorage: () => void;
 }
 
 // MMKV instance
@@ -32,6 +33,9 @@ const usePositionStore = create<PositionStore>()(
       positions: {}, // Initialize with an empty positions object
       setPositions: (newPositions) => set({ positions: newPositions }),
       resetPositions: () => set({ positions: {} }),
+      clearStorage: () => {
+        storage.clearAll();
+      },
     }),
     {
       name: "position-store", // Key for persisting the store
