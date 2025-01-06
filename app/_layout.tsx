@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Redirect, router, Slot } from "expo-router";
+import { Slot } from "expo-router";
 import { useNetworkState } from "expo-network";
 import {
   configureReanimatedLogger,
