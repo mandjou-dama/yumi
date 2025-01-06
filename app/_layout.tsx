@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Redirect, router, Slot } from "expo-router";
+import { useNetworkState } from "expo-network";
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
@@ -46,11 +47,9 @@ export default function RootLayout() {
   }, [error]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (loaded) {
-        SplashScreen.hideAsync();
-      }
-    }, 3000);
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
   }, [loaded]);
 
   if (!loaded) {
