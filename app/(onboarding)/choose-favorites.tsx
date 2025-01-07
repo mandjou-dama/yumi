@@ -6,6 +6,7 @@ import {
   Image,
   TouchableWithoutFeedback,
 } from "react-native";
+import { useNetworkState } from "expo-network";
 
 import Animated, {
   useAnimatedStyle,
@@ -28,6 +29,7 @@ const ChooseCurrencies = (props: Props) => {
   const insets = useSafeAreaInsets();
   const scale = useSharedValue(1);
   const { setShowOnboarding, setIsLoading } = useOnboarding();
+  const state = useNetworkState();
 
   const {
     favoriteCurrencies,
@@ -85,6 +87,9 @@ const ChooseCurrencies = (props: Props) => {
     const startDate = new Date(Date.now() - sevenDaysInMilliseconds)
       .toISOString()
       .split("T")[0];
+
+    if (!state.isConnected && !state.isInternetReachable) {
+    }
 
     setBaseCurrency(favoriteCurrencies[0].symbol);
     fetchExchangeRates();
