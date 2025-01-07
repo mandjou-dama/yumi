@@ -89,6 +89,8 @@ const ChooseCurrencies = (props: Props) => {
       .split("T")[0];
 
     if (!state.isConnected && !state.isInternetReachable) {
+      console.log("NO CONNEXION INTERNET HERE");
+      return;
     }
 
     setBaseCurrency(favoriteCurrencies[0].symbol);
