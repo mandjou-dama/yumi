@@ -26,7 +26,7 @@ import { useAnimatedShake } from "@/hooks/useAnimatedShake";
 
 // components & icons
 import NumPad from "@/components/num-pad";
-import { DarkTheme, Settings } from "@/assets/icons/icons";
+import { Settings } from "@/assets/icons/icons";
 import CurrenciesSheet from "@/components/currencies-sheet";
 import { CurrencySortableList } from "@/components/currencies-card-list";
 import { Positions } from "@/typings";
@@ -42,7 +42,6 @@ export default function HomeScreen() {
   const [inputValue, setInputValue] = useState<number>(0);
   const currenciesSheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
-  const [indexes, setIndexes] = useState<any[]>([]);
 
   // store
   const {
@@ -69,7 +68,7 @@ export default function HomeScreen() {
   } = useOnboarding();
 
   useEffect(() => {
-    const fiveMinutesInMilliseconds = 5 * 60 * 1000;
+    //const fiveMinutesInMilliseconds = 5 * 60 * 1000;
     const sevenDaysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
 
     // Check if 7 days have passed since the last fetch
