@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useWindowDimensions } from "react-native";
+import { useNetworkState } from "expo-network";
 
 import { useCurrencyStore } from "@/store/useCurrencyStore";
 import Chart from "@/components/chart";
@@ -9,14 +10,31 @@ import { SegmentedControl } from "@/components/segmented-control";
 
 export default function CurrencyDetails() {
   const { symbol, color, name } = useLocalSearchParams();
+  const [isOnline, setIsOnline] = useState<boolean>(false);
+  const networkState = useNetworkState();
 
   // store
-  const { favoriteCurrencies: items } = useCurrencyStore();
+  const { favoriteCurrencies: items, timeSeries } = useCurrencyStore();
 
+  console.log(timeSeries[0]);
   // filter items by creating a new array without the selected item
   const filteredItems = items.filter((item) => item.symbol !== symbol);
 
   const [activeCurrency, setActiveCurrency] = useState(filteredItems[0].symbol);
+
+  useEffect(() => {
+    if (
+      !networkState.isConnected &&
+      networkState.isInternetReachable === false
+    ) {
+      setIsOnline(false);
+    } else if (
+      networkState.isConnected &&
+      networkState.isInternetReachable === true
+    ) {
+      setIsOnline(true);
+    }
+  }, [networkState.isConnected, networkState.isInternetReachable]);
 
   return (
     <View style={[styles.container]}>
@@ -42,14 +60,23 @@ export default function CurrencyDetails() {
         />
       </View>
 
-      {/* Chart */}
-      <View style={styles.currencyChartWrapper}>
-        <Chart
-          color={color.toString()}
-          activeCurrency={activeCurrency}
-          currentCurrency={symbol.toString()}
-        />
-      </View>
+      {!isOnline && timeSeries[0] === undefined ? (
+        <View style={styles.errorWrapper}>
+          <Text style={styles.errorHeader}>Oups 😅</Text>
+          <Text style={styles.errorParagraph}>
+            Une erreur est survenu lors de la requête. S'il vous plaît vérifier
+            que vous êtes connecté à internet puis réessayer.
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.currencyChartWrapper}>
+          <Chart
+            color={color.toString()}
+            activeCurrency={activeCurrency}
+            currentCurrency={symbol.toString()}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -134,5 +161,20 @@ const styles = StyleSheet.create({
     height: "100%",
     overflowX: "hidden",
     //paddingHorizontal: 20,
+  },
+  errorWrapper: {
+    paddingHorizontal: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 30,
+  },
+  errorHeader: {
+    fontSize: 22,
+    color: "#0d1321",
+    marginBottom: 7,
+  },
+  errorParagraph: {
+    color: "#0d1321",
+    textAlign: "center",
   },
 });

@@ -31,6 +31,7 @@ import CurrenciesSheet from "@/components/currencies-sheet";
 import { CurrencySortableList } from "@/components/currencies-card-list";
 import { Positions } from "@/typings";
 import { ListItem } from "@/components/currency-card-item";
+import { useNetworkState } from "expo-network";
 
 const PADDING = 6;
 const HEIGHT = 75;
