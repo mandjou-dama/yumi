@@ -5,6 +5,7 @@ import {
   View,
   Image,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
 import { useNetworkState } from "expo-network";
 
@@ -23,13 +24,14 @@ type Props = {};
 
 const ChooseCurrencies = (props: Props) => {
   //states
-  const [isAllSelected, setIsAllSelected] = useState(false);
+  const [isAllSelected, setIsAllSelected] = useState<boolean>(false);
+  const [isOnline, setIsOnline] = useState<boolean>(false);
 
   // hooks
   const insets = useSafeAreaInsets();
   const scale = useSharedValue(1);
   const { setShowOnboarding, setIsLoading } = useOnboarding();
-  const state = useNetworkState();
+  const networkState = useNetworkState();
 
   const {
     favoriteCurrencies,
@@ -81,6 +83,20 @@ const ChooseCurrencies = (props: Props) => {
     };
   }, [favoriteCurrencies]);
 
+  useEffect(() => {
+    if (
+      !networkState.isConnected &&
+      networkState.isInternetReachable === false
+    ) {
+      setIsOnline(false);
+    } else if (
+      networkState.isConnected &&
+      networkState.isInternetReachable === true
+    ) {
+      setIsOnline(true);
+    }
+  }, [networkState.isConnected, networkState.isInternetReachable]);
+
   const handleOnChoose = () => {
     const sevenDaysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
     const endDate = new Date().toISOString().split("T")[0];
@@ -88,8 +104,11 @@ const ChooseCurrencies = (props: Props) => {
       .toISOString()
       .split("T")[0];
 
-    if (!state.isConnected && !state.isInternetReachable) {
-      console.log("NO CONNEXION INTERNET HERE");
+    if (isOnline === false) {
+      Alert.alert(
+        "🔌 You are offline",
+        "You need to be online in order to get actual currencies rates. Check your network settings and try back !"
+      );
       return;
     }
 
