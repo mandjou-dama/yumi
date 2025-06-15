@@ -183,3 +183,23 @@ export const Search = () => {
     </Svg>
   );
 };
+
+export const RestoreIcon = (props: SvgProps) => {
+  return (
+    <Svg
+      width={24}
+      height={24}
+      fill="none"
+      stroke={props.color ? props.color : "#F7ECC9"}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      className="icon icon-tabler icons-tabler-outline icon-tabler-restore"
+      {...props}
+    >
+      <Path stroke="none" d="M0 0h24v24H0z" />
+      <Path d="M3.06 13a9 9 0 1 0 .49-4.087" />
+      <Path d="M3 4.001v5h5M11 12a1 1 0 1 0 2 0 1 1 0 1 0-2 0" />
+    </Svg>
+  );
+};

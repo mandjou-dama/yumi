@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { Link, router } from "expo-router";
+import * as Updates from "expo-updates";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   StyleSheet,
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TouchableWithoutFeedback,
+  Pressable,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -26,12 +27,13 @@ import { useAnimatedShake } from "@/hooks/useAnimatedShake";
 
 // components & icons
 import NumPad from "@/components/num-pad";
-import { Settings } from "@/assets/icons/icons";
+import { RestoreIcon, Settings } from "@/assets/icons/icons";
 import CurrenciesSheet from "@/components/currencies-sheet";
 import { CurrencySortableList } from "@/components/currencies-card-list";
 import { Positions } from "@/typings";
 import { ListItem } from "@/components/currency-card-item";
 import { useNetworkState } from "expo-network";
+import { Colors } from "@/data/colors";
 
 const PADDING = 6;
 const HEIGHT = 75;
@@ -43,6 +45,21 @@ export default function HomeScreen() {
   const [inputValue, setInputValue] = useState<number>(0);
   const currenciesSheetRef = useRef<BottomSheetModal>(null);
   const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
+
+  const { isUpdateAvailable } = Updates.useUpdates();
+
+  // If true, we show the button to download and run the update
+  const showDownloadButton = isUpdateAvailable;
+
+  const updateAsync = async () => {
+    try {
+      await Updates.fetchUpdateAsync();
+      await Updates.reloadAsync();
+    } catch (error) {
+      console.error("Error fetching update:", error);
+      // You might want to show an error message to the user here
+    }
+  };
 
   // store
   const {
@@ -184,9 +201,30 @@ export default function HomeScreen() {
           <View style={styles.header}>
             <View></View>
             <View style={styles.headerIcons}>
+              {showDownloadButton ? (
+                <View style={styles.updateWrapper}>
+                  <Text style={styles.updateText}>
+                    ✨ Mise à jour disponible
+                  </Text>
+                  <Pressable
+                    onPress={updateAsync}
+                    style={styles.updateButtonWrapper}
+                  >
+                    <Text style={styles.updateButtonText}>Rafraîchir</Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <View></View>
+              )}
               <TouchableOpacity
                 activeOpacity={0.8}
-                style={styles.themeIconContainer}
+                disabled={amountToConvert > 0}
+                style={[
+                  styles.themeIconContainer,
+                  {
+                    opacity: amountToConvert > 0 ? 1 : 0.5,
+                  },
+                ]}
               >
                 {/* <Link href={"/setting"}>
                   <Settings />
@@ -204,7 +242,7 @@ export default function HomeScreen() {
                     // router.replace("/(onboarding)");
                   }}
                 >
-                  <Settings />
+                  <RestoreIcon />
                 </TouchableWithoutFeedback>
               </TouchableOpacity>
             </View>
@@ -326,7 +364,9 @@ const styles = StyleSheet.create({
   },
   headerIcons: {
     flexDirection: "row",
-    gap: 10,
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    width: "100%",
   },
   exchangeAmount: {
     justifyContent: "center",
@@ -378,5 +418,34 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: MAX_BORDER_RADIUS,
     margin: PADDING,
+  },
+
+  //updateWrapper
+  updateWrapper: {
+    flexDirection: "row",
+    backgroundColor: "#89e3a34d",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingLeft: 20,
+    paddingRight: 5,
+    paddingVertical: 5,
+    borderRadius: 50,
+    borderCurve: "circular",
+    gap: 5,
+  },
+  updateText: {
+    fontSize: 12,
+    color: "black",
+  },
+  updateButtonWrapper: {
+    backgroundColor: "#89E3A3",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 50,
+    borderCurve: "circular",
+  },
+  updateButtonText: {
+    fontSize: 12,
+    color: "black",
   },
 });
