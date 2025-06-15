@@ -193,11 +193,13 @@ export default function HomeScreen() {
                 </Link> */}
                 <TouchableWithoutFeedback
                   onPress={() => {
-                    clearCurrencyStorage();
+                    // clearCurrencyStorage();
                     // clearOnboardingStorage();
-                    clearPositionsStorage();
-                    clearFavoriteCurrencies();
+                    // clearPositionsStorage();
+                    // clearFavoriteCurrencies();
+                    handleConversion(0);
                     setAmountToConvert(0);
+                    // fetchExchangeRates();
                     // console.log("Storage cleared");
                     // router.replace("/(onboarding)");
                   }}
