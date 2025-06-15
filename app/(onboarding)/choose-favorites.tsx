@@ -106,8 +106,8 @@ const ChooseCurrencies = (props: Props) => {
 
     if (isOnline === false) {
       Alert.alert(
-        "🔌 You are offline",
-        "You need to be online in order to get actual currencies rates. Check your network settings and try back !"
+        "🔌 Ouups tu es hors ligne",
+        "A ce point tu as besoin d'une connexion internet pour commencer. Réessaye plus tard."
       );
       return;
     }
@@ -209,7 +209,7 @@ const ChooseCurrencies = (props: Props) => {
               { opacity: isAllSelected ? 1 : 0.5 },
             ]}
           >
-            <Text style={styles.buttonText}>Commencer la conversion</Text>
+            <Text style={styles.buttonText}>Commence la conversion</Text>
           </Animated.View>
         </TouchableWithoutFeedback>
       </View>

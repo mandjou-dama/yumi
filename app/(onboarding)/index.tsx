@@ -72,12 +72,12 @@ const Onboarding = (props: Props) => {
         <View style={styles.infoWrapper}>
           <View style={styles.textsWrapper}>
             <Text style={styles.headline}>
-              Convertissez en Toute simplicité !
+              Convertis en {"\n"}Toute simplicité !
             </Text>
             <Text style={styles.subline}>
-              Découvrez un convertisseur rapide, précis et un brin amusant pour
-              toutes vos conversions monétaires. Partez à la conquête des
-              devises avec style !
+              Découvre un convertisseur rapide, précis et un brin amusant pour
+              toutes tes conversions monétaires. Pars à la conquête des devises
+              avec style !
             </Text>
           </View>
 
@@ -87,7 +87,7 @@ const Onboarding = (props: Props) => {
             onPress={() => router.navigate("/(onboarding)/choose-favorites")}
           >
             <Animated.View style={[styles.button, animatedStyle]}>
-              <Text style={styles.buttonText}>Commencer la conversion</Text>
+              <Text style={styles.buttonText}>Let's gooo !!</Text>
             </Animated.View>
           </TouchableWithoutFeedback>
         </View>

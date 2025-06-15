@@ -13,7 +13,8 @@ export default function ColorPickerScreen() {
     setFavoriteCurrencyColor,
     replaceFavoriteCurrency,
     fetchExchangeRates,
-    fetchTimeSeries,
+    amountToConvert,
+    handleConversion,
   } = useCurrencyStore();
 
   const handleColorSelect = (color: string) => {
@@ -33,7 +34,7 @@ export default function ColorPickerScreen() {
         color
       );
       fetchExchangeRates();
-      fetchTimeSeries(startDate, endDate);
+      handleConversion(amountToConvert);
     }
     router.dismissAll();
   };

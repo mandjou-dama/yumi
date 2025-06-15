@@ -88,9 +88,18 @@ export const ListItem: React.FC<ListItemProps> = ({
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={() =>
+          // router.navigate({
+          //   pathname: "/currency-details/[symbol]",
+          //   params: { symbol: item.symbol, color: item.color, name: item.name },
+          // })
+
           router.navigate({
-            pathname: "/currency-details/[symbol]",
-            params: { symbol: item.symbol, color: item.color, name: item.name },
+            pathname: "/change-currency/[symbol]",
+            params: {
+              symbol: item.symbol,
+              color: item.color,
+              name: item.name,
+            },
           })
         }
       >

@@ -47,17 +47,14 @@ export default function HomeScreen() {
   // store
   const {
     favoriteCurrencies,
-    baseCurrency,
     setBaseCurrency,
     amountToConvert,
     setAmountToConvert,
     fetchExchangeRates,
     handleConversion,
     convertedCurrencies,
-    favoriteCurrencyRates,
     lastFetchTime,
-    fetchTimeSeries,
-    timeSeries,
+    clearFavoriteCurrencies,
     clearStorage: clearCurrencyStorage,
   } = useCurrencyStore();
 
@@ -70,7 +67,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     //const fiveMinutesInMilliseconds = 5 * 60 * 1000;
-    const sevenDaysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+    const sevenDaysInMilliseconds = 3 * 24 * 60 * 60 * 1000;
 
     // Check if 7 days have passed since the last fetch
     if (
@@ -84,7 +81,6 @@ export default function HomeScreen() {
         .split("T")[0];
 
       fetchExchangeRates();
-      fetchTimeSeries(startDate, endDate);
     }
   }, [favoriteCurrencies]);
 
@@ -198,10 +194,12 @@ export default function HomeScreen() {
                 <TouchableWithoutFeedback
                   onPress={() => {
                     clearCurrencyStorage();
-                    clearOnboardingStorage();
+                    // clearOnboardingStorage();
                     clearPositionsStorage();
-                    console.log("Storage cleared");
-                    router.replace("/(onboarding)");
+                    clearFavoriteCurrencies();
+                    setAmountToConvert(0);
+                    // console.log("Storage cleared");
+                    // router.replace("/(onboarding)");
                   }}
                 >
                   <Settings />
@@ -211,7 +209,7 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.bodyWrapper}>
-            <Text style={styles.bodyText}>Vos devises favorites</Text>
+            <Text style={styles.bodyText}>Tes devises favorites</Text>
 
             <CurrencySortableList
               onAnimatedIndexChange={(index) => {
@@ -253,6 +251,8 @@ export default function HomeScreen() {
                     value={
                       position <= 0
                         ? formatCurrency(amountToConvert)
+                        : typeof value !== "number"
+                        ? "Chargement..."
                         : formatCurrency(value)
                     }
                     maxBorderRadius={MAX_BORDER_RADIUS}

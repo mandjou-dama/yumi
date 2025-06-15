@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     width: "100%",
     height: "100%",
-    overflowX: "hidden",
+    // overflowX: "hidden",
     //paddingHorizontal: 20,
   },
   errorWrapper: {

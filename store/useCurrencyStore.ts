@@ -21,8 +21,6 @@ const zustandCurrencyStorage = {
   },
 };
 
-const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
-
 // Initial data
 export const initialItems: CurrencyCardItem[] = [
   {
@@ -43,14 +41,13 @@ export const initialItems: CurrencyCardItem[] = [
 ];
 
 interface CurrencyStore {
-  //favoriteCurrencies: CurrencyCardItem[];
   favoriteCurrencies: CurrencyCardItem[];
-  favoriteCurrencyRates: Record<string, Record<string, number>>; // Store rates for favorite currencies
+  favoriteCurrencyRates: Record<string, Record<string, number>>;
   baseCurrency: string;
   amountToConvert: number;
   convertedCurrencies: Record<string, number>;
   lastFetchTime: string | null;
-  timeSeries: TimeSeriesType[];
+  timeSeries: TimeSeriesType[]; // Will be empty since FloatRates doesn't support this
   setFavoriteCurrencyColor: (symbol: string, color: string) => void;
   addItemToFavoriteCurrencies: (
     actualIndex: string,
@@ -68,25 +65,10 @@ interface CurrencyStore {
   setAmountToConvert: (amount: number) => void;
   setBaseCurrency: (base: string) => void;
   fetchExchangeRates: () => Promise<void>;
-  fetchTimeSeries: (startDate: string, endDate: string) => Promise<void>;
+  fetchTimeSeries: (startDate: string, endDate: string) => Promise<void>; // Will do nothing
   handleConversion: (amount: number) => void;
   clearStorage: () => void;
 }
-
-const regroupByBaseCurrency = (data: any[]) => {
-  const groupedResults: Record<string, any[]> = {};
-
-  data.forEach((entry) => {
-    const base = entry.base;
-    if (!groupedResults[base]) {
-      groupedResults[base] = [];
-    }
-
-    groupedResults[base].push(entry.results);
-  });
-
-  return groupedResults;
-};
 
 export const useCurrencyStore = create<CurrencyStore>()(
   persist(
@@ -95,7 +77,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
       favoriteCurrencyRates: {},
       timeSeries: [],
       convertedCurrencies: {},
-      baseCurrency: initialItems[0].symbol, // Default to the first item
+      baseCurrency: initialItems[0].symbol,
       amountToConvert: 0,
       lastFetchTime: null,
       clearFavoriteCurrencies: () => {
@@ -149,20 +131,15 @@ export const useCurrencyStore = create<CurrencyStore>()(
       setBaseCurrency: (currency) => set({ baseCurrency: currency }),
       fetchExchangeRates: async () => {
         const { favoriteCurrencies, handleConversion, amountToConvert } = get();
-        const allRates: Record<string, Record<string, number>> = {}; // Store rates for all base currencies
+        const allRates: Record<string, Record<string, number>> = {};
 
         try {
           for (const currency of favoriteCurrencies) {
-            let filteredCurrencies = favoriteCurrencies.filter(
-              (item) => item.symbol !== currency.symbol
-            );
+            // Skip if currency is not selected
+            if (!currency.symbol) continue;
 
             const response = await fetch(
-              `https://api.fastforex.io/fetch-multi?from=${currency.symbol}&to=${filteredCurrencies[0].symbol},${filteredCurrencies[1].symbol}&api_key=${API_KEY}`,
-              {
-                method: "GET",
-                headers: { accept: "application/json" },
-              }
+              `https://www.floatrates.com/daily/${currency.symbol.toLowerCase()}.json`
             );
 
             if (!response.ok) {
@@ -172,66 +149,56 @@ export const useCurrencyStore = create<CurrencyStore>()(
 
             const data = await response.json();
 
-            if (data.results) {
-              allRates[currency.symbol] = data.results;
-            } else {
-              console.error("Invalid data:", data);
+            // console.log(data);
+
+            // Get the other currencies we need to convert to
+            const otherCurrencies = favoriteCurrencies
+              .filter((item) => item.symbol && item.symbol !== currency.symbol)
+              .map((item) => item.symbol.toLowerCase());
+
+            // Prepare rates object for this base currency
+            const rates: Record<string, number> = {};
+
+            // Extract rates for the currencies we're interested in
+            for (const targetCurrency of otherCurrencies) {
+              if (data[targetCurrency]) {
+                rates[targetCurrency.toUpperCase()] = data[targetCurrency].rate;
+              }
+            }
+
+            if (Object.keys(rates).length > 0) {
+              allRates[currency.symbol] = rates;
             }
           }
 
-          // Update the store with all fetched rates
-          console.log("Fetching exchange rates...");
-          set({ lastFetchTime: Date.now().toString() });
-          set({ favoriteCurrencyRates: allRates });
+          set({
+            lastFetchTime: Date.now().toString(),
+            favoriteCurrencyRates: allRates,
+          });
+
           // Trigger conversion after rates are updated
           handleConversion(amountToConvert);
         } catch (error) {
-          //console.error("Error fetching exchange rates:", error);
+          console.error("Error fetching exchange rates:", error);
         }
       },
-      fetchTimeSeries: async (startDate, endDate) => {
-        const { favoriteCurrencies } = get();
-        const fetchPromises = favoriteCurrencies.flatMap((currency) => {
-          const filteredCurrencies = favoriteCurrencies.filter(
-            (item) => item.symbol !== currency.symbol
-          );
-
-          // Create fetch requests for each pair
-          return filteredCurrencies.map((filteredCurrency) =>
-            fetch(
-              `https://api.fastforex.io/time-series?from=${currency.symbol}&to=${filteredCurrency.symbol}&start=${startDate}&end=${endDate}&api_key=${API_KEY}`,
-              {
-                method: "GET",
-                headers: { accept: "application/json" },
-              }
-            ).then((response) => response.json())
-          );
-        });
-
-        // Await all fetches concurrently
-        const responses = await Promise.all(fetchPromises);
-        const data: any = regroupByBaseCurrency(responses);
-
-        // Update the store with all fetched rates
-        console.log("Fetching time series...");
-        set({ lastFetchTime: Date.now().toString() });
-        set({ timeSeries: data });
+      fetchTimeSeries: async () => {
+        // FloatRates doesn't support time series, so we'll just return an empty array
+        set({ timeSeries: [] });
       },
       handleConversion: (amount) => {
         set((state) => {
           const rates = state.favoriteCurrencyRates[state.baseCurrency] || {};
 
-          // Ensure rates are available before performing conversion
           if (Object.keys(rates).length === 0) {
             return { convertedCurrencies: {} };
           }
 
-          // Calculate converted values
           const converted = state.favoriteCurrencies.reduce<
             Record<string, number>
           >((acc, currency) => {
-            if (currency.symbol !== state.baseCurrency) {
-              acc[currency.symbol] = amount * (rates[currency.symbol] || 0); // Multiply by the rate
+            if (currency.symbol && currency.symbol !== state.baseCurrency) {
+              acc[currency.symbol] = amount * (rates[currency.symbol] || 0);
             }
             return acc;
           }, {});
@@ -244,8 +211,8 @@ export const useCurrencyStore = create<CurrencyStore>()(
       },
     }),
     {
-      name: "currency-store-persist", // Key for persistence
-      storage: createJSONStorage(() => zustandCurrencyStorage), // Use custom MMKV storage
+      name: "currency-store-persist",
+      storage: createJSONStorage(() => zustandCurrencyStorage),
     }
   )
 );

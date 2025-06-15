@@ -2,7 +2,7 @@ export const currencies = [
   { symbol: "AED", name: "United Arab Emirates Dirham" },
   { symbol: "AFN", name: "Afghan Afghani" },
   { symbol: "ALL", name: "Albanian Lek" },
-  { symbol: "AMD", name: "Armenian Dram" },
+  { symbol: "AMD", name: "Armenia Dram" },
   { symbol: "ANG", name: "Dutch Guilders" },
   { symbol: "AOA", name: "Angolan Kwanza" },
   { symbol: "ARS", name: "Argentine Peso" },
