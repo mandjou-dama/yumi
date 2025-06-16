@@ -7,12 +7,13 @@ import { useCurrencyStore } from "@/store/useCurrencyStore";
 
 export default function ColorPickerScreen() {
   const router = useRouter();
-  const { actualSymbol, newSymbol, newName } = useLocalSearchParams();
+  const { actualSymbol, newSymbol, newName, index } = useLocalSearchParams();
 
   const {
     setFavoriteCurrencyColor,
     replaceFavoriteCurrency,
     fetchExchangeRates,
+    setBaseCurrency,
     amountToConvert,
     handleConversion,
   } = useCurrencyStore();
@@ -33,10 +34,20 @@ export default function ColorPickerScreen() {
         newName.toString(),
         color
       );
+      console.log(amountToConvert);
       fetchExchangeRates();
+    }
+
+    if (Number(index) === 1) {
+      setBaseCurrency(newSymbol.toString());
       handleConversion(amountToConvert);
     }
-    router.dismissAll();
+    router.dismissTo({
+      pathname: "/(index)",
+      params: {
+        change: "change",
+      },
+    });
   };
 
   return (

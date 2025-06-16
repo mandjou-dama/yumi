@@ -99,6 +99,7 @@ export const ListItem: React.FC<ListItemProps> = ({
               symbol: item.symbol,
               color: item.color,
               name: item.name,
+              index: index,
             },
           })
         }

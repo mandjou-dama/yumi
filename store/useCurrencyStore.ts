@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import { createJSONStorage, persist, StateStorage } from "zustand/middleware";
 import { MMKV } from "react-native-mmkv";
 import type { CurrencyCardItem } from "@/components/currency-card-item";
 import { TimeSeriesType } from "@/typings";
@@ -8,36 +8,24 @@ import { TimeSeriesType } from "@/typings";
 const storage = new MMKV({ id: "currency-storage" });
 
 // Custom StateStorage for MMKV
-const zustandCurrencyStorage = {
-  getItem: (name: string) => {
+const zustandCurrencyStorage: StateStorage = {
+  getItem: (name) => {
     const value = storage.getString(name);
     return value ?? null;
   },
-  setItem: (name: string, value: string) => {
+  setItem: (name, value) => {
     storage.set(name, value);
   },
-  removeItem: (name: string) => {
+  removeItem: (name) => {
     storage.delete(name);
   },
 };
 
 // Initial data
 export const initialItems: CurrencyCardItem[] = [
-  {
-    name: "",
-    symbol: "",
-    color: "",
-  },
-  {
-    name: "",
-    symbol: "",
-    color: "",
-  },
-  {
-    name: "",
-    symbol: "",
-    color: "",
-  },
+  { name: "", symbol: "", color: "" },
+  { name: "", symbol: "", color: "" },
+  { name: "", symbol: "", color: "" },
 ];
 
 interface CurrencyStore {
@@ -47,7 +35,8 @@ interface CurrencyStore {
   amountToConvert: number;
   convertedCurrencies: Record<string, number>;
   lastFetchTime: string | null;
-  timeSeries: TimeSeriesType[]; // Will be empty since FloatRates doesn't support this
+  isFetching: boolean;
+  timeSeries: TimeSeriesType[];
   setFavoriteCurrencyColor: (symbol: string, color: string) => void;
   addItemToFavoriteCurrencies: (
     actualIndex: string,
@@ -65,7 +54,7 @@ interface CurrencyStore {
   setAmountToConvert: (amount: number) => void;
   setBaseCurrency: (base: string) => void;
   fetchExchangeRates: () => Promise<void>;
-  fetchTimeSeries: (startDate: string, endDate: string) => Promise<void>; // Will do nothing
+  fetchTimeSeries: (startDate: string, endDate: string) => Promise<void>;
   handleConversion: (amount: number) => void;
   clearStorage: () => void;
 }
@@ -80,21 +69,24 @@ export const useCurrencyStore = create<CurrencyStore>()(
       baseCurrency: initialItems[0].symbol,
       amountToConvert: 0,
       lastFetchTime: null,
+      isFetching: false,
+
       clearFavoriteCurrencies: () => {
         set({ favoriteCurrencies: initialItems });
       },
+
       replaceFavoriteCurrency: (actualSymbol, newSymbol, newName, newColor) => {
         set((state) => {
-          const favoriteCurrencies = state.favoriteCurrencies.map((item) => {
-            if (item.symbol === actualSymbol) {
-              return { name: newName, symbol: newSymbol, color: newColor };
-            }
-            return item;
-          });
-
+          const favoriteCurrencies = state.favoriteCurrencies.map((item) =>
+            item.symbol === actualSymbol
+              ? { name: newName, symbol: newSymbol, color: newColor }
+              : item
+          );
           return { favoriteCurrencies };
         });
+        get().fetchExchangeRates();
       },
+
       addItemToFavoriteCurrencies: (
         actualIndex,
         newSymbol,
@@ -103,111 +95,117 @@ export const useCurrencyStore = create<CurrencyStore>()(
       ) => {
         set((state) => {
           const favoriteCurrencies = state.favoriteCurrencies.map(
-            (item, index) => {
-              if (actualIndex === index.toString()) {
-                return { name: newName, symbol: newSymbol, color: newColor };
-              }
-              return item;
-            }
+            (item, index) =>
+              actualIndex === index.toString()
+                ? { name: newName, symbol: newSymbol, color: newColor }
+                : item
           );
           return { favoriteCurrencies };
         });
       },
+
       setFavoriteCurrencyColor: (symbol, color) => {
         set((state) => {
-          const favoriteCurrencies = state.favoriteCurrencies.map((item) => {
-            if (item.symbol === symbol) {
-              return { ...item, color };
-            }
-            return item;
-          });
-
+          const favoriteCurrencies = state.favoriteCurrencies.map((item) =>
+            item.symbol === symbol ? { ...item, color } : item
+          );
           return { favoriteCurrencies };
         });
       },
+
       setAmountToConvert: (amount) => {
         set({ amountToConvert: amount });
       },
-      setBaseCurrency: (currency) => set({ baseCurrency: currency }),
+
+      setBaseCurrency: (currency) => {
+        set({ baseCurrency: currency });
+      },
+
       fetchExchangeRates: async () => {
         const { favoriteCurrencies, handleConversion, amountToConvert } = get();
-        const allRates: Record<string, Record<string, number>> = {};
+        // const allRates: Record<string, Record<string, number>> = {};
 
-        try {
-          for (const currency of favoriteCurrencies) {
-            // Skip if currency is not selected
-            if (!currency.symbol) continue;
+        const responses = await Promise.all(
+          favoriteCurrencies.map(async (currency) => {
+            if (!currency.symbol) return null;
+            const currencyLower = currency.symbol.toLowerCase();
+            const url = `https://www.floatrates.com/daily/${currencyLower}.json`;
 
-            const response = await fetch(
-              `https://www.floatrates.com/daily/${currency.symbol.toLowerCase()}.json`
-            );
+            try {
+              const response = await fetch(url);
+              const contentType = response.headers.get("content-type");
 
-            if (!response.ok) {
-              console.error(`Failed to fetch rates for ${currency.symbol}`);
-              continue;
-            }
+              if (!contentType?.includes("application/json")) return null;
+              if (!response.ok) return null;
 
-            const data = await response.json();
+              const data = await response.json();
 
-            // console.log(data);
+              const otherCurrencies = favoriteCurrencies
+                .filter(
+                  (item) => item.symbol && item.symbol !== currency.symbol
+                )
+                .map((item) => item.symbol.toLowerCase());
 
-            // Get the other currencies we need to convert to
-            const otherCurrencies = favoriteCurrencies
-              .filter((item) => item.symbol && item.symbol !== currency.symbol)
-              .map((item) => item.symbol.toLowerCase());
-
-            // Prepare rates object for this base currency
-            const rates: Record<string, number> = {};
-
-            // Extract rates for the currencies we're interested in
-            for (const targetCurrency of otherCurrencies) {
-              if (data[targetCurrency]) {
-                rates[targetCurrency.toUpperCase()] = data[targetCurrency].rate;
+              const rates: Record<string, number> = {};
+              for (const target of otherCurrencies) {
+                if (data[target]) {
+                  rates[target.toUpperCase()] = data[target].rate;
+                }
               }
-            }
 
-            if (Object.keys(rates).length > 0) {
-              allRates[currency.symbol] = rates;
+              return { symbol: currency.symbol, rates };
+            } catch (error) {
+              console.error(`Error fetching ${currency.symbol}:`, error);
+              return null;
             }
+          })
+        );
+
+        const allRates: Record<string, Record<string, number>> = {};
+        for (const result of responses) {
+          if (result && Object.keys(result.rates).length > 0) {
+            allRates[result.symbol] = result.rates;
           }
-
-          set({
-            lastFetchTime: Date.now().toString(),
-            favoriteCurrencyRates: allRates,
-          });
-
-          // Trigger conversion after rates are updated
-          handleConversion(amountToConvert);
-        } catch (error) {
-          console.error("Error fetching exchange rates:", error);
         }
+
+        set({
+          lastFetchTime: Date.now().toString(),
+          favoriteCurrencyRates: allRates,
+        });
+        handleConversion(amountToConvert);
       },
+
       fetchTimeSeries: async () => {
-        // FloatRates doesn't support time series, so we'll just return an empty array
         set({ timeSeries: [] });
       },
+
       handleConversion: (amount) => {
         set((state) => {
           const rates = state.favoriteCurrencyRates[state.baseCurrency] || {};
-
-          if (Object.keys(rates).length === 0) {
-            return { convertedCurrencies: {} };
-          }
-
           const converted = state.favoriteCurrencies.reduce<
             Record<string, number>
           >((acc, currency) => {
             if (currency.symbol && currency.symbol !== state.baseCurrency) {
-              acc[currency.symbol] = amount * (rates[currency.symbol] || 0);
+              acc[currency.symbol] = amount * (rates[currency.symbol] ?? 0);
             }
             return acc;
           }, {});
-
           return { convertedCurrencies: converted };
         });
       },
+
       clearStorage: () => {
         storage.clearAll();
+        set({
+          favoriteCurrencies: initialItems,
+          favoriteCurrencyRates: {},
+          timeSeries: [],
+          convertedCurrencies: {},
+          baseCurrency: initialItems[0].symbol,
+          amountToConvert: 0,
+          lastFetchTime: null,
+          isFetching: false,
+        });
       },
     }),
     {

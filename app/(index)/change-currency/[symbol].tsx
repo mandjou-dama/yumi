@@ -52,7 +52,7 @@ const ScrollToTop = ({ onPress }: { onPress: () => void }) => (
 );
 
 const ChangeCurrency = (props: Props) => {
-  const { symbol, color, name } = useLocalSearchParams();
+  const { symbol, color, name, index } = useLocalSearchParams();
   const scrollRef = useRef<ScrollView>(null);
   const scale = useSharedValue(1);
 
@@ -192,6 +192,7 @@ const ChangeCurrency = (props: Props) => {
                     actualSymbol: symbol,
                     newSymbol: item.symbol,
                     newName: item.name,
+                    index: index,
                   },
                 })
               }
