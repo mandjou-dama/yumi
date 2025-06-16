@@ -8,6 +8,7 @@ import {
   Text,
   ActivityIndicator,
   Pressable,
+  useWindowDimensions,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -35,6 +36,8 @@ const MAX_BORDER_RADIUS = 20;
 
 export default function HomeScreen() {
   // state
+  const { width } = useWindowDimensions();
+  console.log(width);
 
   const { isUpdateAvailable } = Updates.useUpdates();
 
@@ -267,7 +270,7 @@ export default function HomeScreen() {
             style={[
               styles.exchangeAmount,
               {
-                marginTop: !showDownloadButton ? 25 : 10,
+                marginTop: !showDownloadButton ? (width < 390 ? 10 : 25) : 10,
               },
             ]}
           >

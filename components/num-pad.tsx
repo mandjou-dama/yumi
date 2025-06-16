@@ -1,5 +1,11 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 import * as Haptics from "expo-haptics";
 
 // Icons
@@ -19,6 +25,7 @@ interface KeyProps {
 
 const NumPad: React.FC<NumPadProps> = ({ onInputChange, shake }) => {
   const [input, setInput] = useState<string>("");
+  const { width } = useWindowDimensions();
 
   const handlePress = useCallback(
     (value: string): void => {
@@ -53,23 +60,23 @@ const NumPad: React.FC<NumPadProps> = ({ onInputChange, shake }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.row}>
+      <View style={[styles.row, {}]}>
         {["1", "2", "3"].map((num) => (
           <Key key={num} value={num} onPress={handlePress} />
         ))}
       </View>
-      <View style={styles.row}>
+      <View style={[styles.row, {}]}>
         {["4", "5", "6"].map((num) => (
           <Key key={num} value={num} onPress={handlePress} />
         ))}
       </View>
-      <View style={styles.row}>
+      <View style={[styles.row, {}]}>
         {["7", "8", "9"].map((num) => (
           <Key key={num} value={num} onPress={handlePress} />
         ))}
       </View>
-      <View style={styles.row}>
-        <Key value="." onPress={handlePress} />
+      <View style={[styles.row, {}]}>
+        <Key value="." onPress={() => {}} />
         <Key value="0" onPress={handlePress} />
         <Key
           value="delete"
@@ -87,21 +94,40 @@ const Key: React.FC<KeyProps> = ({
   onPress,
   onLongPress,
   renderCustom,
-}) => (
-  <TouchableOpacity
-    style={styles.key}
-    onPress={() => onPress(value)}
-    onLongPress={() => {
-      onLongPress ? onLongPress(value) : null;
-    }}
-  >
-    {renderCustom ? (
-      renderCustom()
-    ) : (
-      <Text style={styles.keyText}>{value}</Text>
-    )}
-  </TouchableOpacity>
-);
+}) => {
+  const { width } = useWindowDimensions();
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.key,
+        {
+          width: 110,
+          height: width < 390 ? 45 : 60,
+        },
+      ]}
+      onPress={() => onPress(value)}
+      onLongPress={() => {
+        onLongPress ? onLongPress(value) : null;
+      }}
+    >
+      {renderCustom ? (
+        renderCustom()
+      ) : (
+        <Text
+          style={[
+            styles.keyText,
+            {
+              fontSize: width < 390 ? 20 : 24,
+            },
+          ]}
+        >
+          {value}
+        </Text>
+      )}
+    </TouchableOpacity>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -123,14 +149,14 @@ const styles = StyleSheet.create({
   },
   key: {
     backgroundColor: "#0C0C0C",
-    width: 110,
-    height: 60,
+    // width: 110,
+    // height: 60,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 30,
   },
   keyText: {
-    fontSize: 24,
+    // fontSize: 24,
     color: "#F7ECC9",
   },
 });

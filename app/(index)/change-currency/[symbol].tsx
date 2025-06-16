@@ -54,6 +54,7 @@ const ScrollToTop = ({ onPress }: { onPress: () => void }) => (
 const ChangeCurrency = (props: Props) => {
   const { symbol, color, name, index } = useLocalSearchParams();
   const scrollRef = useRef<ScrollView>(null);
+  const flashListRef = useRef<FlashList<any>>(null);
   const scale = useSharedValue(1);
 
   const router = useRouter();
@@ -88,122 +89,146 @@ const ChangeCurrency = (props: Props) => {
   }, [input]);
 
   const scrollToTop = useCallback(() => {
-    scrollRef.current?.scrollTo({ y: 0, animated: true });
+    flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
   }, []);
+  const renderHeader = () => {
+    return (
+      <BlurView intensity={30} tint="light" style={styles.blurContainer}>
+        <Text style={styles.headline}>Changer de monnaie</Text>
+      </BlurView>
+    );
+  };
+
+  const renderActual = () => {
+    return (
+      <View style={styles.actualCurrencyWrapper}>
+        <View style={styles.actualCurrency}>
+          <View style={styles.actualCurrencyLeft}>
+            <View
+              style={[
+                styles.actualCurrencySymbol,
+                { backgroundColor: color.toString() },
+              ]}
+            >
+              <Text style={styles.actualCurrencySymbolText}>{symbol}</Text>
+            </View>
+            <Text style={styles.actualCurrencyName}>{name}</Text>
+          </View>
+
+          <Pressable
+            style={[styles.actualCurrencyRight]}
+            onPress={() =>
+              router.push({
+                pathname: "/color-picker",
+                params: { actualSymbol: symbol },
+              })
+            }
+          >
+            <View
+              style={[
+                styles.actualCurrencyColorBorder,
+                { borderColor: color.toString(), borderWidth: 1.5 },
+              ]}
+            >
+              <View
+                style={[
+                  styles.actualCurrencyColor,
+                  { backgroundColor: color.toString() },
+                ]}
+              ></View>
+            </View>
+          </Pressable>
+        </View>
+        <View
+          style={{
+            width: "100%",
+            borderBottomColor: color.toString(),
+            borderBottomWidth: 0.2,
+            marginTop: 10,
+          }}
+        />
+
+        <View
+          style={{
+            marginTop: 25,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <TextInput
+            autoFocus
+            value={input}
+            onChangeText={(value) => setInput(value)}
+            style={{ fontSize: 16, flexGrow: 1 }}
+            placeholder="Rechercher une monnaie..."
+            placeholderTextColor={"#00000045"}
+          />
+          <Search />
+        </View>
+      </View>
+    );
+  };
+
+  const renderItem = useCallback(
+    ({ item }: { item: (typeof currencies)[0] }) => {
+      return (
+        <View style={{ paddingHorizontal: 20 }}>
+          <SelectCurrency
+            name={item.name}
+            symbol={item.symbol}
+            onPress={() =>
+              router.push({
+                pathname: "/color-picker",
+                params: {
+                  actualSymbol: symbol,
+                  newSymbol: item.symbol,
+                  newName: item.name,
+                  index: index,
+                },
+              })
+            }
+          />
+        </View>
+      );
+    },
+    [index, router]
+  );
+
+  const renderEmptyComponent = useCallback(() => {
+    if (notFound) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Aucune monnaie trouvée</Text>
+        </View>
+      );
+    }
+    return null;
+  }, [notFound]);
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView
-        ref={scrollRef}
-        keyboardDismissMode="on-drag"
-        keyboardShouldPersistTaps="always"
+      <FlashList
+        ref={flashListRef}
+        data={[{ id: "header" }, { id: "search" }, ...data]}
+        keyExtractor={(item) => item.id || item.name}
+        renderItem={({ item }) => {
+          if (item.id === "header") return renderHeader();
+          if (item.id === "search") return renderActual();
+          return renderItem({ item });
+        }}
+        estimatedItemSize={70}
         stickyHeaderIndices={[0]}
         onScroll={(event) => {
           const offsetY = event.nativeEvent.contentOffset.y;
           setScrollOffset(offsetY);
         }}
-        contentContainerStyle={styles.container}
-      >
-        {/* Header */}
-        <BlurView intensity={30} tint="light" style={styles.blurContainer}>
-          <Text style={styles.headline}>Changer de monnaie</Text>
-        </BlurView>
-
-        <View style={styles.actualCurrencyWrapper}>
-          <View style={styles.actualCurrency}>
-            <View style={styles.actualCurrencyLeft}>
-              <View
-                style={[
-                  styles.actualCurrencySymbol,
-                  { backgroundColor: color.toString() },
-                ]}
-              >
-                <Text style={styles.actualCurrencySymbolText}>{symbol}</Text>
-              </View>
-              <Text style={styles.actualCurrencyName}>{name}</Text>
-            </View>
-
-            <Pressable
-              style={[styles.actualCurrencyRight]}
-              onPress={() =>
-                router.push({
-                  pathname: "/color-picker",
-                  params: { actualSymbol: symbol },
-                })
-              }
-            >
-              <View
-                style={[
-                  styles.actualCurrencyColorBorder,
-                  { borderColor: color.toString(), borderWidth: 1.5 },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.actualCurrencyColor,
-                    { backgroundColor: color.toString() },
-                  ]}
-                ></View>
-              </View>
-            </Pressable>
-          </View>
-          <View
-            style={{
-              width: "100%",
-              borderBottomColor: color.toString(),
-              borderBottomWidth: 0.2,
-              marginTop: 10,
-            }}
-          />
-
-          <View
-            style={{
-              marginTop: 25,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <TextInput
-              autoFocus
-              value={input}
-              onChangeText={(value) => setInput(value)}
-              style={{ fontSize: 16, flexGrow: 1 }}
-              placeholder="Rechercher une monnaie..."
-              placeholderTextColor={"#00000045"}
-            />
-            <Search />
-          </View>
-        </View>
-
-        <FlashList
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 70, paddingHorizontal: 15 }}
-          data={data}
-          keyExtractor={(item) => item.name}
-          renderItem={({ item }) => (
-            <SelectCurrency
-              name={item.name}
-              symbol={item.symbol}
-              onPress={() =>
-                router.push({
-                  pathname: "/color-picker",
-                  params: {
-                    actualSymbol: symbol,
-                    newSymbol: item.symbol,
-                    newName: item.name,
-                    index: index,
-                  },
-                })
-              }
-            />
-          )}
-          //pagingEnabled
-          keyboardDismissMode="on-drag"
-          keyboardShouldPersistTaps="always"
-          estimatedItemSize={150}
-        />
-      </ScrollView>
+        scrollEventThrottle={16}
+        contentContainerStyle={styles.flatlist}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="always"
+        ListEmptyComponent={renderEmptyComponent}
+      />
 
       {scrollOffset > 200 && <ScrollToTop onPress={scrollToTop} />}
     </View>
@@ -218,8 +243,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7ECC9",
   },
   flatlist: {
-    height: "auto",
-    paddingBlockEnd: 70,
+    // height: "auto",
+    paddingBottom: 70,
   },
   blurContainer: {
     textAlign: "center",
@@ -297,4 +322,14 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   scrollToTopText: {},
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 50,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#00000045",
+  },
 });
