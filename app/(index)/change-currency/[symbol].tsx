@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 45,
     height: 45,
-    top: "5.4%",
+    bottom: "5.4%",
     right: 20,
     borderRadius: 100,
     zIndex: 10,

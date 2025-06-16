@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, Platform } from "react-native";
 import { useOnboarding } from "@/store/onboarding";
 
 import { Redirect } from "expo-router";
@@ -26,12 +26,15 @@ export default function AppIndexLayout() {
       <Stack.Screen
         name="currency-details/[symbol]"
         options={{
-          presentation: "formSheet",
           headerShown: false,
+          presentation: Platform.OS === "ios" ? "formSheet" : "fullScreenModal",
+          sheetCornerRadius: 30,
+          sheetGrabberVisible: true,
+          sheetElevation: 0,
+          sheetAllowedDetents: [Platform.OS === "ios" ? 1 : 0.95],
+          statusBarStyle: "light",
           statusBarAnimation: "fade",
           statusBarHidden: false,
-          sheetGrabberVisible: true,
-          statusBarStyle: "light",
           contentStyle: {
             backgroundColor: "#F7ECC9",
           },
@@ -40,14 +43,19 @@ export default function AppIndexLayout() {
       <Stack.Screen
         name="change-currency/[symbol]"
         options={{
-          presentation: "formSheet",
           headerShown: false,
+          presentation: Platform.OS === "ios" ? "formSheet" : "fullScreenModal",
+          sheetCornerRadius: 30,
+          sheetGrabberVisible: true,
+          sheetElevation: 0,
+          sheetAllowedDetents: [Platform.OS === "ios" ? 1 : 0.95],
+          statusBarStyle: "light",
           statusBarAnimation: "fade",
           statusBarHidden: false,
-          sheetGrabberVisible: true,
-          statusBarStyle: "light",
           contentStyle: {
             backgroundColor: "#F7ECC9",
+            flex: 1,
+            height: "100%",
           },
         }}
       />
@@ -63,6 +71,8 @@ export default function AppIndexLayout() {
           statusBarStyle: "light",
           contentStyle: {
             backgroundColor: "#F7ECC9",
+            flex: 1,
+            height: "100%",
           },
         }}
       />
