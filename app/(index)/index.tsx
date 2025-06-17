@@ -1,15 +1,14 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { Link, router } from "expo-router";
+import * as Updates from "expo-updates";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   StyleSheet,
   View,
   Text,
-  TouchableOpacity,
   ActivityIndicator,
-  TouchableWithoutFeedback,
+  Pressable,
+  useWindowDimensions,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -19,19 +18,16 @@ import Animated, {
 import { useCurrencyStore } from "@/store/useCurrencyStore";
 import { useOnboarding } from "@/store/onboarding";
 import { usePositionStore } from "@/store/usePositionStore";
-import * as Haptics from "expo-haptics";
 
 //hooks
 import { useAnimatedShake } from "@/hooks/useAnimatedShake";
 
 // components & icons
 import NumPad from "@/components/num-pad";
-import { Settings } from "@/assets/icons/icons";
-import CurrenciesSheet from "@/components/currencies-sheet";
+import { RestoreIcon, Settings } from "@/assets/icons/icons";
 import { CurrencySortableList } from "@/components/currencies-card-list";
 import { Positions } from "@/typings";
 import { ListItem } from "@/components/currency-card-item";
-import { useNetworkState } from "expo-network";
 
 const PADDING = 6;
 const HEIGHT = 75;
@@ -40,9 +36,23 @@ const MAX_BORDER_RADIUS = 20;
 
 export default function HomeScreen() {
   // state
-  const [inputValue, setInputValue] = useState<number>(0);
-  const currenciesSheetRef = useRef<BottomSheetModal>(null);
-  const [handleIndicatorStyle, setHandleIndicatorStyle] = useState("#fff");
+  const { width } = useWindowDimensions();
+  console.log(width);
+
+  const { isUpdateAvailable } = Updates.useUpdates();
+
+  // If true, we show the button to download and run the update
+  const showDownloadButton = isUpdateAvailable;
+
+  const updateAsync = async () => {
+    try {
+      await Updates.fetchUpdateAsync();
+      await Updates.reloadAsync();
+    } catch (error) {
+      console.error("Error fetching update:", error);
+      // You might want to show an error message to the user here
+    }
+  };
 
   // store
   const {
@@ -54,11 +64,9 @@ export default function HomeScreen() {
     handleConversion,
     convertedCurrencies,
     lastFetchTime,
-    clearFavoriteCurrencies,
-    clearStorage: clearCurrencyStorage,
   } = useCurrencyStore();
 
-  const { positions, clearStorage: clearPositionsStorage } = usePositionStore();
+  const { resetPositions } = usePositionStore();
   const {
     isLoading,
     setIsLoading,
@@ -110,7 +118,6 @@ export default function HomeScreen() {
     const amount = Number(value);
     setAmountToConvert(amount);
     handleConversion(amount);
-    setInputValue(amount);
   };
 
   const formatCurrency = (value: number) => {
@@ -181,36 +188,32 @@ export default function HomeScreen() {
       )}
       <View style={[styles.container, { paddingBottom: insets?.bottom ?? 20 }]}>
         <View style={[styles.topWrapper, { paddingTop: insets?.top ?? 20 }]}>
-          <View style={styles.header}>
-            <View></View>
-            <View style={styles.headerIcons}>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                style={styles.themeIconContainer}
-              >
-                {/* <Link href={"/setting"}>
-                  <Settings />
-                </Link> */}
-                <TouchableWithoutFeedback
-                  onPress={() => {
-                    // clearCurrencyStorage();
-                    // clearOnboardingStorage();
-                    // clearPositionsStorage();
-                    // clearFavoriteCurrencies();
-                    handleConversion(0);
-                    setAmountToConvert(0);
-                    // fetchExchangeRates();
-                    // console.log("Storage cleared");
-                    // router.replace("/(onboarding)");
-                  }}
-                >
-                  <Settings />
-                </TouchableWithoutFeedback>
-              </TouchableOpacity>
+          {showDownloadButton && (
+            <View style={styles.header}>
+              <View style={styles.headerIcons}>
+                <View style={styles.updateWrapper}>
+                  <Text style={styles.updateText}>
+                    ✨ Mise à jour disponible
+                  </Text>
+                  <Pressable
+                    onPress={updateAsync}
+                    style={styles.updateButtonWrapper}
+                  >
+                    <Text style={styles.updateButtonText}>Rafraîchir</Text>
+                  </Pressable>
+                </View>
+              </View>
             </View>
-          </View>
+          )}
 
-          <View style={styles.bodyWrapper}>
+          <View
+            style={[
+              styles.bodyWrapper,
+              {
+                marginTop: !showDownloadButton ? insets.top : 0,
+              },
+            ]}
+          >
             <Text style={styles.bodyText}>Tes devises favorites</Text>
 
             <CurrencySortableList
@@ -234,14 +237,9 @@ export default function HomeScreen() {
               listItemHeight={ITEM_HEIGHT}
               renderItem={({ item, index, position }) => {
                 const value = convertedCurrencies[item.symbol];
-                // console.log(
-                //   position <= 0
-                //     ? `${item.name}: ${formatCurrency(amountToConvert)}`
-                //     : `${item.name}: ${formatCurrency(value)}`
-                // );
-
                 return (
                   <ListItem
+                    key={`${item.symbol}-${index}`}
                     item={item}
                     style={{
                       height: HEIGHT,
@@ -268,7 +266,14 @@ export default function HomeScreen() {
             />
           </View>
 
-          <View style={styles.exchangeAmount}>
+          <View
+            style={[
+              styles.exchangeAmount,
+              {
+                marginTop: !showDownloadButton ? (width < 390 ? 10 : 25) : 10,
+              },
+            ]}
+          >
             <Text style={styles.exchangeText}>Montant à convertir</Text>
             <Animated.Text
               style={[styles.exchangeAmountText, rStyle, rErrorTextStyle]}
@@ -282,10 +287,10 @@ export default function HomeScreen() {
           <NumPad shake={shake} onInputChange={handleInputChange} />
         </View>
 
-        <CurrenciesSheet
+        {/* <CurrenciesSheet
           color={handleIndicatorStyle}
           ref={currenciesSheetRef}
-        />
+        /> */}
 
         <StatusBar style={"dark"} />
       </View>
@@ -326,12 +331,14 @@ const styles = StyleSheet.create({
   },
   headerIcons: {
     flexDirection: "row",
-    gap: 10,
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    width: "100%",
   },
   exchangeAmount: {
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 10,
+    // marginTop: 10,
   },
   exchangeText: {
     fontSize: 16,
@@ -378,5 +385,35 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: MAX_BORDER_RADIUS,
     margin: PADDING,
+  },
+
+  //updateWrapper
+  updateWrapper: {
+    flexDirection: "row",
+    backgroundColor: "#89e3a34d",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingLeft: 20,
+    paddingRight: 5,
+    paddingVertical: 5,
+    borderRadius: 50,
+    borderCurve: "circular",
+    gap: 5,
+    width: "100%",
+  },
+  updateText: {
+    fontSize: 12,
+    color: "black",
+  },
+  updateButtonWrapper: {
+    backgroundColor: "#89E3A3",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 50,
+    borderCurve: "circular",
+  },
+  updateButtonText: {
+    fontSize: 12,
+    color: "black",
   },
 });

@@ -1,6 +1,12 @@
 // Import necessary modules and components from React and React Native
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  useWindowDimensions,
+} from "react-native";
 import type { StyleProp, ViewStyle } from "react-native";
 import { Link } from "expo-router";
 import Animated, {
@@ -47,6 +53,7 @@ export const ListItem: React.FC<ListItemProps> = ({
   onBottomArrowPress,
 }) => {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   // Use shared value for opacity with React Compiler-compliant API
   const opacity = useSharedValue(0.1);
   const scale = useSharedValue(1);
@@ -99,20 +106,39 @@ export const ListItem: React.FC<ListItemProps> = ({
               symbol: item.symbol,
               color: item.color,
               name: item.name,
+              index: index,
             },
           })
         }
       >
         <Animated.View style={[styles.container, style, animatedScaleStyle]}>
           {/* Left section with currency name and value */}
-          <View style={styles.leftWrapper}>
+          <View
+            style={[
+              styles.leftWrapper,
+              {
+                width: width * 1 - 100,
+              },
+            ]}
+          >
             <View style={styles.imageContainer}>
               <Animated.Text style={[styles.currency, animatedOpacityStyle]}>
                 {index}
               </Animated.Text>
             </View>
-            <View>
-              <Text style={styles.currencyName}>{item.name}</Text>
+            <View style={{ flex: 1 }}>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.currencyName,
+                  {
+                    fontSize: width < 390 ? 16 : 18,
+                    width: "95%",
+                  },
+                ]}
+              >
+                {item.name}
+              </Text>
               <Animated.Text style={[styles.currencyValue]}>
                 {value}
               </Animated.Text>
@@ -164,6 +190,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     height: "80%",
+    // flex: 0.8,
   },
   rightWrapper: {
     flexDirection: "row",
@@ -179,7 +206,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   currencyName: {
-    fontSize: 18,
+    // fontSize: 18,
     fontWeight: "bold",
     marginBottom: 5,
   },

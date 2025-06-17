@@ -8,6 +8,7 @@ import {
   Alert,
 } from "react-native";
 import { useNetworkState } from "expo-network";
+import { useFocusEffect } from "expo-router";
 
 import Animated, {
   useAnimatedStyle,
@@ -37,7 +38,6 @@ const ChooseCurrencies = (props: Props) => {
     favoriteCurrencies,
     clearFavoriteCurrencies,
     fetchExchangeRates,
-    fetchTimeSeries,
     setBaseCurrency,
   } = useCurrencyStore();
 
@@ -98,7 +98,7 @@ const ChooseCurrencies = (props: Props) => {
   }, [networkState.isConnected, networkState.isInternetReachable]);
 
   const handleOnChoose = () => {
-    const sevenDaysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+    const sevenDaysInMilliseconds = 3 * 24 * 60 * 60 * 1000;
     const endDate = new Date().toISOString().split("T")[0];
     const startDate = new Date(Date.now() - sevenDaysInMilliseconds)
       .toISOString()
@@ -114,7 +114,6 @@ const ChooseCurrencies = (props: Props) => {
 
     setBaseCurrency(favoriteCurrencies[0].symbol);
     fetchExchangeRates();
-    fetchTimeSeries(startDate, endDate);
     setIsLoading(true);
     setShowOnboarding(false);
     router.replace("/(index)");
@@ -165,7 +164,7 @@ const ChooseCurrencies = (props: Props) => {
             const label = getCurrencyLabel(index, el.name);
             return (
               <TouchableWithoutFeedback
-                key={index}
+                key={`${el.symbol}-${index}`}
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   router.navigate({

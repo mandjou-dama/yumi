@@ -1,27 +1,12 @@
 import React, { useCallback, useState, useEffect, useRef } from "react";
 import { FlashList } from "@shopify/flash-list";
 import { BlurView } from "expo-blur";
-
-import {
-  StyleSheet,
-  Text,
-  View,
-  Pressable,
-  TextInput,
-  ScrollView,
-} from "react-native";
+import { StyleSheet, Text, View, Pressable, TextInput } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { currencies } from "@/data/currencies";
-import { Colors } from "@/data/colors";
 import SelectCurrency from "@/components/select-currency-item";
 import { Search } from "@/assets/icons/icons";
-import Animated, {
-  FadeIn,
-  FadeOut,
-  useAnimatedStyle,
-  withTiming,
-  useSharedValue,
-} from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 type Props = {};
 
@@ -55,107 +40,123 @@ const ScrollToTop = ({ onPress }: { onPress: () => void }) => (
 
 const ChangeCurrency = (props: Props) => {
   const { index } = useLocalSearchParams();
-  const scrollRef = useRef<ScrollView>(null);
-  const scale = useSharedValue(1);
-
+  const flashListRef = useRef<FlashList<any>>(null);
   const router = useRouter();
-
-  //console.log(JSON.stringify(filterCurrent, null, 2));
 
   const [input, setInput] = useState("");
   const [data, setData] = useState(currencies);
-  const [isCurrent, setIsCurrent] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [scrollOffset, setScrollOffset] = useState(0);
 
-  const handleFilter = (text: string) => {
+  const handleFilter = useCallback((text: string) => {
+    if (text === "") {
+      setData(currencies);
+      setNotFound(false);
+      return;
+    }
+
     const filteredData = currencies.filter(
       (currency) =>
         currency.name.toLowerCase().includes(text.toLowerCase()) ||
         currency.symbol.toLowerCase().includes(text.toLowerCase())
     );
+
     setData(filteredData);
-  };
+    setNotFound(filteredData.length === 0);
+  }, []);
 
   useEffect(() => {
     handleFilter(input);
-    //console.log(scrollOffset);
-    // if (data.length === 0) {
-    //   setNotFound(true);
-    // }
-  }, [input]);
+  }, [input, handleFilter]);
 
   const scrollToTop = useCallback(() => {
-    scrollRef.current?.scrollTo({ y: 0, animated: true });
+    flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
   }, []);
+
+  const renderHeader = () => {
+    return (
+      <BlurView intensity={30} tint="light" style={styles.blurContainer}>
+        <Text style={styles.headline}>Choisir une monnaie</Text>
+      </BlurView>
+    );
+  };
+
+  const renderSearchBar = () => {
+    return (
+      <View style={styles.actualCurrencyWrapper}>
+        <View style={styles.searchContainer}>
+          <TextInput
+            autoFocus
+            value={input}
+            onChangeText={(value) => setInput(value)}
+            style={styles.searchInput}
+            placeholder="Rechercher une monnaie..."
+            placeholderTextColor={"#00000063"}
+          />
+          <Search />
+        </View>
+      </View>
+    );
+  };
+
+  const renderItem = useCallback(
+    ({ item }: { item: (typeof currencies)[0] }) => {
+      return (
+        <View style={{ paddingHorizontal: 20 }}>
+          <SelectCurrency
+            name={item.name}
+            symbol={item.symbol}
+            onPress={() =>
+              router.push({
+                pathname: "/color-picker",
+                params: {
+                  index: index,
+                  newSymbol: item.symbol,
+                  newName: item.name,
+                },
+              })
+            }
+          />
+        </View>
+      );
+    },
+    [index, router]
+  );
+
+  const renderEmptyComponent = useCallback(() => {
+    if (notFound) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Aucune monnaie trouvée</Text>
+        </View>
+      );
+    }
+    return null;
+  }, [notFound]);
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView
-        keyboardDismissMode="on-drag"
-        keyboardShouldPersistTaps="always"
-        ref={scrollRef}
+      <FlashList
+        ref={flashListRef}
+        data={[{ id: "header" }, { id: "search" }, ...data]}
+        keyExtractor={(item) => item.id || item.name}
+        renderItem={({ item }) => {
+          if (item.id === "header") return renderHeader();
+          if (item.id === "search") return renderSearchBar();
+          return renderItem({ item });
+        }}
+        estimatedItemSize={70}
         stickyHeaderIndices={[0]}
         onScroll={(event) => {
           const offsetY = event.nativeEvent.contentOffset.y;
           setScrollOffset(offsetY);
         }}
-        contentContainerStyle={styles.container}
-      >
-        {/* Header */}
-        <BlurView intensity={30} tint="light" style={styles.blurContainer}>
-          <Text style={styles.headline}>Choisir une monnaie</Text>
-        </BlurView>
-
-        <View style={styles.actualCurrencyWrapper}>
-          <View
-            style={{
-              marginTop: 25,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <TextInput
-              autoFocus
-              value={input}
-              onChangeText={(value) => setInput(value)}
-              style={{ fontSize: 16, flexGrow: 1 }}
-              placeholder="Rechercher une monnaie..."
-              placeholderTextColor={"#00000045"}
-            />
-            <Search />
-          </View>
-        </View>
-
-        <FlashList
-          showsVerticalScrollIndicator={true}
-          contentContainerStyle={{ paddingBottom: 70, paddingHorizontal: 15 }}
-          data={data}
-          keyExtractor={(item) => item.name}
-          renderItem={({ item }) => (
-            <SelectCurrency
-              name={item.name}
-              symbol={item.symbol}
-              onPress={() =>
-                router.push({
-                  pathname: "/color-picker",
-                  params: {
-                    index: index,
-                    newSymbol: item.symbol,
-                    newName: item.name,
-                  },
-                })
-              }
-            />
-          )}
-          //pagingEnabled
-          //keyboardDismissMode="on-drag"
-          estimatedItemSize={150}
-          keyboardDismissMode="on-drag"
-          keyboardShouldPersistTaps="always"
-        />
-      </ScrollView>
+        scrollEventThrottle={16}
+        contentContainerStyle={styles.listContentContainer}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="always"
+        ListEmptyComponent={renderEmptyComponent}
+      />
 
       {scrollOffset > 200 && <ScrollToTop onPress={scrollToTop} />}
     </View>
@@ -165,13 +166,8 @@ const ChangeCurrency = (props: Props) => {
 export default ChangeCurrency;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F7ECC9",
-  },
-  flatlist: {
-    height: "auto",
-    paddingBlockEnd: 70,
+  listContentContainer: {
+    paddingBottom: 70,
   },
   blurContainer: {
     textAlign: "center",
@@ -189,52 +185,33 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   actualCurrencyWrapper: {
-    marginBottom: 15,
+    marginBottom: 25,
     paddingHorizontal: 15,
   },
-  actualCurrencyHeadline: {
-    color: "#0d1321",
-    fontSize: 16,
-    opacity: 0.4,
+  searchContainer: {
     marginTop: 25,
-  },
-  actualCurrency: {
-    width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 10,
+    backgroundColor: "#ffffff63",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderRadius: 20,
+    // paddingHorizontal: 20,
   },
-  actualCurrencyLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
+  searchInput: {
+    fontSize: 16,
+    flexGrow: 1,
   },
-  actualCurrencySymbol: {
+  emptyContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    width: 45,
-    height: 45,
-    borderRadius: 100,
+    paddingVertical: 50,
   },
-  actualCurrencySymbolText: {
-    fontSize: 12,
-  },
-  actualCurrencyName: {},
-  actualCurrencyRight: {},
-  actualCurrencyColorBorder: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: 35,
-    height: 35,
-    borderRadius: 100,
-  },
-  actualCurrencyColor: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: 25,
-    height: 25,
-    borderRadius: 100,
+  emptyText: {
+    fontSize: 16,
+    color: "#00000045",
   },
   scrollToTop: {
     position: "absolute",
@@ -242,11 +219,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 45,
     height: 45,
-    top: "5.4%",
+    bottom: "5.4%",
     right: 20,
     borderRadius: 100,
     zIndex: 10,
     overflow: "hidden",
   },
-  scrollToTopText: {},
+  scrollToTopText: {
+    fontSize: 20,
+  },
 });
