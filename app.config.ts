@@ -45,6 +45,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: getUniqueIdentifier(),
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
+    },
     icon: {
       light: "./assets/images/icon.png",
       dark: "./assets/images/icon.png",
