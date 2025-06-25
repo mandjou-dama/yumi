@@ -33,6 +33,19 @@ const NumPad: React.FC<NumPadProps> = ({ onInputChange, shake }) => {
         const updatedInput = input.slice(0, -1);
         setInput(updatedInput);
         onInputChange && onInputChange(updatedInput);
+      } else if (value === ".") {
+        // Only add decimal if not already present
+        if (!input.includes(".")) {
+          let updatedInput;
+          if (input === "") {
+            updatedInput = "0.";
+          } else {
+            updatedInput = input + ".";
+          }
+          setInput(updatedInput);
+          onInputChange && onInputChange(updatedInput);
+          Haptics.selectionAsync();
+        }
       } else if (input.length >= 13) {
         shake();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -48,14 +61,10 @@ const NumPad: React.FC<NumPadProps> = ({ onInputChange, shake }) => {
   );
 
   const handleLongPress = () => {
-    const updatedInput = "0";
+    const updatedInput = "";
     setInput(updatedInput);
     onInputChange && onInputChange(updatedInput);
-
-    // Trigger haptic feedback if the input is cleared to "0"
-    if (updatedInput === "0") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
   return (
@@ -76,7 +85,7 @@ const NumPad: React.FC<NumPadProps> = ({ onInputChange, shake }) => {
         ))}
       </View>
       <View style={[styles.row, {}]}>
-        <Key value="." onPress={() => {}} />
+        <Key value="." onPress={handlePress} />
         <Key value="0" onPress={handlePress} />
         <Key
           value="delete"

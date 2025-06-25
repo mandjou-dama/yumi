@@ -33,6 +33,7 @@ interface CurrencyStore {
   favoriteCurrencyRates: Record<string, Record<string, number>>;
   baseCurrency: string;
   amountToConvert: number;
+  amountInputRaw: string;
   convertedCurrencies: Record<string, number>;
   lastFetchTime: string | null;
   isFetching: boolean;
@@ -52,6 +53,7 @@ interface CurrencyStore {
   ) => void;
   clearFavoriteCurrencies: () => void;
   setAmountToConvert: (amount: number) => void;
+  setAmountInputRaw: (input: string) => void;
   setBaseCurrency: (base: string) => void;
   fetchExchangeRates: () => Promise<void>;
   fetchTimeSeries: (startDate: string, endDate: string) => Promise<void>;
@@ -68,6 +70,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
       convertedCurrencies: {},
       baseCurrency: initialItems[0].symbol,
       amountToConvert: 0,
+      amountInputRaw: "",
       lastFetchTime: null,
       isFetching: false,
 
@@ -115,6 +118,10 @@ export const useCurrencyStore = create<CurrencyStore>()(
 
       setAmountToConvert: (amount) => {
         set({ amountToConvert: amount });
+      },
+
+      setAmountInputRaw: (input) => {
+        set({ amountInputRaw: input });
       },
 
       setBaseCurrency: (currency) => {
@@ -203,6 +210,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
           convertedCurrencies: {},
           baseCurrency: initialItems[0].symbol,
           amountToConvert: 0,
+          amountInputRaw: "",
           lastFetchTime: null,
           isFetching: false,
         });

@@ -59,6 +59,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: "./assets/images/adaptive-icon.png",
     },
     package: getUniqueIdentifier(),
+    edgeToEdgeEnabled: true,
   },
   web: {
     bundler: "metro",

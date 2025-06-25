@@ -60,6 +60,8 @@ export default function HomeScreen() {
     setBaseCurrency,
     amountToConvert,
     setAmountToConvert,
+    amountInputRaw,
+    setAmountInputRaw,
     fetchExchangeRates,
     handleConversion,
     convertedCurrencies,
@@ -115,16 +117,28 @@ export default function HomeScreen() {
   }, []);
 
   const handleInputChange = (value: string) => {
+    setAmountInputRaw(value);
     const amount = Number(value);
     setAmountToConvert(amount);
     handleConversion(amount);
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat(
-      "en-US",
-      value > 1 ? { maximumFractionDigits: 0 } : {}
-    ).format(value);
+  // Accepts string input to preserve user formatting
+  const formatCurrency = (input: string | number, sliced: boolean = false) => {
+    let str = typeof input === "number" ? input.toString() : input;
+    if (!str) return "";
+    // If input starts with '.', prepend '0'
+    if (str.startsWith(".")) str = "0" + str;
+    // If input ends with '.', keep the trailing dot
+    const [integer, decimal] = str.split(".");
+    const formattedInt = integer.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    if (typeof decimal !== "undefined") {
+      if (sliced) {
+        return `${formattedInt}.${decimal.slice(0, 2)}`;
+      }
+      return `${formattedInt}.${decimal}`;
+    }
+    return formattedInt;
   };
 
   const onDragEnd = useCallback(
@@ -250,10 +264,12 @@ export default function HomeScreen() {
                     }}
                     value={
                       position <= 0
-                        ? formatCurrency(amountToConvert)
+                        ? formatCurrency(
+                            amountInputRaw === "" ? "0" : amountInputRaw
+                          )
                         : typeof value !== "number"
                         ? "Chargement..."
-                        : formatCurrency(value)
+                        : formatCurrency(value.toString(), true)
                     }
                     maxBorderRadius={MAX_BORDER_RADIUS}
                     index={position <= 0 ? 1 : position === 87 ? 2 : 3}
@@ -278,7 +294,7 @@ export default function HomeScreen() {
             <Animated.Text
               style={[styles.exchangeAmountText, rStyle, rErrorTextStyle]}
             >
-              {formatCurrency(amountToConvert)}
+              {formatCurrency(amountInputRaw === "" ? "0" : amountInputRaw)}
             </Animated.Text>
           </View>
         </View>
