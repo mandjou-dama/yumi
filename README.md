@@ -1,40 +1,50 @@
-# Currency Converter App
+# Yumi
 
-A modern and interactive currency converter app built using **React Native** and **Expo**. The app allows users to input amounts, select currencies, and convert values with a sleek UI enhanced with animations and dynamic formatting.
+Real-time currency conversion mobile app developed with React Native and Expo. It allows users to check exchange rates and quickly convert between multiple currencies.
 
-## Features
+## 🚀 Features
+- Real-time exchange rate updates
+- Offline-friendly with local fallback
+- Clean and intuitive UI
+- Multi-currency support
 
-- **Currency Selection**: Choose your favorite currencies and manage them effortlessly.
-- **Dynamic Formatting**: User input is formatted in real-time to display numbers in a localized, money format (e.g., `1,000` instead of `1000`).
-- **Interactive Animations**: Smooth animations for buttons and UI interactions using **Reanimated**.
-- **Haptic Feedback**: Enhanced user experience with tactile feedback during interactions.
-- **Responsive UI**: Adapts to various screen sizes and platforms.
+## 🛠️ Tech Stack
+- **Mobile**: React Native, Expo, React Navigation, Zustand
+- **Backend**: Custom API
+- **Design**: Figma
 
-## Acknowledgments
+## 🛠️ Link to Stores
+- [x] [**IOS**](https://apps.apple.com/ml/app/yumi/id6747351946)
+- [ ] **Android**
 
-- **React Native**: For the cross-platform framework.
-- **Expo**: For the seamless development and deployment workflow.
-- **Reanimated**: For the fantastic animation library.
-- **@gorhom/bottom-sheet**: For the robust bottom sheet component.
+
+## Screenshots
+
+![01](https://github.com/user-attachments/assets/1788e652-915d-40ec-995b-e7c489654c4a
+)
+![02](https://github.com/user-attachments/assets/b0eaff75-8bd4-4839-9278-79e59d5b5327
+)
+![01](https://github.com/user-attachments/assets/2194c6f2-511f-41d6-9047-9d13ce46909c
+)
 
 ## Installation
 
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/MozartOnWeb/faleni.git
-   cd faleni
+   git clone https://github.com/mandjou-dama/yumi.git
+   cd yumi
 
    ```
 
-2. **Clone the Repository**:
+2. **Install dependencies**:
 
    ```bash
    npx expo install
 
    ```
 
-3. **Clone the Repository**:
+3. **Start development**:
 
    ```bash
    npx expo start
